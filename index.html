@@ -5,6 +5,36 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Primitive Lattice Directions & Modular Circles</title>
     <style>
+        :root {
+            --bg-deep: #0a0e1a;
+            --bg-card: #141829;
+            --bg-panel: #1a1f35;
+            --gold: #FFD700;
+            --gold-dim: #B8960A;
+            --cyan: #00FFFF;
+            --cyan-dim: #008B8B;
+            --text-primary: #E8E8E8;
+            --text-secondary: #A0A0A0;
+            --border: #2a3150;
+            --accent-purple: #9F7AEA;
+            --accent-green: #48BB78;
+        }
+
+        [data-theme="light"] {
+            --bg-deep: #f7fafc;
+            --bg-card: #ffffff;
+            --bg-panel: #edf2f7;
+            --gold: #d69e00;
+            --gold-dim: #b8860b;
+            --cyan: #0891b2;
+            --cyan-dim: #0e7490;
+            --text-primary: #1a202c;
+            --text-secondary: #4a5568;
+            --border: #cbd5e0;
+            --accent-purple: #7c3aed;
+            --accent-green: #059669;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -12,89 +42,131 @@
         }
 
         body {
-            font-family: 'Crimson Text', 'Georgia', serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-deep);
+            color: var(--text-primary);
             min-height: 100vh;
             padding: 20px;
             line-height: 1.6;
+            transition: background 0.3s ease, color 0.3s ease;
         }
 
         .container {
-            max-width: 1400px;
+            max-width: 1600px;
             margin: 0 auto;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
-            padding: 40px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 30px;
+            background: var(--bg-card);
+            border-radius: 12px;
+            border: 1px solid var(--border);
         }
 
         h1 {
-            text-align: center;
-            color: #2c3e50;
             font-size: 2.5em;
             margin-bottom: 10px;
-            font-weight: 600;
+            background: linear-gradient(135deg, var(--gold), var(--cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .subtitle {
-            text-align: center;
-            color: #7f8c8d;
+            color: var(--text-secondary);
             font-size: 1.2em;
-            margin-bottom: 30px;
             font-style: italic;
         }
 
-        .intro {
-            background: #f8f9fa;
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            color: var(--text-primary);
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .theme-toggle:hover {
+            border-color: var(--gold);
+            transform: translateY(-2px);
+        }
+
+        .intro-panel {
+            background: var(--bg-card);
             padding: 25px;
-            border-radius: 10px;
+            border-radius: 12px;
             margin-bottom: 30px;
-            border-left: 4px solid #3498db;
+            border-left: 4px solid var(--cyan);
         }
 
-        .intro p {
+        .intro-panel p {
             margin-bottom: 15px;
-            color: #34495e;
-            font-size: 1.1em;
+            color: var(--text-primary);
         }
 
-        .intro ul {
+        .intro-panel ul {
             margin-left: 30px;
-            color: #34495e;
+            color: var(--text-secondary);
         }
 
-        .intro li {
+        .intro-panel li {
             margin-bottom: 8px;
         }
 
-        .controls {
-            background: #ecf0f1;
+        .controls-panel {
+            background: var(--bg-panel);
             padding: 25px;
-            border-radius: 10px;
+            border-radius: 12px;
             margin-bottom: 30px;
+            border: 1px solid var(--border);
+        }
+
+        .control-section {
+            margin-bottom: 25px;
+        }
+
+        .control-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .section-title {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: var(--gold);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
         .control-group {
             margin-bottom: 20px;
         }
 
-        .control-group:last-child {
-            margin-bottom: 0;
-        }
-
         label {
             display: block;
             margin-bottom: 8px;
-            color: #2c3e50;
+            color: var(--text-primary);
             font-weight: 600;
-            font-size: 1.05em;
+            font-size: 0.95em;
         }
 
         input[type="number"], select {
             width: 100%;
             padding: 10px;
-            border: 2px solid #bdc3c7;
-            border-radius: 5px;
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
             font-size: 1em;
             font-family: inherit;
             transition: border-color 0.3s;
@@ -102,20 +174,53 @@
 
         input[type="number"]:focus, select:focus {
             outline: none;
-            border-color: #3498db;
+            border-color: var(--cyan);
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            background: var(--border);
+            border-radius: 3px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            background: var(--gold);
+            cursor: pointer;
+            border-radius: 50%;
+            border: 2px solid var(--bg-card);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            background: var(--gold);
+            cursor: pointer;
+            border-radius: 50%;
+            border: 2px solid var(--bg-card);
         }
 
         .checkbox-group {
             display: flex;
             align-items: center;
             gap: 10px;
-            margin-top: 10px;
+            margin-bottom: 12px;
+            padding: 8px;
+            background: var(--bg-card);
+            border-radius: 6px;
         }
 
         input[type="checkbox"] {
             width: 20px;
             height: 20px;
             cursor: pointer;
+            accent-color: var(--cyan);
         }
 
         .checkbox-group label {
@@ -124,159 +229,50 @@
             font-weight: normal;
         }
 
-        .canvas-container {
+        .canvas-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 25px;
             margin-bottom: 30px;
         }
 
-        .canvas-wrapper {
-            background: #f8f9fa;
+        .canvas-panel {
+            background: var(--bg-card);
             padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            border-radius: 12px;
+            border: 1px solid var(--border);
         }
 
         .canvas-title {
             text-align: center;
-            color: #2c3e50;
-            font-size: 1.3em;
-            margin-bottom: 15px;
+            font-size: 1.4em;
             font-weight: 600;
+            color: var(--gold);
+            margin-bottom: 15px;
         }
 
         canvas {
             display: block;
             margin: 0 auto;
-            background: white;
+            background: var(--bg-deep);
             border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border: 2px solid var(--border);
+            cursor: crosshair;
         }
 
-        .info-panel {
-            background: #e8f4f8;
-            padding: 25px;
-            border-radius: 10px;
-            margin-bottom: 30px;
-            border-left: 4px solid #3498db;
-        }
-
-        .info-panel h3 {
-            color: #2c3e50;
-            margin-bottom: 15px;
-            font-size: 1.3em;
-        }
-
-        .info-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 15px;
-        }
-
-        .info-item {
-            background: white;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-        }
-
-        .info-label {
-            font-weight: 600;
-            color: #34495e;
-            margin-bottom: 5px;
-        }
-
-        .info-value {
-            color: #2c3e50;
-            font-size: 1.1em;
-            font-family: 'Courier New', monospace;
-        }
-
-        .export-section {
-            background: #f8f9fa;
-            padding: 25px;
-            border-radius: 10px;
-            margin-bottom: 30px;
-        }
-
-        .export-section h3 {
-            color: #2c3e50;
-            margin-bottom: 15px;
-            font-size: 1.3em;
-        }
-
-        .export-buttons {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-        }
-
-        button {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 8px;
-            font-size: 1em;
-            font-weight: 600;
-            cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-            font-family: inherit;
-        }
-
-        button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-        }
-
-        button:active {
-            transform: translateY(0);
-        }
-
-        .theory-section {
-            background: #fff8e1;
-            padding: 25px;
-            border-radius: 10px;
-            margin-bottom: 30px;
-            border-left: 4px solid #ffa726;
-        }
-
-        .theory-section h3 {
-            color: #2c3e50;
-            margin-bottom: 15px;
-            font-size: 1.3em;
-        }
-
-        .theory-section p {
-            color: #34495e;
-            margin-bottom: 12px;
-            font-size: 1.05em;
-        }
-
-        .math-formula {
-            background: white;
-            padding: 15px;
-            border-radius: 8px;
-            margin: 15px 0;
-            text-align: center;
-            font-family: 'Times New Roman', serif;
-            font-size: 1.2em;
-            color: #2c3e50;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-        }
-
-        .legend {
-            background: white;
+        .legend-panel {
+            background: var(--bg-panel);
             padding: 15px;
             border-radius: 8px;
             margin-top: 15px;
+            border: 1px solid var(--border);
         }
 
         .legend-title {
             font-weight: 600;
-            color: #2c3e50;
-            margin-bottom: 10px;
+            color: var(--cyan);
+            margin-bottom: 12px;
+            font-size: 1.05em;
         }
 
         .legend-item {
@@ -284,39 +280,237 @@
             align-items: center;
             gap: 10px;
             margin-bottom: 8px;
+            color: var(--text-secondary);
         }
 
         .legend-color {
-            width: 20px;
-            height: 20px;
-            border-radius: 3px;
-            border: 1px solid #bdc3c7;
+            width: 24px;
+            height: 24px;
+            border-radius: 4px;
+            border: 2px solid var(--border);
+        }
+
+        .stats-panel {
+            background: var(--bg-card);
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            border-left: 4px solid var(--gold);
+        }
+
+        .stats-title {
+            font-size: 1.3em;
+            font-weight: 600;
+            color: var(--gold);
+            margin-bottom: 20px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .stat-card {
+            background: var(--bg-panel);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            color: var(--text-secondary);
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 1.3em;
+            font-weight: 600;
+            color: var(--cyan);
+            font-family: 'Courier New', monospace;
+        }
+
+        .theory-panel {
+            background: var(--bg-card);
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            border-left: 4px solid var(--accent-purple);
+        }
+
+        .theory-title {
+            font-size: 1.3em;
+            font-weight: 600;
+            color: var(--accent-purple);
+            margin-bottom: 20px;
+        }
+
+        .theory-panel p {
+            margin-bottom: 15px;
+            color: var(--text-primary);
+        }
+
+        .math-formula {
+            background: var(--bg-panel);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            font-size: 1.1em;
+            color: var(--cyan);
+            border: 1px solid var(--border);
+        }
+
+        .export-panel {
+            background: var(--bg-card);
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            border: 1px solid var(--border);
+        }
+
+        .export-title {
+            font-size: 1.3em;
+            font-weight: 600;
+            color: var(--gold);
+            margin-bottom: 20px;
+        }
+
+        .export-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .resolution-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .resolution-btn {
+            flex: 1;
+            padding: 10px;
+            background: var(--bg-panel);
+            border: 2px solid var(--border);
+            color: var(--text-primary);
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .resolution-btn.active {
+            background: var(--gold);
+            color: var(--bg-deep);
+            border-color: var(--gold);
+        }
+
+        .resolution-btn:hover:not(.active) {
+            border-color: var(--gold);
+        }
+
+        button {
+            background: linear-gradient(135deg, var(--gold), var(--gold-dim));
+            color: var(--bg-deep);
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(255, 215, 0, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button.secondary {
+            background: linear-gradient(135deg, var(--cyan), var(--cyan-dim));
+        }
+
+        button.secondary:hover {
+            box-shadow: 0 5px 20px rgba(0, 255, 255, 0.4);
+        }
+
+        .preset-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .preset-btn {
+            padding: 8px 12px;
+            font-size: 0.9em;
         }
 
         .footer {
             text-align: center;
-            color: #7f8c8d;
-            padding-top: 20px;
-            border-top: 2px solid #ecf0f1;
-            font-size: 0.95em;
+            padding: 25px;
+            background: var(--bg-card);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
         }
 
-        @media (max-width: 900px) {
-            .canvas-container {
+        .footer a {
+            color: var(--cyan);
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            color: var(--gold);
+        }
+
+        .slider-value {
+            display: inline-block;
+            margin-left: 10px;
+            color: var(--gold);
+            font-weight: 600;
+            font-family: 'Courier New', monospace;
+        }
+
+        @media (max-width: 1200px) {
+            .canvas-grid {
                 grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 2em;
             }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Primitive Lattice Directions & Modular Circles</h1>
-        <div class="subtitle">A Geometric Framework for GCD-Visibility and Gaussian Integers</div>
+    <button class="theme-toggle" onclick="toggleTheme()">Toggle Theme</button>
 
-        <div class="intro">
+    <div class="container">
+        <div class="header">
+            <h1>Primitive Lattice Directions & Modular Circles</h1>
+            <div class="subtitle">A Geometric Framework for GCD-Visibility and Gaussian Integers</div>
+        </div>
+
+        <div class="intro-panel">
             <p><strong>Introduction:</strong> This visualization explores the deep connection between primitive lattice vectors, modular embeddings on the unit circle, and the norm structure of Gaussian integers.</p>
             <p>Primitive lattice vectors (a,b) with gcd(a,b) = 1 determine visible rays from the origin and correspond naturally to reduced residues modulo suitable moduli. These rays, when normalized, lie on the unit circle and reveal classical symmetries.</p>
-            <p>We explore the relationship between:</p>
+            <p><strong>We explore the relationship between:</strong></p>
             <ul>
                 <li>GCD-visibility in the integer lattice</li>
                 <li>Reduced residue classes modulo m</li>
@@ -325,107 +519,142 @@
             </ul>
         </div>
 
-        <div class="controls">
+        <div class="controls-panel">
+            <div class="section-title">⚙ Global Controls</div>
+            
             <div class="control-group">
-                <label for="modulus">Modulus m:</label>
-                <input type="number" id="modulus" min="2" max="100" value="8">
+                <label for="modulus">Modulus m: <span class="slider-value" id="modulusValue">8</span></label>
+                <input type="range" id="modulus" min="2" max="100" value="8" oninput="updateModulusDisplay()">
+                <div class="preset-buttons">
+                    <button class="preset-btn" onclick="setModulus(6)">m=6 (ζ(2))</button>
+                    <button class="preset-btn" onclick="setModulus(12)">m=12 (φ=4)</button>
+                    <button class="preset-btn" onclick="setModulus(17)">m=17 (Prime)</button>
+                    <button class="preset-btn" onclick="setModulus(60)">m=60 (HC)</button>
+                </div>
             </div>
+
             <div class="control-group">
-                <label for="latticeRange">Lattice Range:</label>
-                <input type="number" id="latticeRange" min="5" max="50" value="15">
+                <label for="latticeRange">Lattice Range: <span class="slider-value" id="rangeValue">15</span></label>
+                <input type="range" id="latticeRange" min="5" max="50" value="15" oninput="updateRangeDisplay()">
             </div>
+
             <div class="control-group">
                 <label for="displayMode">Display Mode:</label>
-                <select id="displayMode">
+                <select id="displayMode" onchange="updateVisualization()">
                     <option value="all">All Primitive Directions</option>
                     <option value="primes">Prime Norms Only</option>
                     <option value="specific">Specific Norm (m)</option>
                 </select>
             </div>
+
+            <div class="section-title" style="margin-top: 25px;">🎨 Display Options</div>
+            
             <div class="checkbox-group">
-                <input type="checkbox" id="showLabels" checked>
+                <input type="checkbox" id="showLabels" checked onchange="updateVisualization()">
                 <label for="showLabels">Show Labels</label>
             </div>
+
             <div class="checkbox-group">
-                <input type="checkbox" id="showSquare" checked>
+                <input type="checkbox" id="showSquare" checked onchange="updateVisualization()">
                 <label for="showSquare">Show Inscribed Square (m=8)</label>
+            </div>
+
+            <div class="checkbox-group">
+                <input type="checkbox" id="showGrid" onchange="updateVisualization()">
+                <label for="showGrid">Show Grid Lines</label>
+            </div>
+
+            <div class="checkbox-group">
+                <input type="checkbox" id="highlightPrimes" checked onchange="updateVisualization()">
+                <label for="highlightPrimes">Highlight Prime Norms</label>
+            </div>
+
+            <div class="control-group" style="margin-top: 20px;">
+                <label for="pointSize">Point Size: <span class="slider-value" id="pointSizeValue">5</span>px</label>
+                <input type="range" id="pointSize" min="2" max="12" value="5" oninput="updatePointSize()">
+            </div>
+
+            <div class="control-group">
+                <label for="lineThickness">Line Thickness: <span class="slider-value" id="lineThicknessValue">1.5</span>px</label>
+                <input type="range" id="lineThickness" min="0.5" max="5" step="0.5" value="1.5" oninput="updateLineThickness()">
             </div>
         </div>
 
-        <div class="canvas-container">
-            <div class="canvas-wrapper">
+        <div class="canvas-grid">
+            <div class="canvas-panel">
                 <div class="canvas-title">Modular Circle</div>
-                <canvas id="modularCanvas" width="600" height="600"></canvas>
-                <div class="legend">
+                <canvas id="modularCanvas" width="700" height="700"></canvas>
+                <div class="legend-panel">
                     <div class="legend-title">Legend</div>
                     <div class="legend-item">
-                        <div class="legend-color" style="background: #3498db;"></div>
-                        <span>Reduced Residues mod m</span>
+                        <div class="legend-color" style="background: #00FFFF;"></div>
+                        <span>Reduced Residues (gcd(r,m)=1)</span>
                     </div>
                     <div class="legend-item">
                         <div class="legend-color" style="background: #e74c3c;"></div>
                         <span>Non-coprime Residues</span>
                     </div>
                     <div class="legend-item">
-                        <div class="legend-color" style="background: #9b59b6;"></div>
-                        <span>Inscribed Square (m=8)</span>
+                        <div class="legend-color" style="background: #9F7AEA;"></div>
+                        <span>Inscribed Polygon</span>
                     </div>
                 </div>
             </div>
 
-            <div class="canvas-wrapper">
+            <div class="canvas-panel">
                 <div class="canvas-title">Primitive Lattice Directions</div>
-                <canvas id="latticeCanvas" width="600" height="600"></canvas>
-                <div class="legend">
+                <canvas id="latticeCanvas" width="700" height="700"></canvas>
+                <div class="legend-panel">
                     <div class="legend-title">Legend</div>
                     <div class="legend-item">
-                        <div class="legend-color" style="background: #27ae60;"></div>
-                        <span>Primitive Vectors (gcd = 1)</span>
+                        <div class="legend-color" style="background: #48BB78;"></div>
+                        <span>Primitive Vectors (gcd=1)</span>
                     </div>
                     <div class="legend-item">
-                        <div class="legend-color" style="background: #f39c12;"></div>
+                        <div class="legend-color" style="background: #FFD700;"></div>
                         <span>Prime Norm Vectors</span>
                     </div>
                     <div class="legend-item">
-                        <div class="legend-color" style="background: #95a5a6;"></div>
-                        <span>Non-primitive Vectors</span>
+                        <div class="legend-color" style="background: #00FFFF;"></div>
+                        <span>Normalized on Unit Circle</span>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="info-panel">
-            <h3>Computed Properties</h3>
-            <div class="info-grid">
-                <div class="info-item">
-                    <div class="info-label">Modulus:</div>
-                    <div class="info-value" id="infoModulus">8</div>
+        <div class="stats-panel">
+            <div class="stats-title">📊 Computed Properties</div>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Modulus</div>
+                    <div class="stat-value" id="statModulus">8</div>
                 </div>
-                <div class="info-item">
-                    <div class="info-label">φ(m) - Euler's Totient:</div>
-                    <div class="info-value" id="infoTotient">4</div>
+                <div class="stat-card">
+                    <div class="stat-label">φ(m) - Euler's Totient</div>
+                    <div class="stat-value" id="statTotient">4</div>
                 </div>
-                <div class="info-item">
-                    <div class="info-label">Reduced Residues:</div>
-                    <div class="info-value" id="infoResidues">1, 3, 5, 7</div>
+                <div class="stat-card">
+                    <div class="stat-label">Reduced Residues</div>
+                    <div class="stat-value" id="statResidues">1, 3, 5, 7</div>
                 </div>
-                <div class="info-item">
-                    <div class="info-label">Primitive Vectors Found:</div>
-                    <div class="info-value" id="infoPrimitive">0</div>
+                <div class="stat-card">
+                    <div class="stat-label">Primitive Vectors Found</div>
+                    <div class="stat-value" id="statPrimitive">0</div>
                 </div>
-                <div class="info-item">
-                    <div class="info-label">Prime Norm Vectors:</div>
-                    <div class="info-value" id="infoPrimeNorms">0</div>
+                <div class="stat-card">
+                    <div class="stat-label">Prime Norm Vectors</div>
+                    <div class="stat-value" id="statPrimeNorms">0</div>
                 </div>
-                <div class="info-item">
-                    <div class="info-label">Visible Angles:</div>
-                    <div class="info-value" id="infoAngles">0</div>
+                <div class="stat-card">
+                    <div class="stat-label">Coprime Density (φ(m)/m)</div>
+                    <div class="stat-value" id="statDensity">0.5000</div>
                 </div>
             </div>
         </div>
 
-        <div class="theory-section">
-            <h3>Theoretical Foundation</h3>
+        <div class="theory-panel">
+            <div class="theory-title">📐 Theoretical Foundation</div>
+            
             <p><strong>Visibility Indicator:</strong> For any lattice point (a,b), we define:</p>
             <div class="math-formula">
                 vis(a,b) = 1 if gcd(a,b) = 1, else 0
@@ -440,25 +669,39 @@
             <p><strong>Norm and Gaussian Integers:</strong> A primitive vector (a,b) with norm n = a² + b² corresponds to the Gaussian integer a + bi with |a + bi|² = n.</p>
             
             <p><strong>Prime Norm Uniqueness:</strong> If a² + b² = p where p is prime and p ≡ 1 (mod 4), the representation is unique up to signs and coordinate swap, corresponding to the eight symmetries of the square.</p>
+            
+            <p><strong>Basel Problem Connection:</strong> The limiting density of coprime pairs approaches 6/π² ≈ 0.6079, known as the Basel constant.</p>
         </div>
 
-        <div class="export-section">
-            <h3>Export Visualizations</h3>
-            <div class="export-buttons">
-                <button onclick="exportCanvas('modularCanvas', 'modular_circle.png')">Export Modular Circle</button>
-                <button onclick="exportCanvas('latticeCanvas', 'lattice_directions.png')">Export Lattice View</button>
-                <button onclick="exportBoth()">Export Both (ZIP)</button>
-                <button onclick="exportHighRes()">Export High Resolution (4K)</button>
+        <div class="export-panel">
+            <div class="export-title">💾 Export Visualizations</div>
+            
+            <div class="resolution-selector">
+                <button class="resolution-btn" onclick="setResolution('2k')">2K (2048px)</button>
+                <button class="resolution-btn active" onclick="setResolution('4k')">4K (3840px)</button>
+                <button class="resolution-btn" onclick="setResolution('8k')">8K (7680px)</button>
+            </div>
+            
+            <div class="export-grid">
+                <button onclick="exportCanvas('modularCanvas', 'modular_circle')">Export Modular Circle</button>
+                <button onclick="exportCanvas('latticeCanvas', 'lattice_directions')">Export Lattice View</button>
+                <button class="secondary" onclick="exportBoth()">Export Both Views</button>
+                <button class="secondary" onclick="exportWithStats()">Export with Statistics</button>
             </div>
         </div>
 
         <div class="footer">
-            <p>Primitive Lattice Directions & Modular Circles - Interactive Visualization</p>
+            <p><strong>Primitive Lattice Directions & Modular Circles</strong></p>
             <p>A geometric framework unifying GCD-visibility, reduced residues, and Gaussian integers</p>
+            <p style="margin-top: 15px;">Created by <a href="https://twitter.com/7dview" target="_blank">Wessen Getachew (@7dview)</a> | 
+            <a href="https://github.com/wessengetachew" target="_blank">GitHub</a></p>
         </div>
     </div>
 
     <script>
+        let currentTheme = 'dark';
+        let exportResolution = 3840; // 4K default
+
         // Utility functions
         function gcd(a, b) {
             a = Math.abs(a);
@@ -513,39 +756,111 @@
             return points;
         }
 
+        // Theme toggle
+        function toggleTheme() {
+            currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.body.setAttribute('data-theme', currentTheme);
+            localStorage.setItem('theme', currentTheme);
+            updateVisualization();
+        }
+
+        // Load saved theme
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) {
+            currentTheme = savedTheme;
+            document.body.setAttribute('data-theme', currentTheme);
+        }
+
+        // UI Updates
+        function updateModulusDisplay() {
+            const m = parseInt(document.getElementById('modulus').value);
+            document.getElementById('modulusValue').textContent = m;
+            updateVisualization();
+        }
+
+        function updateRangeDisplay() {
+            const range = parseInt(document.getElementById('latticeRange').value);
+            document.getElementById('rangeValue').textContent = range;
+            updateVisualization();
+        }
+
+        function updatePointSize() {
+            const size = parseFloat(document.getElementById('pointSize').value);
+            document.getElementById('pointSizeValue').textContent = size;
+            updateVisualization();
+        }
+
+        function updateLineThickness() {
+            const thickness = parseFloat(document.getElementById('lineThickness').value);
+            document.getElementById('lineThicknessValue').textContent = thickness;
+            updateVisualization();
+        }
+
+        function setModulus(m) {
+            document.getElementById('modulus').value = m;
+            updateModulusDisplay();
+        }
+
+        function setResolution(res) {
+            const buttons = document.querySelectorAll('.resolution-btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            switch(res) {
+                case '2k': exportResolution = 2048; break;
+                case '4k': exportResolution = 3840; break;
+                case '8k': exportResolution = 7680; break;
+            }
+        }
+
         // Drawing functions
-        function drawModularCircle(canvas, m, showSquare, showLabels) {
+        function drawModularCircle(canvas, m, showSquare, showLabels, showGrid) {
             const ctx = canvas.getContext('2d');
             const width = canvas.width;
             const height = canvas.height;
             const centerX = width / 2;
             const centerY = height / 2;
             const radius = Math.min(width, height) * 0.35;
+            const pointSize = parseFloat(document.getElementById('pointSize').value);
 
             // Clear canvas
             ctx.clearRect(0, 0, width, height);
 
+            // Draw grid if enabled
+            if (showGrid) {
+                ctx.strokeStyle = currentTheme === 'dark' ? '#2a3150' : '#cbd5e0';
+                ctx.lineWidth = 0.5;
+                for (let i = -1; i <= 1; i += 0.2) {
+                    ctx.beginPath();
+                    ctx.moveTo(centerX + i * radius, centerY - radius);
+                    ctx.lineTo(centerX + i * radius, centerY + radius);
+                    ctx.stroke();
+                    ctx.beginPath();
+                    ctx.moveTo(centerX - radius, centerY + i * radius);
+                    ctx.lineTo(centerX + radius, centerY + i * radius);
+                    ctx.stroke();
+                }
+            }
+
             // Draw circle
             ctx.beginPath();
             ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
-            ctx.strokeStyle = '#34495e';
-            ctx.lineWidth = 2;
+            ctx.strokeStyle = currentTheme === 'dark' ? '#FFD700' : '#d69e00';
+            ctx.lineWidth = 3;
             ctx.stroke();
 
             // Draw axes
-            ctx.strokeStyle = '#bdc3c7';
-            ctx.lineWidth = 1;
+            ctx.strokeStyle = currentTheme === 'dark' ? '#00FFFF' : '#0891b2';
+            ctx.lineWidth = 2;
             ctx.beginPath();
-            ctx.moveTo(0, centerY);
-            ctx.lineTo(width, centerY);
-            ctx.moveTo(centerX, 0);
-            ctx.lineTo(centerX, height);
+            ctx.moveTo(centerX - radius, centerY);
+            ctx.lineTo(centerX + radius, centerY);
+            ctx.moveTo(centerX, centerY - radius);
+            ctx.lineTo(centerX, centerY + radius);
             ctx.stroke();
 
-            // Get reduced residues
             const residues = getReducedResidues(m);
 
-            // Draw all m positions
             for (let i = 0; i < m; i++) {
                 const angle = (2 * Math.PI * i / m) - Math.PI / 2;
                 const x = centerX + radius * Math.cos(angle);
@@ -554,31 +869,32 @@
                 const isReduced = residues.includes(i);
 
                 ctx.beginPath();
-                ctx.arc(x, y, isReduced ? 8 : 5, 0, 2 * Math.PI);
-                ctx.fillStyle = isReduced ? '#3498db' : '#e74c3c';
+                ctx.arc(x, y, isReduced ? pointSize + 2 : pointSize, 0, 2 * Math.PI);
+                ctx.fillStyle = isReduced ? 
+                    (currentTheme === 'dark' ? '#00FFFF' : '#0891b2') : 
+                    (currentTheme === 'dark' ? '#e74c3c' : '#dc2626');
                 ctx.fill();
-                ctx.strokeStyle = '#2c3e50';
-                ctx.lineWidth = 1.5;
+                ctx.strokeStyle = currentTheme === 'dark' ? '#E8E8E8' : '#1a202c';
+                ctx.lineWidth = 2;
                 ctx.stroke();
 
                 if (showLabels) {
-                    const labelRadius = radius + 25;
+                    const labelRadius = radius + 30;
                     const labelX = centerX + labelRadius * Math.cos(angle);
                     const labelY = centerY + labelRadius * Math.sin(angle);
-                    ctx.fillStyle = '#2c3e50';
-                    ctx.font = 'bold 14px serif';
+                    ctx.fillStyle = currentTheme === 'dark' ? '#E8E8E8' : '#1a202c';
+                    ctx.font = 'bold 14px sans-serif';
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'middle';
                     ctx.fillText(i.toString(), labelX, labelY);
                 }
             }
 
-            // Draw square for m=8
             if (m === 8 && showSquare) {
-                ctx.strokeStyle = '#9b59b6';
+                ctx.strokeStyle = currentTheme === 'dark' ? '#9F7AEA' : '#7c3aed';
                 ctx.lineWidth = 3;
                 ctx.beginPath();
-                for (let i = 0; i < 4; i++) {
+                for (let i = 0; i < residues.length; i++) {
                     const angle = (2 * Math.PI * residues[i] / m) - Math.PI / 2;
                     const x = centerX + radius * Math.cos(angle);
                     const y = centerY + radius * Math.sin(angle);
@@ -591,11 +907,10 @@
                 ctx.closePath();
                 ctx.stroke();
 
-                // Draw diagonals
                 ctx.setLineDash([5, 5]);
-                for (let i = 0; i < 2; i++) {
+                for (let i = 0; i < Math.floor(residues.length / 2); i++) {
                     const angle1 = (2 * Math.PI * residues[i] / m) - Math.PI / 2;
-                    const angle2 = (2 * Math.PI * residues[i + 2] / m) - Math.PI / 2;
+                    const angle2 = (2 * Math.PI * residues[i + Math.floor(residues.length / 2)] / m) - Math.PI / 2;
                     const x1 = centerX + radius * Math.cos(angle1);
                     const y1 = centerY + radius * Math.sin(angle1);
                     const x2 = centerX + radius * Math.cos(angle2);
@@ -609,20 +924,36 @@
             }
         }
 
-        function drawLatticeDiagram(canvas, range, m, displayMode, showLabels) {
+        function drawLatticeDiagram(canvas, range, m, displayMode, showLabels, showGrid, highlightPrimes) {
             const ctx = canvas.getContext('2d');
             const width = canvas.width;
             const height = canvas.height;
             const centerX = width / 2;
             const centerY = height / 2;
-            const scale = Math.min(width, height) / (2 * range + 2);
+            const scale = Math.min(width, height) / (2 * range + 4);
+            const lineThickness = parseFloat(document.getElementById('lineThickness').value);
+            const pointSize = parseFloat(document.getElementById('pointSize').value);
 
-            // Clear canvas
             ctx.clearRect(0, 0, width, height);
 
-            // Draw axes
-            ctx.strokeStyle = '#bdc3c7';
-            ctx.lineWidth = 1;
+            if (showGrid) {
+                ctx.strokeStyle = currentTheme === 'dark' ? '#2a3150' : '#cbd5e0';
+                ctx.lineWidth = 0.5;
+                for (let i = -range; i <= range; i++) {
+                    if (i === 0) continue;
+                    ctx.beginPath();
+                    ctx.moveTo(centerX + i * scale, centerY - range * scale);
+                    ctx.lineTo(centerX + i * scale, centerY + range * scale);
+                    ctx.stroke();
+                    ctx.beginPath();
+                    ctx.moveTo(centerX - range * scale, centerY - i * scale);
+                    ctx.lineTo(centerX + range * scale, centerY - i * scale);
+                    ctx.stroke();
+                }
+            }
+
+            ctx.strokeStyle = currentTheme === 'dark' ? '#00FFFF' : '#0891b2';
+            ctx.lineWidth = 2;
             ctx.beginPath();
             ctx.moveTo(0, centerY);
             ctx.lineTo(width, centerY);
@@ -630,22 +961,19 @@
             ctx.lineTo(centerX, height);
             ctx.stroke();
 
-            // Draw unit circle
             const unitRadius = scale;
             ctx.beginPath();
             ctx.arc(centerX, centerY, unitRadius, 0, 2 * Math.PI);
-            ctx.strokeStyle = '#95a5a6';
+            ctx.strokeStyle = currentTheme === 'dark' ? '#FFD700' : '#d69e00';
             ctx.lineWidth = 2;
             ctx.setLineDash([5, 5]);
             ctx.stroke();
             ctx.setLineDash([]);
 
-            // Get primitive points
             const primitivePoints = getPrimitiveLatticePoints(range);
             let visibleCount = 0;
             let primeCount = 0;
 
-            // Filter points based on display mode
             let filteredPoints = primitivePoints;
             if (displayMode === 'primes') {
                 filteredPoints = primitivePoints.filter(p => p.isPrime);
@@ -653,161 +981,172 @@
                 filteredPoints = primitivePoints.filter(p => p.norm === m);
             }
 
-            // Draw primitive vectors
             filteredPoints.forEach(point => {
                 const x = centerX + point.a * scale;
                 const y = centerY - point.b * scale;
 
-                // Draw line from origin
                 ctx.beginPath();
                 ctx.moveTo(centerX, centerY);
                 ctx.lineTo(x, y);
-                ctx.strokeStyle = point.isPrime ? '#f39c12' : '#27ae60';
-                ctx.lineWidth = 1.5;
+                
+                if (highlightPrimes && point.isPrime) {
+                    ctx.strokeStyle = currentTheme === 'dark' ? '#FFD700' : '#d69e00';
+                } else {
+                    ctx.strokeStyle = currentTheme === 'dark' ? '#48BB78' : '#059669';
+                }
+                ctx.lineWidth = lineThickness;
                 ctx.globalAlpha = 0.4;
                 ctx.stroke();
                 ctx.globalAlpha = 1.0;
 
-                // Draw point
                 ctx.beginPath();
-                ctx.arc(x, y, 4, 0, 2 * Math.PI);
-                ctx.fillStyle = point.isPrime ? '#f39c12' : '#27ae60';
+                ctx.arc(x, y, pointSize, 0, 2 * Math.PI);
+                ctx.fillStyle = highlightPrimes && point.isPrime ? 
+                    (currentTheme === 'dark' ? '#FFD700' : '#d69e00') : 
+                    (currentTheme === 'dark' ? '#48BB78' : '#059669');
                 ctx.fill();
-                ctx.strokeStyle = '#2c3e50';
-                ctx.lineWidth = 1;
+                ctx.strokeStyle = currentTheme === 'dark' ? '#E8E8E8' : '#1a202c';
+                ctx.lineWidth = 1.5;
                 ctx.stroke();
 
                 if (showLabels && Math.abs(point.a) <= 5 && Math.abs(point.b) <= 5) {
-                    ctx.fillStyle = '#2c3e50';
-                    ctx.font = '11px serif';
+                    ctx.fillStyle = currentTheme === 'dark' ? '#E8E8E8' : '#1a202c';
+                    ctx.font = '11px sans-serif';
                     ctx.textAlign = 'center';
-                    ctx.fillText(`(${point.a},${point.b})`, x, y - 10);
+                    ctx.fillText(`(${point.a},${point.b})`, x, y - 12);
                 }
 
                 visibleCount++;
                 if (point.isPrime) primeCount++;
             });
 
-            // Draw normalized directions on unit circle
             filteredPoints.forEach(point => {
-                const norm = Math.sqrt(point.norm);
                 const angle = Math.atan2(point.b, point.a);
                 const x = centerX + unitRadius * Math.cos(angle);
                 const y = centerY - unitRadius * Math.sin(angle);
 
                 ctx.beginPath();
-                ctx.arc(x, y, 5, 0, 2 * Math.PI);
-                ctx.fillStyle = point.isPrime ? '#e67e22' : '#16a085';
+                ctx.arc(x, y, pointSize + 1, 0, 2 * Math.PI);
+                ctx.fillStyle = currentTheme === 'dark' ? '#00FFFF' : '#0891b2';
                 ctx.fill();
-                ctx.strokeStyle = '#2c3e50';
-                ctx.lineWidth = 1.5;
+                ctx.strokeStyle = currentTheme === 'dark' ? '#E8E8E8' : '#1a202c';
+                ctx.lineWidth = 2;
                 ctx.stroke();
             });
 
             return { visibleCount, primeCount };
         }
 
-        // Update visualization
         function updateVisualization() {
             const m = parseInt(document.getElementById('modulus').value);
             const range = parseInt(document.getElementById('latticeRange').value);
             const displayMode = document.getElementById('displayMode').value;
             const showLabels = document.getElementById('showLabels').checked;
             const showSquare = document.getElementById('showSquare').checked;
+            const showGrid = document.getElementById('showGrid').checked;
+            const highlightPrimes = document.getElementById('highlightPrimes').checked;
 
             const modularCanvas = document.getElementById('modularCanvas');
             const latticeCanvas = document.getElementById('latticeCanvas');
 
-            drawModularCircle(modularCanvas, m, showSquare, showLabels);
-            const stats = drawLatticeDiagram(latticeCanvas, range, m, displayMode, showLabels);
+            drawModularCircle(modularCanvas, m, showSquare, showLabels, showGrid);
+            const stats = drawLatticeDiagram(latticeCanvas, range, m, displayMode, showLabels, showGrid, highlightPrimes);
 
-            // Update info panel
             const residues = getReducedResidues(m);
-            document.getElementById('infoModulus').textContent = m;
-            document.getElementById('infoTotient').textContent = eulerTotient(m);
-            document.getElementById('infoResidues').textContent = residues.join(', ');
-            document.getElementById('infoPrimitive').textContent = stats.visibleCount;
-            document.getElementById('infoPrimeNorms').textContent = stats.primeCount;
-            document.getElementById('infoAngles').textContent = residues.length;
+            const totient = eulerTotient(m);
+            
+            document.getElementById('statModulus').textContent = m;
+            document.getElementById('statTotient').textContent = totient;
+            document.getElementById('statResidues').textContent = residues.join(', ');
+            document.getElementById('statPrimitive').textContent = stats.visibleCount;
+            document.getElementById('statPrimeNorms').textContent = stats.primeCount;
+            document.getElementById('statDensity').textContent = (totient / m).toFixed(4);
         }
 
-        // Export functions
         function exportCanvas(canvasId, filename) {
             const canvas = document.getElementById(canvasId);
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = exportResolution;
+            tempCanvas.height = exportResolution;
+            
+            const tempCtx = tempCanvas.getContext('2d');
+            tempCtx.fillStyle = currentTheme === 'dark' ? '#0a0e1a' : '#ffffff';
+            tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+            
+            const scale = exportResolution / canvas.width;
+            tempCtx.scale(scale, scale);
+            tempCtx.drawImage(canvas, 0, 0);
+            
             const link = document.createElement('a');
-            link.download = filename;
-            link.href = canvas.toDataURL('image/png');
+            link.download = `${filename}_${exportResolution}px.png`;
+            link.href = tempCanvas.toDataURL('image/png');
             link.click();
         }
 
         function exportBoth() {
-            exportCanvas('modularCanvas', 'modular_circle.png');
+            exportCanvas('modularCanvas', 'modular_circle');
             setTimeout(() => {
-                exportCanvas('latticeCanvas', 'lattice_directions.png');
+                exportCanvas('latticeCanvas', 'lattice_directions');
             }, 100);
         }
 
-        function exportHighRes() {
-            const modularCanvas = document.getElementById('modularCanvas');
+        function exportWithStats() {
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = exportResolution * 2;
+            tempCanvas.height = exportResolution + 400;
+            
+            const ctx = tempCanvas.getContext('2d');
+            ctx.fillStyle = currentTheme === 'dark' ? '#0a0e1a' : '#ffffff';
+            ctx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+            
+            const modCanvas = document.getElementById('modularCanvas');
             const latticeCanvas = document.getElementById('latticeCanvas');
             
-            // Create high-res canvases
-            const hiResModular = document.createElement('canvas');
-            const hiResLattice = document.createElement('canvas');
-            hiResModular.width = 3840;
-            hiResModular.height = 3840;
-            hiResLattice.width = 3840;
-            hiResLattice.height = 3840;
-
-            // Get current settings
-            const m = parseInt(document.getElementById('modulus').value);
-            const range = parseInt(document.getElementById('latticeRange').value);
-            const displayMode = document.getElementById('displayMode').value;
-            const showLabels = document.getElementById('showLabels').checked;
-            const showSquare = document.getElementById('showSquare').checked;
-
-            // Draw on high-res canvases
-            const oldModular = modularCanvas.width;
-            const oldLattice = latticeCanvas.width;
+            const scale = exportResolution / modCanvas.width;
+            ctx.scale(scale, scale);
+            ctx.drawImage(modCanvas, 0, 0);
+            ctx.drawImage(latticeCanvas, modCanvas.width, 0);
             
-            modularCanvas.width = hiResModular.width;
-            modularCanvas.height = hiResModular.height;
-            latticeCanvas.width = hiResLattice.width;
-            latticeCanvas.height = hiResLattice.height;
-
-            drawModularCircle(modularCanvas, m, showSquare, showLabels);
-            drawLatticeDiagram(latticeCanvas, range, m, displayMode, showLabels);
-
-            // Export
-            const link1 = document.createElement('a');
-            link1.download = 'modular_circle_4K.png';
-            link1.href = modularCanvas.toDataURL('image/png');
-            link1.click();
-
-            setTimeout(() => {
-                const link2 = document.createElement('a');
-                link2.download = 'lattice_directions_4K.png';
-                link2.href = latticeCanvas.toDataURL('image/png');
-                link2.click();
-
-                // Restore original size
-                modularCanvas.width = oldModular;
-                modularCanvas.height = oldModular;
-                latticeCanvas.width = oldLattice;
-                latticeCanvas.height = oldLattice;
-                updateVisualization();
-            }, 100);
+            ctx.fillStyle = currentTheme === 'dark' ? '#E8E8E8' : '#1a202c';
+            ctx.font = 'bold 40px sans-serif';
+            const m = parseInt(document.getElementById('modulus').value);
+            ctx.fillText(`Analysis for m=${m}`, 50, modCanvas.height + 80);
+            
+            const link = document.createElement('a');
+            link.download = `complete_analysis_${exportResolution}px.png`;
+            link.href = tempCanvas.toDataURL('image/png');
+            link.click();
         }
 
-        // Event listeners
-        document.getElementById('modulus').addEventListener('input', updateVisualization);
-        document.getElementById('latticeRange').addEventListener('input', updateVisualization);
-        document.getElementById('displayMode').addEventListener('change', updateVisualization);
-        document.getElementById('showLabels').addEventListener('change', updateVisualization);
-        document.getElementById('showSquare').addEventListener('change', updateVisualization);
+        document.addEventListener('keydown', (e) => {
+            const modInput = document.getElementById('modulus');
+            const currentValue = parseInt(modInput.value);
+            
+            switch(e.key) {
+                case 'ArrowRight':
+                    modInput.value = Math.min(100, currentValue + 1);
+                    updateModulusDisplay();
+                    break;
+                case 'ArrowLeft':
+                    modInput.value = Math.max(2, currentValue - 1);
+                    updateModulusDisplay();
+                    break;
+                case 'ArrowUp':
+                    modInput.value = Math.min(100, currentValue + 10);
+                    updateModulusDisplay();
+                    break;
+                case 'ArrowDown':
+                    modInput.value = Math.max(2, currentValue - 10);
+                    updateModulusDisplay();
+                    break;
+                case 'r':
+                case 'R':
+                    setModulus(8);
+                    break;
+            }
+        });
 
-        // Initial draw
         updateVisualization();
     </script>
 </body>
-</html>
+    </html>
