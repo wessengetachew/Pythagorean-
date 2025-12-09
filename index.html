@@ -3,626 +3,811 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ultimate Pythagorean GCD Explorer: Modular Dashboard</title>
-    
+    <title>Primitive Lattice Directions & Modular Circles</title>
     <style>
-        /* BASE & THEME */
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            background-color: #0b0c10; /* Very Dark Background */
-            color: #c5c5c5; /* Light Text */
+        * {
             margin: 0;
             padding: 0;
-            min-height: 100vh;
-        }
-        
-        /* HEADER/TITLE BAR (Prominent) */
-        header {
-            width: 100%;
-            background-color: #1a1a2e; /* Dark Blue/Purple Header */
-            color: #7ef9f9; /* Neon Blue/Cyan Title */
-            padding: 15px 0;
-            text-align: center;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
-            border-bottom: 2px solid #582f9d; /* Accent Line */
-        }
-        header h1 {
-            margin: 0;
-            font-size: 1.8em;
-            letter-spacing: 1px;
-        }
-        header p {
-            margin: 5px 0 0;
-            font-size: 0.9em;
-            color: #a0a0a0;
-        }
-
-        /* MAIN CONTAINER (The Dashboard Frame) */
-        .container {
-            display: flex;
-            width: 95%;
-            max-width: 1500px;
-            background: #1f1f2e; /* Slightly lighter main dashboard body */
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
-            border-radius: 8px;
-            min-height: 80vh;
-            overflow: hidden; 
-        }
-
-        /* CONTROL PANEL (Sidebar) */
-        .controls {
-            flex: 1;
-            padding: 25px;
-            border-right: 1px solid #33334d; 
-            max-width: 350px;
-            background-color: #1a1a2e; 
-            overflow-y: auto;
-        }
-
-        /* CANVAS AREA (Main Grid) */
-        .canvas-container {
-            flex: 3;
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-around;
-            align-content: flex-start; 
-            padding: 20px 10px;
-            background-color: #1f1f2e;
-        }
-        
-        /* INDIVIDUAL CANVAS VIEW */
-        .canvas-view {
-            width: 30%; 
-            min-width: 380px;
-            margin: 10px;
-            text-align: center;
-        }
-        
-        /* CANVAS STYLING */
-        canvas {
-            border: 1px solid #582f9d; 
-            background-color: #0d0d1a; 
-            width: 100%;
-            height: auto;
-        }
-        .canvas-view h3 {
-             color: #7ef9f9;
-             margin-top: 5px;
-             font-size: 1em;
-        }
-
-        /* CONTROL ELEMENTS */
-        section {
-            margin-bottom: 25px;
-            padding: 10px;
-            border: 1px solid #33334d;
-            border-radius: 4px;
-        }
-        label, button, input, select {
-            display: block;
-            margin-top: 8px;
-            color: #d4d4d4;
-            background-color: #2a2a44; 
-            border: 1px solid #582f9d;
-            padding: 7px;
-            width: 95%;
             box-sizing: border-box;
         }
-        button {
-            background-color: #582f9d; 
-            cursor: pointer;
-            border: none;
-            padding: 10px;
+
+        body {
+            font-family: 'Crimson Text', 'Georgia', serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            padding: 40px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #7f8c8d;
+            font-size: 1.2em;
+            margin-bottom: 30px;
+            font-style: italic;
+        }
+
+        .intro {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            border-left: 4px solid #3498db;
+        }
+
+        .intro p {
+            margin-bottom: 15px;
+            color: #34495e;
+            font-size: 1.1em;
+        }
+
+        .intro ul {
+            margin-left: 30px;
+            color: #34495e;
+        }
+
+        .intro li {
+            margin-bottom: 8px;
+        }
+
+        .controls {
+            background: #ecf0f1;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+
+        .control-group {
+            margin-bottom: 20px;
+        }
+
+        .control-group:last-child {
+            margin-bottom: 0;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #2c3e50;
+            font-weight: 600;
+            font-size: 1.05em;
+        }
+
+        input[type="number"], select {
             width: 100%;
-            font-weight: bold;
-            transition: background-color 0.2s;
-        }
-        button:hover {
-            background-color: #7c4fd7;
-        }
-        
-        /* ANALYSIS TEXT */
-        #results p, .analysis-detail p {
-            margin: 5px 0;
-            font-weight: bold;
-            color: #4ec9b0; 
-        }
-        .analysis-detail {
-            font-size: 0.9em;
-            margin-top: 10px;
-            background-color: #2a2a44;
             padding: 10px;
-            border-radius: 3px;
+            border: 2px solid #bdc3c7;
+            border-radius: 5px;
+            font-size: 1em;
+            font-family: inherit;
+            transition: border-color 0.3s;
         }
-        .export-section button {
+
+        input[type="number"]:focus, select:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .checkbox-group label {
+            margin: 0;
+            cursor: pointer;
+            font-weight: normal;
+        }
+
+        .canvas-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .canvas-wrapper {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .canvas-title {
+            text-align: center;
+            color: #2c3e50;
+            font-size: 1.3em;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        canvas {
+            display: block;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .info-panel {
+            background: #e8f4f8;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            border-left: 4px solid #3498db;
+        }
+
+        .info-panel h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .info-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #34495e;
             margin-bottom: 5px;
+        }
+
+        .info-value {
+            color: #2c3e50;
+            font-size: 1.1em;
+            font-family: 'Courier New', monospace;
+        }
+
+        .export-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+
+        .export-section h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .export-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            font-family: inherit;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .theory-section {
+            background: #fff8e1;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            border-left: 4px solid #ffa726;
+        }
+
+        .theory-section h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .theory-section p {
+            color: #34495e;
+            margin-bottom: 12px;
+            font-size: 1.05em;
+        }
+
+        .math-formula {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            text-align: center;
+            font-family: 'Times New Roman', serif;
+            font-size: 1.2em;
+            color: #2c3e50;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .legend {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+        .legend-title {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 3px;
+            border: 1px solid #bdc3c7;
+        }
+
+        .footer {
+            text-align: center;
+            color: #7f8c8d;
+            padding-top: 20px;
+            border-top: 2px solid #ecf0f1;
+            font-size: 0.95em;
+        }
+
+        @media (max-width: 900px) {
+            .canvas-container {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
-
-    <header>
-        <h1>ULTIMATE MODULAR EXPLORER: PYTHAGOREAN DIAGONALS</h1>
-        <p>A Unified Dashboard for GCD Geometry, Gaussian Primes, and Modular Lifting.</p>
-    </header>
-
     <div class="container">
-        <aside class="controls">
-            <h2>⚙️ System Controls</h2>
-            
-            <section class="input-section">
-                <h3>1. Diagonal Definition ($a^2 + b^2 = c^2$)</h3>
-                <label for="inputA">Side $a$ (Integer):</label>
-                <input type="number" id="inputA" value="3" min="1">
-                <label for="inputB">Side $b$ (Integer):</label>
-                <input type="number" id="inputB" value="4" min="1">
-                <button onclick="calculateAndDraw()">ANALYZE & DRAW ALL VIEWS</button>
-                
-                <div id="results">
-                    <p>Diagonal $c$: <span id="valC">5.000</span></p>
-                    <p>Modulus $M$: <span id="valM">5</span></p>
-                    <p>Fermat $\pmod{4}$ Test: <span id="fermat-test">1</span></p>
-                    <p>Gaussian Prime? $\pi=a+bi$: <span id="is-gaussian-prime">Yes</span></p>
-                </div>
-                <button onclick="runPrimeSieve()">SIEVE: Prime Distribution Check</button>
-            </section>
-            
-            <hr>
+        <h1>Primitive Lattice Directions & Modular Circles</h1>
+        <div class="subtitle">A Geometric Framework for GCD-Visibility and Gaussian Integers</div>
 
-            <section class="analysis-section">
-                <h3>2. Modular Analysis & Channels</h3>
-                <p>Totient $\varphi(M)$: <span id="valPhi">4</span></p>
-                <p>Coprime Density $\varphi(M)/M$: <span id="valDensity">0.800</span></p>
-                <p>Active Channels (Character Support): <span id="valActiveChannels">4</span></p>
-                
-                <label for="gap-g">Gap Analysis $g$ (e.g., Twin Primes):</label>
-                <input type="number" id="gap-g" value="2" min="1">
-                
-                <div class="analysis-detail">
-                    <label for="residue-r">Select Residue $r \in [1, M-1]$:</label>
-                    <input type="number" id="residue-r" value="1" min="1">
-                    <button onclick="analyzeResidue()">ANALYZE RESIDUE $r$</button>
-                    <p>GCD $\text{gcd}(r, M)$: <span id="val-gcd">1</span></p>
-                    <p>Element Order $\text{ord}_M(r)$: <span id="val-order">4</span></p>
-                </div>
-            </section>
-            
-            <hr>
+        <div class="intro">
+            <p><strong>Introduction:</strong> This visualization explores the deep connection between primitive lattice vectors, modular embeddings on the unit circle, and the norm structure of Gaussian integers.</p>
+            <p>Primitive lattice vectors (a,b) with gcd(a,b) = 1 determine visible rays from the origin and correspond naturally to reduced residues modulo suitable moduli. These rays, when normalized, lie on the unit circle and reveal classical symmetries.</p>
+            <p>We explore the relationship between:</p>
+            <ul>
+                <li>GCD-visibility in the integer lattice</li>
+                <li>Reduced residue classes modulo m</li>
+                <li>Geometric symmetries of the unit circle</li>
+                <li>The norm structure of Gaussian integers</li>
+            </ul>
+        </div>
 
-            <section class="visual-section">
-                <h3>3. Geometry & Lifting Controls</h3>
-                
-                <label for="coord-system">Canvas 1 Coordinate System:</label>
-                <select id="coord-system">
-                    <option value="polar">Polar/Unit Circle (Default)</option>
-                    <option value="log-cylinder">Log-Cylinder ($\theta$ vs. $\log(r)$)</option>
-                    <option value="smith">Smith Chart (Cayley Map)</option>
+        <div class="controls">
+            <div class="control-group">
+                <label for="modulus">Modulus m:</label>
+                <input type="number" id="modulus" min="2" max="100" value="8">
+            </div>
+            <div class="control-group">
+                <label for="latticeRange">Lattice Range:</label>
+                <input type="number" id="latticeRange" min="5" max="50" value="15">
+            </div>
+            <div class="control-group">
+                <label for="displayMode">Display Mode:</label>
+                <select id="displayMode">
+                    <option value="all">All Primitive Directions</option>
+                    <option value="primes">Prime Norms Only</option>
+                    <option value="specific">Specific Norm (m)</option>
                 </select>
-                
-                <label for="num-lifts">Number of $M \to 2M$ Dyadic Lifts:</label>
-                <input type="number" id="num-lifts" value="3" min="1">
-                <button onclick="drawLiftingRings()">REDRAW LIFTS & GAPS</button>
-                
-                <label for="lift-type">Lift Connection Style:</label>
-                <select id="lift-type">
-                    <option value="dyadic">Dyadic Lift ($r \to r+M$)</option>
-                    <option value="direct">Direct Lift ($r \to r$)</option>
-                </select>
-            </section>
-            
-            <hr>
-
-            <section class="export-section">
-                <h3>4. Export & Report Generation 💾</h3>
-                
-                <label for="export-resolution">Canvas Resolution for Export:</label>
-                <select id="export-resolution">
-                    <option value="1000">1K (1000x1000)</option>
-                    <option value="2000">2K (2000x2000)</option>
-                    <option value="4000">4K (4000x4000)</option>
-                </select>
-                <button onclick="exportCanvases()">Export All Canvases (PNG)</button>
-                
-                <button onclick="exportCSV()">Export GCD Data Table (CSV)</button>
-                
-                <button onclick="generatePDF()">Generate Full Report (PDF)</button>
-                
-                <hr style="border-top: 1px solid #7c4fd7;">
-                <button onclick="generateShareLink()">Generate Shareable Link</button>
-                <p style="font-size: 0.8em; color: #4ec9b0; word-wrap: break-word;">Share URL: <span id="share-link-output">...</span></p>
-
-            </section>
-
-        </aside>
+            </div>
+            <div class="checkbox-group">
+                <input type="checkbox" id="showLabels" checked>
+                <label for="showLabels">Show Labels</label>
+            </div>
+            <div class="checkbox-group">
+                <input type="checkbox" id="showSquare" checked>
+                <label for="showSquare">Show Inscribed Square (m=8)</label>
+            </div>
+        </div>
 
         <div class="canvas-container">
+            <div class="canvas-wrapper">
+                <div class="canvas-title">Modular Circle</div>
+                <canvas id="modularCanvas" width="600" height="600"></canvas>
+                <div class="legend">
+                    <div class="legend-title">Legend</div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #3498db;"></div>
+                        <span>Reduced Residues mod m</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #e74c3c;"></div>
+                        <span>Non-coprime Residues</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #9b59b6;"></div>
+                        <span>Inscribed Square (m=8)</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="canvas-wrapper">
+                <div class="canvas-title">Primitive Lattice Directions</div>
+                <canvas id="latticeCanvas" width="600" height="600"></canvas>
+                <div class="legend">
+                    <div class="legend-title">Legend</div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #27ae60;"></div>
+                        <span>Primitive Vectors (gcd = 1)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #f39c12;"></div>
+                        <span>Prime Norm Vectors</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #95a5a6;"></div>
+                        <span>Non-primitive Vectors</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-panel">
+            <h3>Computed Properties</h3>
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="info-label">Modulus:</div>
+                    <div class="info-value" id="infoModulus">8</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">φ(m) - Euler's Totient:</div>
+                    <div class="info-value" id="infoTotient">4</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Reduced Residues:</div>
+                    <div class="info-value" id="infoResidues">1, 3, 5, 7</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Primitive Vectors Found:</div>
+                    <div class="info-value" id="infoPrimitive">0</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Prime Norm Vectors:</div>
+                    <div class="info-value" id="infoPrimeNorms">0</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Visible Angles:</div>
+                    <div class="info-value" id="infoAngles">0</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="theory-section">
+            <h3>Theoretical Foundation</h3>
+            <p><strong>Visibility Indicator:</strong> For any lattice point (a,b), we define:</p>
+            <div class="math-formula">
+                vis(a,b) = 1 if gcd(a,b) = 1, else 0
+            </div>
+            <p>Primitive lattice vectors with vis(a,b) = 1 determine rays from the origin that hit no other lattice point before reaching (a,b).</p>
             
-            <div class="canvas-view">
-                <h3>1. GCD Geometry ($\mathbb{Z}/M\mathbb{Z}$) & Channels</h3>
-                <canvas id="canvasGCD" width="450" height="450"></canvas>
+            <p><strong>Modular Embedding:</strong> Each reduced residue r with gcd(r,m) = 1 maps to the unit circle:</p>
+            <div class="math-formula">
+                r → e<sup>2πir/m</sup>
             </div>
             
-            <div class="canvas-view">
-                <h3>2. Gaussian Prime $\pi=a+bi$ (Diagonal $c$)</h3>
-                <canvas id="canvasGaussian" width="450" height="450"></canvas>
-            </div>
+            <p><strong>Norm and Gaussian Integers:</strong> A primitive vector (a,b) with norm n = a² + b² corresponds to the Gaussian integer a + bi with |a + bi|² = n.</p>
             
-            <div class="canvas-view">
-                <h3>3. Modular Dyadic Lifting & Gap ($g$)</h3>
-                <canvas id="canvasGap" width="450" height="450"></canvas>
+            <p><strong>Prime Norm Uniqueness:</strong> If a² + b² = p where p is prime and p ≡ 1 (mod 4), the representation is unique up to signs and coordinate swap, corresponding to the eight symmetries of the square.</p>
+        </div>
+
+        <div class="export-section">
+            <h3>Export Visualizations</h3>
+            <div class="export-buttons">
+                <button onclick="exportCanvas('modularCanvas', 'modular_circle.png')">Export Modular Circle</button>
+                <button onclick="exportCanvas('latticeCanvas', 'lattice_directions.png')">Export Lattice View</button>
+                <button onclick="exportBoth()">Export Both (ZIP)</button>
+                <button onclick="exportHighRes()">Export High Resolution (4K)</button>
             </div>
-            
+        </div>
+
+        <div class="footer">
+            <p>Primitive Lattice Directions & Modular Circles - Interactive Visualization</p>
+            <p>A geometric framework unifying GCD-visibility, reduced residues, and Gaussian integers</p>
         </div>
     </div>
 
     <script>
-        // --- CORE MATHEMATICAL FUNCTIONS ---
-        function gcd(a, b) { while (b) { [a, b] = [b, a % b]; } return a; }
+        // Utility functions
+        function gcd(a, b) {
+            a = Math.abs(a);
+            b = Math.abs(b);
+            while (b !== 0) {
+                let t = b;
+                b = a % b;
+                a = t;
+            }
+            return a;
+        }
 
-        function phi(n) {
-            let count = 0;
-            for (let r = 1; r < n; r++) { if (gcd(r, n) === 1) { count++; } }
-            return count;
+        function eulerTotient(n) {
+            let result = 0;
+            for (let i = 1; i < n; i++) {
+                if (gcd(i, n) === 1) result++;
+            }
+            return result;
+        }
+
+        function getReducedResidues(m) {
+            const residues = [];
+            for (let r = 1; r < m; r++) {
+                if (gcd(r, m) === 1) {
+                    residues.push(r);
+                }
+            }
+            return residues;
         }
 
         function isPrime(n) {
-            if (n <= 1) return false;
-            for (let i = 2; i * i <= n; i++) { if (n % i === 0) return false; }
+            if (n < 2) return false;
+            if (n === 2) return true;
+            if (n % 2 === 0) return false;
+            for (let i = 3; i * i <= n; i += 2) {
+                if (n % i === 0) return false;
+            }
             return true;
         }
 
-        function elementOrder(r, m) {
-            if (gcd(r, m) !== 1) return "N/A";
-            let k = 1;
-            let current = r % m;
-            while (current !== 1) {
-                current = (current * r) % m;
-                k++;
-            }
-            return k;
-        }
-
-        // --- GLOBAL VARIABLES & CANVAS SETUP ---
-        let currentM = 0;
-        let currentA = 3; 
-        let currentB = 4;
-        const canvasGCD = document.getElementById('canvasGCD');
-        const ctxGCD = canvasGCD.getContext('2d');
-        const canvasGaussian = document.getElementById('canvasGaussian');
-        const ctxGaussian = canvasGaussian.getContext('2d');
-        const canvasGap = document.getElementById('canvasGap');
-        const ctxGap = canvasGap.getContext('2d');
-        
-        // --- DRAWING UTILITIES ---
-        function drawPoint(ctx, x, y, size, color) {
-            ctx.fillStyle = color;
-            ctx.beginPath();
-            ctx.arc(x, y, size, 0, 2 * Math.PI);
-            ctx.fill();
-        }
-
-        // --- CANVAS 1: GCD GEOMETRY ---
-        // Refactored to accept context and size for high-res export
-        function drawGCDGeometry(M, coordSystem, ctx, width, height) {
-            ctx.clearRect(0, 0, width, height);
-            const center = width / 2;
-            const radius = center * 0.8;
-            
-            ctx.fillStyle = '#0d0d1a'; // Canvas background
-            ctx.fillRect(0, 0, width, height);
-
-            ctx.strokeStyle = '#4e4e4e';
-            ctx.beginPath();
-            ctx.arc(center, center, radius, 0, 2 * Math.PI);
-            ctx.stroke();
-
-            for (let r = 1; r < M; r++) {
-                const angle = (2 * Math.PI * r) / M;
-                const x = center + radius * Math.cos(angle - Math.PI / 2);
-                const y = center + radius * Math.sin(angle - Math.PI / 2);
-                
-                const gcdVal = gcd(r, M);
-                const isOpen = (gcdVal === 1);
-                const pointSize = isOpen ? 5 * (width/450) : 3 * (width/450); // Scale size
-                
-                const color = isOpen ? '#00cc66' : '#cc0000'; 
-                
-                ctx.strokeStyle = isOpen ? 'rgba(0, 204, 102, 0.5)' : 'rgba(204, 0, 0, 0.2)';
-                ctx.lineWidth = 1.5 * (width/450);
-                ctx.beginPath();
-                ctx.moveTo(center, center);
-                ctx.lineTo(x, y);
-                ctx.stroke();
-
-                drawPoint(ctx, x, y, pointSize, color);
-            }
-             ctx.fillStyle = '#d4d4d4';
-             ctx.font = `${14 * (width/450)}px Arial`;
-             ctx.fillText(`System: ${coordSystem}`, 10 * (width/450), 20 * (width/450));
-        }
-
-        // --- CANVAS 2: GAUSSIAN INTEGERS ---
-        function drawGaussian(a, b, M, ctx, width, height) {
-            ctx.clearRect(0, 0, width, height);
-            const center = width / 2;
-            const maxVal = Math.max(a, b, 2);
-            const scale = center * 0.9 / maxVal; 
-
-            ctx.fillStyle = '#0d0d1a'; 
-            ctx.fillRect(0, 0, width, height);
-            
-            ctx.strokeStyle = '#555';
-            ctx.beginPath(); ctx.moveTo(0, center); ctx.lineTo(width, center); ctx.stroke();
-            ctx.beginPath(); ctx.moveTo(center, 0); ctx.lineTo(center, height); ctx.stroke();
-
-            const x = center + a * scale;
-            const y = center - b * scale; 
-            const pointSize = 7 * (width/450);
-
-            drawPoint(ctx, x, y, pointSize, '#ffc600'); 
-            
-            ctx.strokeStyle = '#ffc600';
-            ctx.lineWidth = 2 * (width/450);
-            ctx.beginPath();
-            ctx.moveTo(center, center);
-            ctx.lineTo(x, y);
-            ctx.stroke();
-
-            const angleRad = Math.atan2(b, a);
-            const angleDeg = (angleRad * 180 / Math.PI).toFixed(1);
-            ctx.fillStyle = '#ffc600';
-            ctx.font = `${14 * (width/450)}px Arial`;
-            ctx.fillText(`Angle: ${angleDeg}°`, center + 10 * (width/450), center + 20 * (width/450));
-        }
-
-        // --- CANVAS 3: MODULAR LIFTING & GAP ANALYSIS ---
-        function drawLiftingRings(M, numLifts, liftType, gapG, ctx, width, height) {
-            ctx.clearRect(0, 0, width, height);
-            const center = width / 2;
-            const maxRadius = center * 0.9;
-            const ringSpacing = maxRadius / (numLifts + 1);
-
-            ctx.fillStyle = '#0d0d1a'; 
-            ctx.fillRect(0, 0, width, height);
-
-            for (let i = 0; i <= numLifts; i++) {
-                const ringM = M * Math.pow(2, i); 
-                const radius = ringSpacing * (i + 1);
-                
-                ctx.strokeStyle = 'rgba(100, 100, 255, 0.5)';
-                ctx.lineWidth = 1 * (width/450);
-                ctx.beginPath();
-                ctx.arc(center, center, radius, 0, 2 * Math.PI);
-                ctx.stroke();
-                
-                for (let r = 1; r < ringM; r++) {
-                    if (gcd(r, ringM) === 1) { 
-                        const angle = (2 * Math.PI * r) / ringM;
-                        const x = center + radius * Math.cos(angle - Math.PI / 2);
-                        const y = center + radius * Math.sin(angle - Math.PI / 2);
-                        
-                        const r_g = r + gapG;
-                        const hasGap = (r_g < ringM) && (gcd(r_g, ringM) === 1);
-                        const pointSize = hasGap ? 4 * (width/450) : 3 * (width/450);
-                        
-                        drawPoint(ctx, x, y, pointSize, hasGap ? '#4ec9b0' : '#8c8c8c');
-
-                        if (hasGap) {
-                             const angle_g = (2 * Math.PI * r_g) / ringM;
-                             const x_g = center + radius * Math.cos(angle_g - Math.PI / 2);
-                             const y_g = center + radius * Math.sin(angle_g - Math.PI / 2);
-                             
-                             ctx.strokeStyle = 'rgba(255, 255, 0, 0.7)'; 
-                             ctx.lineWidth = 1 * (width/450);
-                             ctx.beginPath();
-                             ctx.moveTo(x, y);
-                             ctx.lineTo(x_g, y_g);
-                             ctx.stroke();
-                        }
+        function getPrimitiveLatticePoints(range) {
+            const points = [];
+            for (let a = -range; a <= range; a++) {
+                for (let b = -range; b <= range; b++) {
+                    if (a === 0 && b === 0) continue;
+                    if (gcd(a, b) === 1) {
+                        const norm = a * a + b * b;
+                        points.push({ a, b, norm, isPrime: isPrime(norm) });
                     }
                 }
             }
-        }
-        
-        // --- HIGH-LEVEL DRAWING CALLS ---
-
-        function calculateAndDraw() {
-            currentA = parseInt(document.getElementById('inputA').value) || 0;
-            currentB = parseInt(document.getElementById('inputB').value) || 0;
-            
-            if (currentA === 0 || currentB === 0) return;
-
-            const c_squared = currentA * currentA + currentB * currentB;
-            const c_real = Math.sqrt(c_squared);
-            const M = Math.round(c_real); 
-
-            currentM = M;
-
-            // 1. Analysis Stats
-            const phiM = phi(M);
-            const isPrimeM = isPrime(M);
-            const fermatTest = M % 4; 
-            const density = (phiM / M).toFixed(3);
-            const isGaussianPrime = isPrimeM && (fermatTest === 1 || M === 2);
-
-            document.getElementById('valC').textContent = c_real.toFixed(3);
-            document.getElementById('valM').textContent = M;
-            document.getElementById('valPhi').textContent = phiM;
-            document.getElementById('valDensity').textContent = density;
-            document.getElementById('valActiveChannels').textContent = phiM;
-            document.getElementById('fermat-test').textContent = `${fermatTest} (${isPrimeM ? (fermatTest === 1 ? 'Splits' : 'Inert') : 'Composite'})`;
-            document.getElementById('is-gaussian-prime').textContent = isGaussianPrime ? "Yes (Splits)" : "No (Inert/Comp)";
-
-            // 2. Draw Canvases on screen
-            const coordSystem = document.getElementById('coord-system').value;
-            const numLifts = parseInt(document.getElementById('num-lifts').value);
-            const liftType = document.getElementById('lift-type').value;
-            const gapG = parseInt(document.getElementById('gap-g').value);
-
-            drawGCDGeometry(M, coordSystem, ctxGCD, canvasGCD.width, canvasGCD.height);
-            drawGaussian(currentA, currentB, M, ctxGaussian, canvasGaussian.width, canvasGaussian.height);
-            drawLiftingRings(M, numLifts, liftType, gapG, ctxGap, canvasGap.width, canvasGap.height);
-            
-            document.getElementById('residue-r').value = 1;
-            analyzeResidue();
+            return points;
         }
 
-        function analyzeResidue() {
-            const r = parseInt(document.getElementById('residue-r').value);
-            const M = currentM;
-            if (r >= M || r < 1 || M === 0) return;
-            
-            const g = gcd(r, M);
-            document.getElementById('val-gcd').textContent = `${g} (Status: ${g === 1 ? 'Open' : 'Pruned'})`;
-            document.getElementById('val-order').textContent = elementOrder(r, M);
+        // Drawing functions
+        function drawModularCircle(canvas, m, showSquare, showLabels) {
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+            const centerX = width / 2;
+            const centerY = height / 2;
+            const radius = Math.min(width, height) * 0.35;
+
+            // Clear canvas
+            ctx.clearRect(0, 0, width, height);
+
+            // Draw circle
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+            ctx.strokeStyle = '#34495e';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            // Draw axes
+            ctx.strokeStyle = '#bdc3c7';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(0, centerY);
+            ctx.lineTo(width, centerY);
+            ctx.moveTo(centerX, 0);
+            ctx.lineTo(centerX, height);
+            ctx.stroke();
+
+            // Get reduced residues
+            const residues = getReducedResidues(m);
+
+            // Draw all m positions
+            for (let i = 0; i < m; i++) {
+                const angle = (2 * Math.PI * i / m) - Math.PI / 2;
+                const x = centerX + radius * Math.cos(angle);
+                const y = centerY + radius * Math.sin(angle);
+
+                const isReduced = residues.includes(i);
+
+                ctx.beginPath();
+                ctx.arc(x, y, isReduced ? 8 : 5, 0, 2 * Math.PI);
+                ctx.fillStyle = isReduced ? '#3498db' : '#e74c3c';
+                ctx.fill();
+                ctx.strokeStyle = '#2c3e50';
+                ctx.lineWidth = 1.5;
+                ctx.stroke();
+
+                if (showLabels) {
+                    const labelRadius = radius + 25;
+                    const labelX = centerX + labelRadius * Math.cos(angle);
+                    const labelY = centerY + labelRadius * Math.sin(angle);
+                    ctx.fillStyle = '#2c3e50';
+                    ctx.font = 'bold 14px serif';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(i.toString(), labelX, labelY);
+                }
+            }
+
+            // Draw square for m=8
+            if (m === 8 && showSquare) {
+                ctx.strokeStyle = '#9b59b6';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                for (let i = 0; i < 4; i++) {
+                    const angle = (2 * Math.PI * residues[i] / m) - Math.PI / 2;
+                    const x = centerX + radius * Math.cos(angle);
+                    const y = centerY + radius * Math.sin(angle);
+                    if (i === 0) {
+                        ctx.moveTo(x, y);
+                    } else {
+                        ctx.lineTo(x, y);
+                    }
+                }
+                ctx.closePath();
+                ctx.stroke();
+
+                // Draw diagonals
+                ctx.setLineDash([5, 5]);
+                for (let i = 0; i < 2; i++) {
+                    const angle1 = (2 * Math.PI * residues[i] / m) - Math.PI / 2;
+                    const angle2 = (2 * Math.PI * residues[i + 2] / m) - Math.PI / 2;
+                    const x1 = centerX + radius * Math.cos(angle1);
+                    const y1 = centerY + radius * Math.sin(angle1);
+                    const x2 = centerX + radius * Math.cos(angle2);
+                    const y2 = centerY + radius * Math.sin(angle2);
+                    ctx.beginPath();
+                    ctx.moveTo(x1, y1);
+                    ctx.lineTo(x2, y2);
+                    ctx.stroke();
+                }
+                ctx.setLineDash([]);
+            }
         }
 
-        function runPrimeSieve() {
-             const M = currentM;
-             if (M === 0) return;
-             alert(`Sieve running up to ${M}... (Functionality to highlight prime residues would be implemented here)`);
-        }
-        
-        function drawLiftingRings() {
-            const numLifts = parseInt(document.getElementById('num-lifts').value);
-            const liftType = document.getElementById('lift-type').value;
-            const gapG = parseInt(document.getElementById('gap-g').value);
-            drawLiftingRings(currentM, numLifts, liftType, gapG, ctxGap, canvasGap.width, canvasGap.height);
-        }
+        function drawLatticeDiagram(canvas, range, m, displayMode, showLabels) {
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+            const centerX = width / 2;
+            const centerY = height / 2;
+            const scale = Math.min(width, height) / (2 * range + 2);
 
+            // Clear canvas
+            ctx.clearRect(0, 0, width, height);
 
-        // --- EXPORT & SHARING FUNCTIONS ---
+            // Draw axes
+            ctx.strokeStyle = '#bdc3c7';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(0, centerY);
+            ctx.lineTo(width, centerY);
+            ctx.moveTo(centerX, 0);
+            ctx.lineTo(centerX, height);
+            ctx.stroke();
 
-        function generateShareLink() {
-            const a = document.getElementById('inputA').value;
-            const b = document.getElementById('inputB').value;
-            const r = document.getElementById('residue-r').value;
-            const g = document.getElementById('gap-g').value;
-            const lifts = document.getElementById('num-lifts').value;
-            const coords = document.getElementById('coord-system').value;
-            
-            const params = new URLSearchParams();
-            params.append('a', a);
-            params.append('b', b);
-            params.append('r', r);
-            params.append('g', g);
-            params.append('lifts', lifts);
-            params.append('coords', coords);
-            
-            const shareURL = window.location.origin + window.location.pathname + '?' + params.toString();
-            
-            document.getElementById('share-link-output').textContent = shareURL;
-            navigator.clipboard.writeText(shareURL).then(() => {
-                alert("Shareable link copied to clipboard!");
+            // Draw unit circle
+            const unitRadius = scale;
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, unitRadius, 0, 2 * Math.PI);
+            ctx.strokeStyle = '#95a5a6';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([5, 5]);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // Get primitive points
+            const primitivePoints = getPrimitiveLatticePoints(range);
+            let visibleCount = 0;
+            let primeCount = 0;
+
+            // Filter points based on display mode
+            let filteredPoints = primitivePoints;
+            if (displayMode === 'primes') {
+                filteredPoints = primitivePoints.filter(p => p.isPrime);
+            } else if (displayMode === 'specific') {
+                filteredPoints = primitivePoints.filter(p => p.norm === m);
+            }
+
+            // Draw primitive vectors
+            filteredPoints.forEach(point => {
+                const x = centerX + point.a * scale;
+                const y = centerY - point.b * scale;
+
+                // Draw line from origin
+                ctx.beginPath();
+                ctx.moveTo(centerX, centerY);
+                ctx.lineTo(x, y);
+                ctx.strokeStyle = point.isPrime ? '#f39c12' : '#27ae60';
+                ctx.lineWidth = 1.5;
+                ctx.globalAlpha = 0.4;
+                ctx.stroke();
+                ctx.globalAlpha = 1.0;
+
+                // Draw point
+                ctx.beginPath();
+                ctx.arc(x, y, 4, 0, 2 * Math.PI);
+                ctx.fillStyle = point.isPrime ? '#f39c12' : '#27ae60';
+                ctx.fill();
+                ctx.strokeStyle = '#2c3e50';
+                ctx.lineWidth = 1;
+                ctx.stroke();
+
+                if (showLabels && Math.abs(point.a) <= 5 && Math.abs(point.b) <= 5) {
+                    ctx.fillStyle = '#2c3e50';
+                    ctx.font = '11px serif';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(`(${point.a},${point.b})`, x, y - 10);
+                }
+
+                visibleCount++;
+                if (point.isPrime) primeCount++;
             });
-            return shareURL;
+
+            // Draw normalized directions on unit circle
+            filteredPoints.forEach(point => {
+                const norm = Math.sqrt(point.norm);
+                const angle = Math.atan2(point.b, point.a);
+                const x = centerX + unitRadius * Math.cos(angle);
+                const y = centerY - unitRadius * Math.sin(angle);
+
+                ctx.beginPath();
+                ctx.arc(x, y, 5, 0, 2 * Math.PI);
+                ctx.fillStyle = point.isPrime ? '#e67e22' : '#16a085';
+                ctx.fill();
+                ctx.strokeStyle = '#2c3e50';
+                ctx.lineWidth = 1.5;
+                ctx.stroke();
+            });
+
+            return { visibleCount, primeCount };
         }
 
-        function loadParametersFromURL() {
-            const params = new URLSearchParams(window.location.search);
-            
-            if (params.has('a')) document.getElementById('inputA').value = params.get('a');
-            if (params.has('b')) document.getElementById('inputB').value = params.get('b');
-            if (params.has('r')) document.getElementById('residue-r').value = params.get('r');
-            if (params.has('g')) document.getElementById('gap-g').value = params.get('g');
-            if (params.has('lifts')) document.getElementById('num-lifts').value = params.get('lifts');
-            if (params.has('coords')) document.getElementById('coord-system').value = params.get('coords');
-            
-            if (params.toString().length > 0) {
-                calculateAndDraw();
-            }
+        // Update visualization
+        function updateVisualization() {
+            const m = parseInt(document.getElementById('modulus').value);
+            const range = parseInt(document.getElementById('latticeRange').value);
+            const displayMode = document.getElementById('displayMode').value;
+            const showLabels = document.getElementById('showLabels').checked;
+            const showSquare = document.getElementById('showSquare').checked;
+
+            const modularCanvas = document.getElementById('modularCanvas');
+            const latticeCanvas = document.getElementById('latticeCanvas');
+
+            drawModularCircle(modularCanvas, m, showSquare, showLabels);
+            const stats = drawLatticeDiagram(latticeCanvas, range, m, displayMode, showLabels);
+
+            // Update info panel
+            const residues = getReducedResidues(m);
+            document.getElementById('infoModulus').textContent = m;
+            document.getElementById('infoTotient').textContent = eulerTotient(m);
+            document.getElementById('infoResidues').textContent = residues.join(', ');
+            document.getElementById('infoPrimitive').textContent = stats.visibleCount;
+            document.getElementById('infoPrimeNorms').textContent = stats.primeCount;
+            document.getElementById('infoAngles').textContent = residues.length;
         }
 
-        /**
-         * Renders a canvas at a target resolution and triggers a download.
-         */
-        function exportSingleCanvas(canvasId, fileName) {
-            const resolution = parseInt(document.getElementById('export-resolution').value);
-            const M = currentM;
-            const tempCanvas = document.createElement('canvas');
-            tempCanvas.width = resolution;
-            tempCanvas.height = resolution;
-            const tempCtx = tempCanvas.getContext('2d');
-            
-            const coordSystem = document.getElementById('coord-system').value;
-            const numLifts = parseInt(document.getElementById('num-lifts').value);
-            const liftType = document.getElementById('lift-type').value;
-            const gapG = parseInt(document.getElementById('gap-g').value);
-
-            // Redraw the scene at the new high resolution
-            if (canvasId === 'canvasGCD') {
-                drawGCDGeometry(M, coordSystem, tempCtx, resolution, resolution);
-            } else if (canvasId === 'canvasGaussian') {
-                drawGaussian(currentA, currentB, M, tempCtx, resolution, resolution);
-            } else if (canvasId === 'canvasGap') {
-                drawLiftingRings(M, numLifts, liftType, gapG, tempCtx, resolution, resolution);
-            }
-
-            // Trigger Download
-            tempCanvas.toBlob(function(blob) {
-                const link = document.createElement('a');
-                link.download = `${fileName}_M${M}_${resolution}x${resolution}.png`;
-                link.href = URL.createObjectURL(blob);
-                link.click();
-            }, 'image/png');
-        }
-
-        function exportCanvases() {
-            if (currentM === 0) return alert("Please set a valid diagonal (a, b) first.");
-
-            exportSingleCanvas('canvasGCD', 'GCD_Geometry');
-            exportSingleCanvas('canvasGaussian', 'Gaussian_Prime');
-            exportSingleCanvas('canvasGap', 'Modular_Lifting');
-        }
-
-        function exportCSV() {
-            const M = currentM;
-            if (M === 0) return alert("Please set a valid modulus M first.");
-
-            let csv = "Residue r,GCD(r,M),Status,Angle (Degrees),Element Order\n";
-            
-            for (let r = 1; r < M; r++) {
-                const g = gcd(r, M);
-                const status = g === 1 ? 'Open (Character Support)' : 'Pruned (Zero Divisor)';
-                const angleDeg = (360 * r / M).toFixed(4);
-                const order = elementOrder(r, M); 
-                
-                csv += `${r},${g},"${status}",${angleDeg},${order}\n`;
-            }
-
-            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        // Export functions
+        function exportCanvas(canvasId, filename) {
+            const canvas = document.getElementById(canvasId);
             const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = `GCD_Analysis_M${M}_Full_Report.csv`;
+            link.download = filename;
+            link.href = canvas.toDataURL('image/png');
             link.click();
-            alert(`Exported GCD Analysis for M=${M} to CSV.`);
         }
 
-        function generatePDF() {
-            alert("This function requires an external PDF library (like jsPDF) to generate a professional multi-page report, including all canvases and data tables.");
+        function exportBoth() {
+            exportCanvas('modularCanvas', 'modular_circle.png');
+            setTimeout(() => {
+                exportCanvas('latticeCanvas', 'lattice_directions.png');
+            }, 100);
         }
 
+        function exportHighRes() {
+            const modularCanvas = document.getElementById('modularCanvas');
+            const latticeCanvas = document.getElementById('latticeCanvas');
+            
+            // Create high-res canvases
+            const hiResModular = document.createElement('canvas');
+            const hiResLattice = document.createElement('canvas');
+            hiResModular.width = 3840;
+            hiResModular.height = 3840;
+            hiResLattice.width = 3840;
+            hiResLattice.height = 3840;
 
-        // --- INITIALIZATION ---
-        
-        document.getElementById('coord-system').addEventListener('change', () => calculateAndDraw());
-        document.getElementById('num-lifts').addEventListener('change', drawLiftingRings);
-        document.getElementById('gap-g').addEventListener('change', drawLiftingRings);
-        document.getElementById('lift-type').addEventListener('change', drawLiftingRings);
-        document.getElementById('inputA').addEventListener('change', calculateAndDraw);
-        document.getElementById('inputB').addEventListener('change', calculateAndDraw);
+            // Get current settings
+            const m = parseInt(document.getElementById('modulus').value);
+            const range = parseInt(document.getElementById('latticeRange').value);
+            const displayMode = document.getElementById('displayMode').value;
+            const showLabels = document.getElementById('showLabels').checked;
+            const showSquare = document.getElementById('showSquare').checked;
 
+            // Draw on high-res canvases
+            const oldModular = modularCanvas.width;
+            const oldLattice = latticeCanvas.width;
+            
+            modularCanvas.width = hiResModular.width;
+            modularCanvas.height = hiResModular.height;
+            latticeCanvas.width = hiResLattice.width;
+            latticeCanvas.height = hiResLattice.height;
 
-        document.addEventListener('DOMContentLoaded', () => {
-             loadParametersFromURL();
-             if (currentM === 0) { // If no URL params loaded, run default
-                calculateAndDraw();
-             }
-        });
+            drawModularCircle(modularCanvas, m, showSquare, showLabels);
+            drawLatticeDiagram(latticeCanvas, range, m, displayMode, showLabels);
+
+            // Export
+            const link1 = document.createElement('a');
+            link1.download = 'modular_circle_4K.png';
+            link1.href = modularCanvas.toDataURL('image/png');
+            link1.click();
+
+            setTimeout(() => {
+                const link2 = document.createElement('a');
+                link2.download = 'lattice_directions_4K.png';
+                link2.href = latticeCanvas.toDataURL('image/png');
+                link2.click();
+
+                // Restore original size
+                modularCanvas.width = oldModular;
+                modularCanvas.height = oldModular;
+                latticeCanvas.width = oldLattice;
+                latticeCanvas.height = oldLattice;
+                updateVisualization();
+            }, 100);
+        }
+
+        // Event listeners
+        document.getElementById('modulus').addEventListener('input', updateVisualization);
+        document.getElementById('latticeRange').addEventListener('input', updateVisualization);
+        document.getElementById('displayMode').addEventListener('change', updateVisualization);
+        document.getElementById('showLabels').addEventListener('change', updateVisualization);
+        document.getElementById('showSquare').addEventListener('change', updateVisualization);
+
+        // Initial draw
+        updateVisualization();
     </script>
 </body>
 </html>
