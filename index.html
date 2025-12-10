@@ -153,23 +153,9 @@
 
         .main-layout {
             display: grid;
-            grid-template-columns: 1fr;
+            grid-template-columns: 1fr 450px;
             gap: 25px;
             margin-bottom: 30px;
-        }
-        
-        /* Desktop: Side-by-side canvases */
-        @media (min-width: 1400px) {
-            .main-layout {
-                grid-template-columns: 1fr 1fr 400px;
-            }
-        }
-        
-        /* Mobile: Stacked layout */
-        @media (max-width: 1399px) {
-            .main-layout {
-                grid-template-columns: 1fr;
-            }
         }
 
         .canvas-section {
@@ -587,7 +573,7 @@
         </div>
 
         <div class="controls-panel">
-            <div class="section-title">Global Controls & Filters</div>
+            <div class="section-title">⚙ Global Controls & Filters</div>
             
             <div class="control-row">
                 <div class="control-group">
@@ -628,8 +614,8 @@
             </div>
 
             <div class="animation-controls">
-                <div class="subsection-title">Animation Controls</div>
-                <button class="play-button" onclick="toggleAnimation()">Start Animation</button>
+                <div class="subsection-title">🎬 Animation Controls</div>
+                <button class="play-button" onclick="toggleAnimation()">▶ Start Animation</button>
                 <button onclick="stepModulus(1)">Step +1</button>
                 <button onclick="stepModulus(-1)">Step -1</button>
                 <span style="margin-left: 15px; color: var(--text-secondary);">Speed:</span>
@@ -638,7 +624,7 @@
 
             <!-- Gap Analysis System -->
             <div class="control-section" style="margin-top: 25px; padding: 20px; background: var(--bg-card); border-radius: 8px; border: 1px solid var(--border);">
-                <div class="subsection-title">Gap Analysis</div>
+                <div class="subsection-title">📊 Gap Analysis</div>
                 
                 <div id="gapControls" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 15px;">
                     <!-- Dynamically generated gap checkboxes -->
@@ -672,7 +658,7 @@
 
             <!-- Smith Chart Transform -->
             <div class="control-section" style="margin-top: 25px; padding: 20px; background: var(--bg-card); border-radius: 8px; border: 1px solid var(--border);">
-                <div class="subsection-title">Smith Chart Transform (Cayley Map)</div>
+                <div class="subsection-title">🔄 Smith Chart Transform (Cayley Map)</div>
                 
                 <div class="checkbox-group" style="margin-bottom: 15px;">
                     <input type="checkbox" id="enableSmithChart" onchange="toggleSmithChart()">
@@ -683,11 +669,6 @@
                     <div class="control-group" style="margin-bottom: 12px;">
                         <label>Global Phase Shift α: <span id="smithAlphaValue" class="slider-value">90</span>°</label>
                         <input type="range" id="smithAlpha" min="0" max="360" value="90" oninput="updateSmithChart()">
-                    </div>
-                    
-                    <div class="control-group" style="margin-bottom: 12px;">
-                        <label>Phase Rotation β: <span id="smithPhaseValue" class="slider-value">0</span>°</label>
-                        <input type="range" id="smithPhase" min="0" max="360" value="0" oninput="updateSmithPhase()">
                     </div>
                     
                     <div class="control-group" style="margin-bottom: 12px;">
@@ -724,7 +705,7 @@
 
             <!-- Lift Dynamics -->
             <div class="control-section" style="margin-top: 25px; padding: 20px; background: var(--bg-card); border-radius: 8px; border: 1px solid var(--border);">
-                <div class="subsection-title">Lift Dynamics</div>
+                <div class="subsection-title">⬆️ Lift Dynamics</div>
                 
                 <div class="checkbox-group" style="margin-bottom: 10px;">
                     <input type="checkbox" id="showDirectLifts" checked onchange="draw1()">
@@ -808,18 +789,6 @@
                             <div class="checkbox-group">
                                 <input type="checkbox" id="c1ShowAxes" checked onchange="draw1()">
                                 <label for="c1ShowAxes">Axes</label>
-                            </div>
-                            <div class="checkbox-group">
-                                <input type="checkbox" id="c1ShowGaps" checked onchange="draw1()">
-                                <label for="c1ShowGaps">Gap Analysis</label>
-                            </div>
-                            <div class="checkbox-group">
-                                <input type="checkbox" id="c1ShowSmith" onchange="draw1()">
-                                <label for="c1ShowSmith">Smith Transform</label>
-                            </div>
-                            <div class="checkbox-group">
-                                <input type="checkbox" id="c1ShowLifts" onchange="draw1()">
-                                <label for="c1ShowLifts">Lift Dynamics</label>
                             </div>
                         </div>
 
@@ -955,7 +924,7 @@
 
             <!-- Right Sidebar - Detailed Legend & Analysis -->
             <div class="legend-sidebar">
-                <div class="section-title">Detailed Analysis & Legend</div>
+                <div class="section-title">📊 Detailed Analysis & Legend</div>
 
                 <div id="inspectionPanel" class="inspection-panel" style="display:none;">
                     <div class="inspection-title">🔍 Inspected Point</div>
@@ -986,7 +955,7 @@
         </div>
 
         <div class="stats-panel" style="background: var(--bg-card); padding: 25px; border-radius: 12px; margin-bottom: 30px; border-left: 4px solid var(--gold);">
-            <div class="section-title">Global Statistics</div>
+            <div class="section-title">📊 Global Statistics</div>
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
                 <div style="background: var(--bg-panel); padding: 15px; border-radius: 8px; border: 1px solid var(--border);">
                     <div style="font-size: 0.9em; color: var(--text-secondary); margin-bottom: 5px;">Canvas 1 Modulus</div>
@@ -1244,13 +1213,13 @@
             animating = !animating;
             const btn = event.target;
             if (animating) {
-                btn.textContent = 'Pause';
+                btn.textContent = '⏸ Pause';
                 const speed = parseInt(document.getElementById('animSpeed').value);
                 animInterval = setInterval(() => {
                     stepModulus(1);
                 }, speed);
             } else {
-                btn.textContent = 'Start';
+                btn.textContent = '▶ Start';
                 clearInterval(animInterval);
             }
         }
@@ -1383,20 +1352,14 @@
                 ctx.stroke();
             }
             
-            // Draw Gap Analysis (after polygon, before Smith) - only if enabled
-            if (document.getElementById('c1ShowGaps')?.checked) {
-                drawGapAnalysis(ctx, m, cx, cy, r, residues, currentTheme);
-            }
+            // Draw Gap Analysis (after polygon, before Smith)
+            drawGapAnalysis(ctx, m, cx, cy, r, residues, currentTheme);
             
-            // Draw Lift Dynamics (shows connections to m+1) - only if enabled
-            if (document.getElementById('c1ShowLifts')?.checked) {
-                drawLifts(ctx, m, cx, cy, r, residues, currentTheme);
-            }
+            // Draw Lift Dynamics (shows connections to m+1)
+            drawLifts(ctx, m, cx, cy, r, residues, currentTheme);
             
-            // Draw Smith Chart Transform (last, so it's on top) - only if enabled
-            if (document.getElementById('c1ShowSmith')?.checked && smithChartEnabled) {
-                drawSmithTransform(ctx, m, cx, cy, r, residues, pSize, currentTheme);
-            }
+            // Draw Smith Chart Transform (last, so it's on top)
+            drawSmithTransform(ctx, m, cx, cy, r, residues, pSize, currentTheme);
             
             updateLegend1(m, residues);
         }
@@ -1559,8 +1522,10 @@
                                 break;
                         }
                         
-                        // Label ALL points (no filtering)
-                        ctx.fillText(labelText, x, y - 8);
+                        // Only label if not too crowded (optional spacing filter)
+                        if (Math.abs(p.a) <= 8 && Math.abs(p.b) <= 8) {
+                            ctx.fillText(labelText, x, y - 8);
+                        }
                     }
                 }
                 
@@ -1649,34 +1614,11 @@
                     ctx.lineWidth = 1.5;
                     ctx.stroke();
                     
-                    if (labelFormat !== 'none') {
+                    if (showLabels && m <= 20) {
                         ctx.fillStyle = theme === 'dark' ? '#E8E8E8' : '#1a202c';
-                        ctx.font = 'bold 9px sans-serif';
+                        ctx.font = '9px sans-serif';
                         ctx.textAlign = 'center';
-                        ctx.textBaseline = 'bottom';
-                        
-                        let labelText = '';
-                        const angle = (2 * Math.PI * ri / m) - Math.PI / 2;
-                        
-                        switch(labelFormat) {
-                            case 'coords':
-                                labelText = `${ri}/${m}`;
-                                break;
-                            case 'norm':
-                                labelText = `${ri}`;
-                                break;
-                            case 'gcd':
-                                labelText = `gcd=${gcd(ri, m)}`;
-                                break;
-                            case 'theta':
-                                labelText = angle.toFixed(2);
-                                break;
-                            case 'deg':
-                                labelText = Math.round(angle * 180 / Math.PI) + '°';
-                                break;
-                        }
-                        
-                        ctx.fillText(labelText, x, y - 8);
+                        ctx.fillText(`${ri}/${m}`, x, y - 8);
                     }
                     
                     totalPoints++;
@@ -1690,48 +1632,7 @@
                 }
             }
             
-            // Draw Smith Chart Transform on rings if enabled
-            if (document.getElementById('c1ShowSmith')?.checked && smithChartEnabled) {
-                drawSmithTransformOnRings(ctx, maxMod, ringMode, cx, cy, spacing, pSize, theme);
-            }
-            
             updateLegend2Rings(maxMod, totalPoints, coprimeCount);
-        }
-        
-        function drawSmithTransformOnRings(ctx, maxMod, ringMode, cx, cy, spacing, pSize, theme) {
-            ctx.save();
-            const R = getSmithRadius(maxMod);
-            
-            for (let m = 2; m <= maxMod; m++) {
-                const baseR = ringMode === 'standard' ? m * spacing : (maxMod - m + 2) * spacing;
-                const residues = getResidues(m);
-                
-                residues.forEach(res => {
-                    const theta = (2 * Math.PI * res / m) + smithAlpha + smithPhase;
-                    const z = {
-                        re: R * Math.cos(theta),
-                        im: R * Math.sin(theta)
-                    };
-                    
-                    const gamma = cayleyTransform(z);
-                    
-                    // Map to screen coordinates (scaled to ring radius)
-                    const scale = baseR * 0.3;
-                    const screenX = cx + baseR * Math.cos((2 * Math.PI * res / m) - Math.PI / 2) + gamma.re * scale;
-                    const screenY = cy + baseR * Math.sin((2 * Math.PI * res / m) - Math.PI / 2) - gamma.im * scale;
-                    
-                    // Draw small transformed point
-                    ctx.beginPath();
-                    ctx.arc(screenX, screenY, pSize * 0.7, 0, 2 * Math.PI);
-                    ctx.fillStyle = theme === 'dark' ? 'rgba(0, 255, 255, 0.6)' : 'rgba(0, 145, 178, 0.6)';
-                    ctx.fill();
-                    ctx.strokeStyle = theme === 'dark' ? '#FFD700' : '#d69e00';
-                    ctx.lineWidth = 1;
-                    ctx.stroke();
-                });
-            }
-            
-            ctx.restore();
         }
 
         function updateLegend1(m, residues) {
@@ -2283,21 +2184,6 @@
                 { color: '#9F7AEA', text: 'Inscribed Polygon' }
             ];
             
-            // Add active features
-            const activeFeatures1 = [];
-            if (document.getElementById('c1ShowGaps')?.checked && selectedGaps.length > 0) {
-                activeFeatures1.push(`Gap Analysis: ${selectedGaps.join(', ')}`);
-            }
-            if (document.getElementById('c1ShowSmith')?.checked && smithChartEnabled) {
-                activeFeatures1.push(`Smith Transform: α=${Math.round(smithAlpha*180/Math.PI)}° β=${Math.round(smithPhase*180/Math.PI)}°`);
-            }
-            if (document.getElementById('c1ShowLifts')?.checked) {
-                const lifts = [];
-                if (document.getElementById('showDirectLifts')?.checked) lifts.push('Direct');
-                if (document.getElementById('showModularLifts')?.checked) lifts.push('Modular');
-                if (lifts.length > 0) activeFeatures1.push(`Lifts: ${lifts.join(', ')}`);
-            }
-            
             const fontSize = Math.floor(exportRes/50);
             ctx.font = `${fontSize}px sans-serif`;
             legendItems1.forEach((item, i) => {
@@ -2313,18 +2199,6 @@
                 ctx.textAlign = 'left';
                 ctx.fillText(item.text, x1 + 75, y + 28);
             });
-            
-            // Add active features below legend items
-            if (activeFeatures1.length > 0) {
-                ctx.fillStyle = goldColor;
-                ctx.font = `bold ${Math.floor(fontSize * 0.9)}px sans-serif`;
-                ctx.fillText('Active Features:', x1 + 20, yLegend + 80 + (3 * 60) + 20);
-                ctx.fillStyle = textColor;
-                ctx.font = `${Math.floor(fontSize * 0.85)}px sans-serif`;
-                activeFeatures1.forEach((feat, i) => {
-                    ctx.fillText(`• ${feat}`, x1 + 30, yLegend + 80 + (3 * 60) + 55 + (i * 30));
-                });
-            }
             
             // CANVAS 2 Section
             const x2 = padding + canvasWidth + padding;
@@ -2557,7 +2431,6 @@
         // ==================== SMITH CHART TRANSFORM ====================
         let smithChartEnabled = false;
         let smithAlpha = Math.PI / 2;
-        let smithPhase = 0; // Phase rotation
         let smithRadiusMode = 'scaled';
         let smithCustomScale = 1.0;
 
@@ -2583,13 +2456,6 @@
         function updateSmithScale() {
             smithCustomScale = parseFloat(document.getElementById('smithScale').value);
             document.getElementById('smithScaleValue').textContent = smithCustomScale.toFixed(1);
-            draw1();
-        }
-        
-        function updateSmithPhase() {
-            const phase = parseFloat(document.getElementById('smithPhase').value);
-            smithPhase = phase * Math.PI / 180;
-            document.getElementById('smithPhaseValue').textContent = phase;
             draw1();
         }
 
@@ -2661,7 +2527,7 @@
             const R = getSmithRadius(m);
             
             residues.forEach(res => {
-                const theta = (2 * Math.PI * res / m) + smithAlpha + smithPhase;
+                const theta = (2 * Math.PI * res / m) + smithAlpha;
                 const z = {
                     re: R * Math.cos(theta),
                     im: R * Math.sin(theta)
@@ -2846,4 +2712,4 @@
         }
     </script>
 </body>
-                </html>
+                    </html>
