@@ -188,11 +188,17 @@
             font-weight: normal;
         }
 
-        .canvas-grid {
+        .main-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: 1fr 400px;
             gap: 25px;
             margin-bottom: 30px;
+        }
+
+        .canvas-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 25px;
         }
 
         .canvas-panel {
@@ -200,6 +206,14 @@
             padding: 20px;
             border-radius: 12px;
             border: 1px solid var(--border);
+        }
+
+        .right-sidebar {
+            position: sticky;
+            top: 20px;
+            height: fit-content;
+            max-height: calc(100vh - 40px);
+            overflow-y: auto;
         }
 
         .canvas-header {
@@ -241,31 +255,139 @@
 
         .legend-panel {
             background: var(--bg-panel);
-            padding: 15px;
+            padding: 20px;
             border-radius: 8px;
-            margin-top: 15px;
+            margin-bottom: 20px;
             border: 1px solid var(--border);
         }
 
         .legend-title {
             font-weight: 600;
             color: var(--cyan);
+            margin-bottom: 15px;
+            font-size: 1.3em;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .legend-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: var(--bg-card);
+            border-radius: 6px;
+            border-left: 3px solid var(--cyan);
+        }
+
+        .legend-section-title {
+            font-weight: 600;
+            color: var(--gold);
             margin-bottom: 12px;
+            font-size: 1.1em;
         }
 
         .legend-item {
             display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 8px;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 15px;
             color: var(--text-secondary);
+            padding: 8px;
+            background: var(--bg-panel);
+            border-radius: 4px;
         }
 
         .legend-color {
-            width: 24px;
-            height: 24px;
+            width: 28px;
+            height: 28px;
+            min-width: 28px;
             border-radius: 4px;
             border: 2px solid var(--border);
+            margin-top: 2px;
+        }
+
+        .legend-item-content {
+            flex: 1;
+        }
+
+        .legend-item-label {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 5px;
+        }
+
+        .legend-item-description {
+            font-size: 0.9em;
+            line-height: 1.5;
+            color: var(--text-secondary);
+        }
+
+        .legend-formula {
+            background: var(--bg-deep);
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            color: var(--cyan);
+            margin-top: 8px;
+            border: 1px solid var(--border);
+        }
+
+        .analysis-section {
+            background: var(--bg-card);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border: 1px solid var(--border);
+        }
+
+        .analysis-title {
+            font-weight: 600;
+            color: var(--accent-purple);
+            margin-bottom: 10px;
+            font-size: 1.05em;
+        }
+
+        .analysis-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .analysis-item:last-child {
+            border-bottom: none;
+        }
+
+        .analysis-label {
+            color: var(--text-secondary);
+            font-size: 0.9em;
+        }
+
+        .analysis-value {
+            color: var(--cyan);
+            font-weight: 600;
+            font-family: monospace;
+        }
+
+        .insight-box {
+            background: var(--bg-panel);
+            padding: 12px;
+            border-radius: 6px;
+            margin-top: 12px;
+            border-left: 3px solid var(--accent-green);
+        }
+
+        .insight-title {
+            font-weight: 600;
+            color: var(--accent-green);
+            margin-bottom: 6px;
+            font-size: 0.95em;
+        }
+
+        .insight-text {
+            font-size: 0.85em;
+            line-height: 1.5;
+            color: var(--text-secondary);
         }
 
         .stats-panel {
@@ -1140,15 +1262,26 @@
                     ctx.beginPath();
                     ctx.moveTo(cx, cy);
                     ctx.lineTo(x, y);
+                    
+                    let lineColor;
                     if (colorScheme === 'gcdBased') {
-                        ctx.strokeStyle = getColor('gcdBased', p.gcdVal, 10, false, false);
+                        lineColor = getColor('rainbow', p.gcdVal, 10, false, false);
                     } else if (colorScheme === 'normBased') {
-                        ctx.strokeStyle = getColor('normBased', p.norm, 500, false, false);
+                        lineColor = getColor('heatmap', p.norm, 500, false, false);
+                    } else if (colorScheme === 'rainbow') {
+                        const idx = pts.indexOf(p);
+                        lineColor = getColor('rainbow', idx, pts.length, false, false);
+                    } else if (colorScheme === 'heatmap') {
+                        lineColor = getColor('heatmap', p.norm, 500, false, false);
+                    } else if (colorScheme === 'monochrome') {
+                        lineColor = theme === 'dark' ? '#FFD700' : '#d69e00';
                     } else if (highlightPrimes && p.isPrime) {
-                        ctx.strokeStyle = theme === 'dark' ? '#FFD700' : '#d69e00';
+                        lineColor = theme === 'dark' ? '#FFD700' : '#d69e00';
                     } else {
-                        ctx.strokeStyle = theme === 'dark' ? '#48BB78' : '#059669';
+                        lineColor = theme === 'dark' ? '#48BB78' : '#059669';
                     }
+                    
+                    ctx.strokeStyle = lineColor;
                     ctx.lineWidth = lThick;
                     ctx.globalAlpha = 0.4;
                     ctx.stroke();
@@ -1158,19 +1291,32 @@
                 if (showLattice) {
                     ctx.beginPath();
                     ctx.arc(x, y, pSize, 0, 2 * Math.PI);
+                    
+                    let pointColor;
                     if (colorScheme === 'normBased') {
-                        ctx.fillStyle = getColor('normBased', p.norm, 500, false, false);
+                        pointColor = getColor('heatmap', p.norm, 500, false, false);
+                    } else if (colorScheme === 'gcdBased') {
+                        pointColor = getColor('rainbow', p.gcdVal, 10, false, false);
+                    } else if (colorScheme === 'rainbow') {
+                        const idx = pts.indexOf(p);
+                        pointColor = getColor('rainbow', idx, pts.length, false, false);
+                    } else if (colorScheme === 'heatmap') {
+                        pointColor = getColor('heatmap', p.norm, 500, false, false);
+                    } else if (colorScheme === 'monochrome') {
+                        pointColor = theme === 'dark' ? '#FFD700' : '#d69e00';
+                    } else if (highlightPrimes && p.isPrime) {
+                        pointColor = theme === 'dark' ? '#FFD700' : '#d69e00';
                     } else {
-                        ctx.fillStyle = highlightPrimes && p.isPrime ? 
-                            (theme === 'dark' ? '#FFD700' : '#d69e00') :
-                            (theme === 'dark' ? '#48BB78' : '#059669');
+                        pointColor = theme === 'dark' ? '#48BB78' : '#059669';
                     }
+                    
+                    ctx.fillStyle = pointColor;
                     ctx.fill();
                     ctx.strokeStyle = theme === 'dark' ? '#E8E8E8' : '#1a202c';
                     ctx.lineWidth = 1.5;
                     ctx.stroke();
                     
-                    if (showLabels && Math.abs(p.a) <= 8 && Math.abs(p.b) <= 8) {
+                    if (showLabels) {
                         ctx.fillStyle = theme === 'dark' ? '#E8E8E8' : '#1a202c';
                         ctx.font = '10px sans-serif';
                         ctx.textAlign = 'center';
@@ -1250,13 +1396,36 @@
                     
                     ctx.beginPath();
                     ctx.arc(x, y, isRed ? pSize + 1 : pSize - 1, 0, 2 * Math.PI);
-                    ctx.fillStyle = getColor(colorScheme, ri, m, isRed, false);
+                    
+                    let pointColor;
+                    if (colorScheme === 'rainbow') {
+                        pointColor = getColor('rainbow', ri, m, false, false);
+                    } else if (colorScheme === 'heatmap') {
+                        pointColor = getColor('heatmap', ri, m, false, false);
+                    } else if (colorScheme === 'monochrome') {
+                        pointColor = theme === 'dark' ? '#FFD700' : '#d69e00';
+                    } else if (colorScheme === 'pastel') {
+                        pointColor = isRed ? '#A7C7E7' : '#FFB6C1';
+                    } else if (colorScheme === 'neon') {
+                        pointColor = isRed ? '#00FF00' : '#FF00FF';
+                    } else if (colorScheme === 'gcdBased') {
+                        const g = gcd(ri, m);
+                        pointColor = getColor('rainbow', g, m, false, false);
+                    } else if (colorScheme === 'normBased') {
+                        pointColor = getColor('heatmap', ri, m, false, false);
+                    } else {
+                        pointColor = isRed ? 
+                            (theme === 'dark' ? '#00FFFF' : '#0891b2') :
+                            (theme === 'dark' ? '#e74c3c' : '#dc2626');
+                    }
+                    
+                    ctx.fillStyle = pointColor;
                     ctx.fill();
                     ctx.strokeStyle = theme === 'dark' ? '#E8E8E8' : '#1a202c';
                     ctx.lineWidth = 1.5;
                     ctx.stroke();
                     
-                    if (showLabels && m <= 15) {
+                    if (showLabels && m <= 25) {
                         ctx.fillStyle = theme === 'dark' ? '#E8E8E8' : '#1a202c';
                         ctx.font = '9px sans-serif';
                         ctx.textAlign = 'center';
@@ -1264,7 +1433,7 @@
                     }
                 }
                 
-                if (m <= 15) {
+                if (m <= 25) {
                     ctx.fillStyle = theme === 'dark' ? '#FFD700' : '#d69e00';
                     ctx.font = 'bold 11px sans-serif';
                     ctx.fillText(`m=${m}`, cx + r + 5, cy);
@@ -1494,4 +1663,4 @@
         draw2();
     </script>
 </body>
-</html>
+    </html>
