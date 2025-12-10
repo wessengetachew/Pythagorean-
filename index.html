@@ -88,61 +88,6 @@
 
         .theme-toggle:hover { border-color: var(--gold); transform: translateY(-2px); }
 
-        .fullscreen-toggle {
-            position: fixed;
-            top: 20px;
-            right: 160px;
-            background: var(--bg-card);
-            border: 2px solid var(--border);
-            color: var(--text-primary);
-            padding: 10px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            z-index: 1000;
-            transition: all 0.3s;
-        }
-
-        .fullscreen-toggle:hover { border-color: var(--cyan); transform: translateY(-2px); }
-
-        .fullscreen-mode {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: var(--bg-deep);
-            z-index: 999;
-            display: none;
-            padding: 20px;
-        }
-
-        .fullscreen-mode.active { display: block; }
-
-        .fullscreen-content {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            gap: 20px;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .fullscreen-canvas {
-            max-width: calc(50% - 10px);
-            max-height: 100%;
-            background: var(--bg-card);
-            border-radius: 12px;
-            padding: 20px;
-            border: 1px solid var(--border);
-        }
-
-        .fullscreen-canvas canvas {
-            width: 100%;
-            height: auto;
-            max-height: calc(100vh - 100px);
-        }
-
         .controls-panel {
             background: var(--bg-panel);
             padding: 25px;
@@ -548,18 +493,6 @@
 </head>
 <body>
     <button class="theme-toggle" onclick="toggleTheme()">Toggle Theme</button>
-    <button class="fullscreen-toggle" onclick="toggleFullscreen()">Fullscreen</button>
-
-    <div class="fullscreen-mode" id="fullscreenMode">
-        <div class="fullscreen-content">
-            <div class="fullscreen-canvas">
-                <canvas id="fullscreenCanvas1" width="700" height="700"></canvas>
-            </div>
-            <div class="fullscreen-canvas">
-                <canvas id="fullscreenCanvas2" width="700" height="700"></canvas>
-            </div>
-        </div>
-    </div>
 
     <div class="tooltip" id="tooltip">
         <div class="tooltip-title" id="tooltipTitle"></div>
@@ -621,115 +554,6 @@
                 <span style="margin-left: 15px; color: var(--text-secondary);">Speed:</span>
                 <input type="range" id="animSpeed" min="100" max="2000" value="500" style="width: 150px; display: inline-block; margin-left: 10px;">
             </div>
-
-            <!-- Gap Analysis System -->
-            <div class="control-section" style="margin-top: 25px; padding: 20px; background: var(--bg-card); border-radius: 8px; border: 1px solid var(--border);">
-                <div class="subsection-title">📊 Gap Analysis</div>
-                
-                <div id="gapControls" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 15px;">
-                    <!-- Dynamically generated gap checkboxes -->
-                </div>
-                
-                <div style="padding: 15px; background: rgba(255, 215, 0, 0.05); border-radius: 6px; border: 1px solid rgba(255, 215, 0, 0.2);">
-                    <label style="font-weight: 600; color: var(--gold);">Dynamic Gap Generation</label>
-                    
-                    <div style="margin-top: 10px; display: flex; align-items: center; gap: 10px;">
-                        <label style="font-size: 0.9em;">Max Gap:</label>
-                        <input type="number" id="maxGap" min="2" step="2" value="12" style="width: 70px; padding: 5px;">
-                        <button onclick="generateGaps()" style="padding: 5px 12px; font-size: 0.9em;">Generate</button>
-                    </div>
-                    
-                    <div style="margin-top: 10px;">
-                        <label style="font-size: 0.9em; font-weight: 600;">Add Consecutive Range:</label>
-                        <div style="display: flex; align-items: center; gap: 8px; margin-top: 5px;">
-                            <span style="font-size: 0.85em;">From:</span>
-                            <input type="number" id="gapStart" min="2" value="14" style="width: 60px; padding: 5px;">
-                            <span style="font-size: 0.85em;">To:</span>
-                            <input type="number" id="gapEnd" min="3" value="20" style="width: 60px; padding: 5px;">
-                            <button onclick="addConsecutiveGaps()" style="padding: 5px 10px; font-size: 0.85em;">Add Range</button>
-                        </div>
-                    </div>
-                    
-                    <div style="margin-top: 10px;">
-                        <button onclick="clearAllGaps()" style="padding: 5px 15px; font-size: 0.9em; background: var(--accent-red);">Clear All Gaps</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Smith Chart Transform -->
-            <div class="control-section" style="margin-top: 25px; padding: 20px; background: var(--bg-card); border-radius: 8px; border: 1px solid var(--border);">
-                <div class="subsection-title">🔄 Smith Chart Transform (Cayley Map)</div>
-                
-                <div class="checkbox-group" style="margin-bottom: 15px;">
-                    <input type="checkbox" id="enableSmithChart" onchange="toggleSmithChart()">
-                    <label for="enableSmithChart">Enable Smith Chart Transform</label>
-                </div>
-                
-                <div id="smithChartControls" style="display: none;">
-                    <div class="control-group" style="margin-bottom: 12px;">
-                        <label>Global Phase Shift α: <span id="smithAlphaValue" class="slider-value">90</span>°</label>
-                        <input type="range" id="smithAlpha" min="0" max="360" value="90" oninput="updateSmithChart()">
-                    </div>
-                    
-                    <div class="control-group" style="margin-bottom: 12px;">
-                        <label>Radius Mode:</label>
-                        <select id="smithRadiusMode" onchange="updateSmithChart()">
-                            <option value="unit">Unit (R=1)</option>
-                            <option value="scaled" selected>Scaled (0.5-2.0)</option>
-                            <option value="modulus">By Modulus</option>
-                            <option value="custom">Custom</option>
-                        </select>
-                    </div>
-                    
-                    <div id="smithCustomScaleGroup" class="control-group" style="display: none; margin-bottom: 12px;">
-                        <label>Custom Scale: <span id="smithScaleValue" class="slider-value">1.0</span></label>
-                        <input type="range" id="smithScale" min="0.1" max="5" step="0.1" value="1.0" oninput="updateSmithScale()">
-                    </div>
-                    
-                    <div class="checkbox-group" style="margin-bottom: 10px;">
-                        <input type="checkbox" id="smithShowGrid" checked onchange="draw1()">
-                        <label for="smithShowGrid">Show Smith Grid</label>
-                    </div>
-                    
-                    <div style="margin-top: 12px; font-size: 0.85em; padding: 12px; background: rgba(0, 255, 255, 0.05); border-radius: 6px; border: 1px solid rgba(0, 255, 255, 0.2); line-height: 1.6;">
-                        <strong style="color: var(--cyan);">Cayley/Smith Transform:</strong><br>
-                        Γ = (z - 1)/(z + 1)<br>
-                        <span style="opacity: 0.8;">
-                        • R=1: Points map to vertical line<br>
-                        • R&lt;1: Interior of circle<br>
-                        • R&gt;1: Smith chart arcs
-                        </span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Lift Dynamics -->
-            <div class="control-section" style="margin-top: 25px; padding: 20px; background: var(--bg-card); border-radius: 8px; border: 1px solid var(--border);">
-                <div class="subsection-title">⬆️ Lift Dynamics</div>
-                
-                <div class="checkbox-group" style="margin-bottom: 10px;">
-                    <input type="checkbox" id="showDirectLifts" checked onchange="draw1()">
-                    <label for="showDirectLifts">Direct Lifts (r → r, consecutive m)</label>
-                </div>
-                
-                <div class="checkbox-group" style="margin-bottom: 15px;">
-                    <input type="checkbox" id="showModularLifts" onchange="draw1()">
-                    <label for="showModularLifts">Modular Lifts (r → r + m, consecutive m)</label>
-                </div>
-                
-                <div class="control-group" style="margin-bottom: 12px;">
-                    <label>Lift Line Thickness: <span id="liftThicknessValue" class="slider-value">2.0</span></label>
-                    <input type="range" id="liftThickness" min="0.5" max="5" step="0.5" value="2" oninput="updateLiftThickness()">
-                </div>
-                
-                <div style="margin-top: 12px; font-size: 0.85em; padding: 12px; background: rgba(72, 187, 120, 0.05); border-radius: 6px; border: 1px solid rgba(72, 187, 120, 0.2); line-height: 1.6;">
-                    <strong style="color: var(--accent-green);">Lift Types:</strong><br>
-                    <span style="opacity: 0.8;">
-                    <strong style="color: var(--gold);">Direct Lifts:</strong> How residues r connect between m and m+1<br>
-                    <strong style="color: #FF6384;">Modular Lifts:</strong> r → (r + m) mod (m+1) transformations
-                    </span>
-                </div>
-            </div>
         </div>
 
         <div class="main-layout">
@@ -763,21 +587,10 @@
                                 <input type="checkbox" id="c1ShowPoints" checked onchange="draw1()">
                                 <label for="c1ShowPoints">Points</label>
                             </div>
-                        </div>
-
-                        <div class="control-group" style="margin-top: 10px;">
-                            <label>Label Format:</label>
-                            <select id="c1LabelFormat" onchange="draw1()">
-                                <option value="none">None</option>
-                                <option value="r" selected>r (residue)</option>
-                                <option value="gcd">gcd(r,m)</option>
-                                <option value="theta">θ (radians)</option>
-                                <option value="ratio">r/m</option>
-                                <option value="deg">θ (degrees)</option>
-                            </select>
-                        </div>
-
-                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 10px;">
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="c1ShowLabels" checked onchange="draw1()">
+                                <label for="c1ShowLabels">Labels</label>
+                            </div>
                             <div class="checkbox-group">
                                 <input type="checkbox" id="c1ShowPoly" checked onchange="draw1()">
                                 <label for="c1ShowPoly">Polygon</label>
@@ -882,21 +695,13 @@
                                 <input type="checkbox" id="c2ShowCircle" checked onchange="draw2()">
                                 <label for="c2ShowCircle">Circle</label>
                             </div>
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="c2ShowLabels" checked onchange="draw2()">
+                                <label for="c2ShowLabels">Labels</label>
+                            </div>
                         </div>
 
-                        <div class="control-group" style="margin-top: 10px;">
-                            <label>Label Format:</label>
-                            <select id="c2LabelFormat" onchange="draw2()">
-                                <option value="none">None</option>
-                                <option value="coords" selected>(a,b) coords</option>
-                                <option value="norm">Norm (a²+b²)</option>
-                                <option value="gcd">gcd(a,b)</option>
-                                <option value="theta">θ (radians)</option>
-                                <option value="deg">θ (degrees)</option>
-                            </select>
-                        </div>
-
-                        <div class="control-group" style="margin-top: 15px;">
+                        <div class="control-group">
                             <label>Color Scheme:</label>
                             <select id="c2Color" onchange="draw2()">
                                 <option value="default">Default</option>
@@ -1247,7 +1052,7 @@
             
             const showCircle = document.getElementById('c1ShowCircle').checked;
             const showPoints = document.getElementById('c1ShowPoints').checked;
-            const labelFormat = document.getElementById('c1LabelFormat').value;
+            const showLabels = document.getElementById('c1ShowLabels').checked;
             const showPoly = document.getElementById('c1ShowPoly').checked;
             const showGrid = document.getElementById('c1ShowGrid').checked;
             const showAxes = document.getElementById('c1ShowAxes').checked;
@@ -1308,32 +1113,12 @@
                     ctx.lineWidth = 2;
                     ctx.stroke();
                     
-                    if (labelFormat !== 'none') {
+                    if (showLabels) {
                         ctx.fillStyle = theme === 'dark' ? '#E8E8E8' : '#1a202c';
-                        ctx.font = 'bold 12px sans-serif';
+                        ctx.font = '12px sans-serif';
                         ctx.textAlign = 'center';
                         ctx.textBaseline = 'middle';
-                        
-                        let labelText = '';
-                        switch(labelFormat) {
-                            case 'r':
-                                labelText = i.toString();
-                                break;
-                            case 'gcd':
-                                labelText = `gcd=${gcd(i, m)}`;
-                                break;
-                            case 'theta':
-                                labelText = (ang + Math.PI/2).toFixed(2);
-                                break;
-                            case 'ratio':
-                                labelText = `${i}/${m}`;
-                                break;
-                            case 'deg':
-                                labelText = Math.round((ang + Math.PI/2) * 180 / Math.PI) + '°';
-                                break;
-                        }
-                        
-                        ctx.fillText(labelText, cx + (r + 30) * Math.cos(ang), cy + (r + 30) * Math.sin(ang));
+                        ctx.fillText(i.toString(), cx + (r + 25) * Math.cos(ang), cy + (r + 25) * Math.sin(ang));
                     }
                 }
             }
@@ -1351,15 +1136,6 @@
                 ctx.closePath();
                 ctx.stroke();
             }
-            
-            // Draw Gap Analysis (after polygon, before Smith)
-            drawGapAnalysis(ctx, m, cx, cy, r, residues, currentTheme);
-            
-            // Draw Lift Dynamics (shows connections to m+1)
-            drawLifts(ctx, m, cx, cy, r, residues, currentTheme);
-            
-            // Draw Smith Chart Transform (last, so it's on top)
-            drawSmithTransform(ctx, m, cx, cy, r, residues, pSize, currentTheme);
             
             updateLegend1(m, residues);
         }
@@ -1391,7 +1167,7 @@
             const showLattice = document.getElementById('c2ShowLattice').checked;
             const showLines = document.getElementById('c2ShowLines').checked;
             const showCircle = document.getElementById('c2ShowCircle').checked;
-            const labelFormat = document.getElementById('c2LabelFormat').value;
+            const showLabels = document.getElementById('c2ShowLabels').checked;
             const displayMode = document.getElementById('c2Display').value;
             const colorScheme = document.getElementById('c2Color').value;
             const pSize = parseFloat(document.getElementById('c2PSize').value);
@@ -1495,37 +1271,11 @@
                     ctx.lineWidth = 1.5;
                     ctx.stroke();
                     
-                    if (labelFormat !== 'none') {
+                    if (showLabels && Math.abs(p.a) <= 6 && Math.abs(p.b) <= 6) {
                         ctx.fillStyle = theme === 'dark' ? '#E8E8E8' : '#1a202c';
-                        ctx.font = 'bold 10px sans-serif';
+                        ctx.font = '10px sans-serif';
                         ctx.textAlign = 'center';
-                        ctx.textBaseline = 'bottom';
-                        
-                        let labelText = '';
-                        const angle = Math.atan2(p.b, p.a);
-                        
-                        switch(labelFormat) {
-                            case 'coords':
-                                labelText = `(${p.a},${p.b})`;
-                                break;
-                            case 'norm':
-                                labelText = `${p.norm}`;
-                                break;
-                            case 'gcd':
-                                labelText = `gcd=${gcd(p.a, p.b)}`;
-                                break;
-                            case 'theta':
-                                labelText = angle.toFixed(2);
-                                break;
-                            case 'deg':
-                                labelText = Math.round(angle * 180 / Math.PI) + '°';
-                                break;
-                        }
-                        
-                        // Only label if not too crowded (optional spacing filter)
-                        if (Math.abs(p.a) <= 8 && Math.abs(p.b) <= 8) {
-                            ctx.fillText(labelText, x, y - 8);
-                        }
+                        ctx.fillText(`(${p.a},${p.b})`, x, y - 10);
                     }
                 }
                 
@@ -1550,7 +1300,7 @@
         function drawRings() {
             const maxMod = parseInt(document.getElementById('maxMod').value);
             const ringMode = document.getElementById('ringMode').value;
-            const labelFormat = document.getElementById('c2LabelFormat').value;
+            const showLabels = document.getElementById('c2ShowLabels').checked;
             const colorScheme = document.getElementById('c2Color').value;
             const pSize = parseFloat(document.getElementById('c2PSize').value);
             
@@ -2098,167 +1848,8 @@
         }
 
         function exportBoth() {
-            // Create combined canvas with both views, titles, and legends
-            const canvas1 = document.getElementById('canvas1');
-            const canvas2 = document.getElementById('canvas2');
-            
-            const canvasWidth = exportRes;
-            const canvasHeight = exportRes;
-            const titleHeight = 100;
-            const legendHeight = 300;
-            const padding = 40;
-            
-            // Total dimensions: 2 canvases side by side + titles + legends
-            const totalWidth = (canvasWidth * 2) + (padding * 3);
-            const totalHeight = titleHeight + canvasHeight + legendHeight + (padding * 3);
-            
-            const combined = document.createElement('canvas');
-            combined.width = totalWidth;
-            combined.height = totalHeight;
-            const ctx = combined.getContext('2d');
-            
-            // Background
-            ctx.fillStyle = currentTheme === 'dark' ? '#0a0e1a' : '#ffffff';
-            ctx.fillRect(0, 0, totalWidth, totalHeight);
-            
-            const textColor = currentTheme === 'dark' ? '#E8E8E8' : '#1a202c';
-            const bgCard = currentTheme === 'dark' ? '#141829' : '#ffffff';
-            const borderColor = currentTheme === 'dark' ? '#2a3150' : '#cbd5e0';
-            const goldColor = currentTheme === 'dark' ? '#FFD700' : '#d69e00';
-            const cyanColor = currentTheme === 'dark' ? '#00FFFF' : '#0891b2';
-            
-            // Helper function to draw rounded rect
-            function roundRect(x, y, w, h, r) {
-                ctx.beginPath();
-                ctx.moveTo(x + r, y);
-                ctx.lineTo(x + w - r, y);
-                ctx.quadraticCurveTo(x + w, y, x + w, y + r);
-                ctx.lineTo(x + w, y + h - r);
-                ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
-                ctx.lineTo(x + r, y + h);
-                ctx.quadraticCurveTo(x, y + h, x, y + h - r);
-                ctx.lineTo(x, y + r);
-                ctx.quadraticCurveTo(x, y, x + r, y);
-                ctx.closePath();
-            }
-            
-            // CANVAS 1 Section
-            const x1 = padding;
-            const yTitle = padding;
-            
-            // Canvas 1 Title
-            ctx.fillStyle = textColor;
-            ctx.font = `bold ${Math.floor(exportRes/25)}px sans-serif`;
-            ctx.textAlign = 'center';
-            const title1 = document.getElementById('c1Ind').checked ? 
-                `Canvas 1: m=${document.getElementById('c1Mod').value}` :
-                `Canvas 1: m=${document.getElementById('modulus').value}`;
-            ctx.fillText(title1, x1 + canvasWidth/2, yTitle + 50);
-            
-            // Draw Canvas 1
-            const yCanvas = yTitle + titleHeight;
-            const scale1 = canvasWidth / canvas1.width;
-            ctx.save();
-            ctx.translate(x1, yCanvas);
-            ctx.scale(scale1, scale1);
-            ctx.drawImage(canvas1, 0, 0);
-            ctx.restore();
-            
-            // Canvas 1 Legend
-            const yLegend = yCanvas + canvasHeight + padding;
-            ctx.fillStyle = bgCard;
-            roundRect(x1, yLegend, canvasWidth, legendHeight, 12);
-            ctx.fill();
-            ctx.strokeStyle = borderColor;
-            ctx.lineWidth = 2;
-            ctx.stroke();
-            
-            ctx.fillStyle = cyanColor;
-            ctx.font = `bold ${Math.floor(exportRes/40)}px sans-serif`;
-            ctx.textAlign = 'left';
-            ctx.fillText('Legend', x1 + 20, yLegend + 40);
-            
-            const legendItems1 = [
-                { color: cyanColor, text: 'Reduced Residues (gcd(r,m)=1)' },
-                { color: '#e74c3c', text: 'Non-coprime Residues' },
-                { color: '#9F7AEA', text: 'Inscribed Polygon' }
-            ];
-            
-            const fontSize = Math.floor(exportRes/50);
-            ctx.font = `${fontSize}px sans-serif`;
-            legendItems1.forEach((item, i) => {
-                const y = yLegend + 80 + (i * 60);
-                // Color box
-                ctx.fillStyle = item.color;
-                ctx.fillRect(x1 + 20, y, 40, 40);
-                ctx.strokeStyle = borderColor;
-                ctx.lineWidth = 2;
-                ctx.strokeRect(x1 + 20, y, 40, 40);
-                // Text
-                ctx.fillStyle = textColor;
-                ctx.textAlign = 'left';
-                ctx.fillText(item.text, x1 + 75, y + 28);
-            });
-            
-            // CANVAS 2 Section
-            const x2 = padding + canvasWidth + padding;
-            
-            // Canvas 2 Title
-            ctx.fillStyle = textColor;
-            ctx.font = `bold ${Math.floor(exportRes/25)}px sans-serif`;
-            ctx.textAlign = 'center';
-            const title2 = document.getElementById('c2Ind').checked ?
-                `Canvas 2: m=${document.getElementById('c2Mod').value}` :
-                `Canvas 2: m=${document.getElementById('modulus').value}`;
-            ctx.fillText(title2, x2 + canvasWidth/2, yTitle + 50);
-            
-            // Draw Canvas 2
-            const scale2 = canvasWidth / canvas2.width;
-            ctx.save();
-            ctx.translate(x2, yCanvas);
-            ctx.scale(scale2, scale2);
-            ctx.drawImage(canvas2, 0, 0);
-            ctx.restore();
-            
-            // Canvas 2 Legend
-            ctx.fillStyle = bgCard;
-            roundRect(x2, yLegend, canvasWidth, legendHeight, 12);
-            ctx.fill();
-            ctx.strokeStyle = borderColor;
-            ctx.lineWidth = 2;
-            ctx.stroke();
-            
-            ctx.fillStyle = cyanColor;
-            ctx.font = `bold ${Math.floor(exportRes/40)}px sans-serif`;
-            ctx.textAlign = 'left';
-            ctx.fillText('Legend', x2 + 20, yLegend + 40);
-            
-            const legendItems2 = [
-                { color: '#48BB78', text: 'Primitive Vectors (gcd=1)' },
-                { color: goldColor, text: 'Prime Norm Vectors' },
-                { color: cyanColor, text: 'Normalized on Unit Circle' }
-            ];
-            
-            ctx.font = `${fontSize}px sans-serif`;
-            legendItems2.forEach((item, i) => {
-                const y = yLegend + 80 + (i * 60);
-                // Color box
-                ctx.fillStyle = item.color;
-                ctx.fillRect(x2 + 20, y, 40, 40);
-                ctx.strokeStyle = borderColor;
-                ctx.lineWidth = 2;
-                ctx.strokeRect(x2 + 20, y, 40, 40);
-                // Text
-                ctx.fillStyle = textColor;
-                ctx.textAlign = 'left';
-                ctx.fillText(item.text, x2 + 75, y + 28);
-            });
-            
-            // Download combined image
-            const link = document.createElement('a');
-            link.download = `lattice_combined_${exportRes}px.png`;
-            link.href = combined.toDataURL('image/png');
-            link.click();
+            exportPNG('canvas1');
+            setTimeout(() => exportPNG('canvas2'), 200);
         }
 
         function exportCSV(canvasId) {
@@ -2337,314 +1928,6 @@
             link.click();
         }
 
-        // ==================== GAP ANALYSIS SYSTEM ====================
-        let selectedGaps = [2, 4, 6];
-
-        function generateGaps() {
-            const maxGap = parseInt(document.getElementById('maxGap').value) || 12;
-            const gapsContainer = document.getElementById('gapControls');
-            gapsContainer.innerHTML = '';
-            
-            for (let g = 2; g <= maxGap; g += 2) {
-                const div = document.createElement('div');
-                div.className = 'checkbox-group';
-                div.style.cssText = 'display: flex; align-items: center; gap: 8px; padding: 6px; background: var(--bg-panel); border-radius: 4px;';
-                div.innerHTML = `
-                    <input type="checkbox" id="gap${g}" ${selectedGaps.includes(g) ? 'checked' : ''} 
-                           onchange="toggleGap(${g})" style="width: 18px; height: 18px;">
-                    <label for="gap${g}" style="margin: 0; cursor: pointer; font-size: 0.9em;">Gap ${g}</label>
-                `;
-                gapsContainer.appendChild(div);
-            }
-        }
-
-        function toggleGap(g) {
-            const idx = selectedGaps.indexOf(g);
-            if (idx === -1) {
-                selectedGaps.push(g);
-            } else {
-                selectedGaps.splice(idx, 1);
-            }
-            selectedGaps.sort((a, b) => a - b);
-            draw1();
-        }
-
-        function addConsecutiveGaps() {
-            const start = parseInt(document.getElementById('gapStart').value);
-            const end = parseInt(document.getElementById('gapEnd').value);
-            if (start && end && end >= start) {
-                for (let g = start; g <= end; g++) {
-                    if (!selectedGaps.includes(g)) selectedGaps.push(g);
-                }
-                selectedGaps.sort((a, b) => a - b);
-                generateGaps();
-                draw1();
-            }
-        }
-
-        function clearAllGaps() {
-            selectedGaps = [];
-            generateGaps();
-            draw1();
-        }
-
-        function drawGapAnalysis(ctx, m, cx, cy, r, residues, theme) {
-            if (selectedGaps.length === 0 || residues.length === 0) return;
-            
-            ctx.save();
-            
-            for (let i = 0; i < residues.length; i++) {
-                const r1 = residues[i];
-                const r2 = residues[(i + 1) % residues.length];
-                const gap = (r2 - r1 + m) % m;
-                
-                if (selectedGaps.includes(gap)) {
-                    const ang1 = (2 * Math.PI * r1 / m) - Math.PI / 2;
-                    const ang2 = (2 * Math.PI * r2 / m) - Math.PI / 2;
-                    
-                    // Draw thick arc for this gap
-                    ctx.beginPath();
-                    ctx.arc(cx, cy, r, ang1, ang2, false);
-                    
-                    const hue = (gap / 20) * 360;
-                    ctx.strokeStyle = `hsla(${hue}, 70%, 50%, 0.6)`;
-                    ctx.lineWidth = 5;
-                    ctx.stroke();
-                    
-                    // Label the gap at midpoint
-                    const midAng = ang1 + (ang2 - ang1) / 2;
-                    const labelR = r + 18;
-                    const labelX = cx + labelR * Math.cos(midAng);
-                    const labelY = cy + labelR * Math.sin(midAng);
-                    
-                    ctx.fillStyle = theme === 'dark' ? '#FFD700' : '#d69e00';
-                    ctx.font = 'bold 13px sans-serif';
-                    ctx.textAlign = 'center';
-                    ctx.textBaseline = 'middle';
-                    ctx.fillText(gap.toString(), labelX, labelY);
-                }
-            }
-            
-            ctx.restore();
-        }
-
-        // ==================== SMITH CHART TRANSFORM ====================
-        let smithChartEnabled = false;
-        let smithAlpha = Math.PI / 2;
-        let smithRadiusMode = 'scaled';
-        let smithCustomScale = 1.0;
-
-        function toggleSmithChart() {
-            smithChartEnabled = document.getElementById('enableSmithChart').checked;
-            const controls = document.getElementById('smithChartControls');
-            controls.style.display = smithChartEnabled ? 'block' : 'none';
-            draw1();
-        }
-
-        function updateSmithChart() {
-            const alpha = parseFloat(document.getElementById('smithAlpha').value);
-            smithAlpha = alpha * Math.PI / 180;
-            document.getElementById('smithAlphaValue').textContent = alpha;
-            
-            smithRadiusMode = document.getElementById('smithRadiusMode').value;
-            const customScaleGroup = document.getElementById('smithCustomScaleGroup');
-            customScaleGroup.style.display = smithRadiusMode === 'custom' ? 'block' : 'none';
-            
-            draw1();
-        }
-
-        function updateSmithScale() {
-            smithCustomScale = parseFloat(document.getElementById('smithScale').value);
-            document.getElementById('smithScaleValue').textContent = smithCustomScale.toFixed(1);
-            draw1();
-        }
-
-        function cayleyTransform(z) {
-            // Cayley/Möbius transform: Γ = (z - 1)/(z + 1)
-            const numeratorRe = z.re - 1;
-            const numeratorIm = z.im;
-            const denominatorRe = z.re + 1;
-            const denominatorIm = z.im;
-            
-            const denomMagSq = denominatorRe * denominatorRe + denominatorIm * denominatorIm;
-            
-            if (denomMagSq < 1e-10) {
-                return {re: 0, im: 0};
-            }
-            
-            const gammaRe = (numeratorRe * denominatorRe + numeratorIm * denominatorIm) / denomMagSq;
-            const gammaIm = (numeratorIm * denominatorRe - numeratorRe * denominatorIm) / denomMagSq;
-            
-            return {re: gammaRe, im: gammaIm};
-        }
-
-        function getSmithRadius(modulus) {
-            switch(smithRadiusMode) {
-                case 'unit':
-                    return 1.0;
-                case 'scaled':
-                    return 0.5 + (modulus / 100) * 1.5;
-                case 'modulus':
-                    return Math.min(3.0, Math.log(modulus + 1) / Math.log(10));
-                case 'custom':
-                    return smithCustomScale;
-                default:
-                    return 1.0;
-            }
-        }
-
-        function drawSmithChartGrid(ctx, cx, cy, r, theme) {
-            if (!document.getElementById('smithShowGrid')?.checked) return;
-            
-            ctx.save();
-            ctx.strokeStyle = theme === 'dark' ? 'rgba(100, 150, 200, 0.3)' : 'rgba(50, 100, 150, 0.3)';
-            ctx.lineWidth = 1;
-            
-            // Unit circle boundary
-            ctx.beginPath();
-            ctx.arc(cx, cy, r, 0, 2 * Math.PI);
-            ctx.stroke();
-            
-            // Vertical line (R=1 image)
-            ctx.strokeStyle = theme === 'dark' ? 'rgba(0, 255, 255, 0.5)' : 'rgba(0, 145, 178, 0.5)';
-            ctx.lineWidth = 1.5;
-            ctx.beginPath();
-            ctx.moveTo(cx, cy - r);
-            ctx.lineTo(cx, cy + r);
-            ctx.stroke();
-            
-            ctx.restore();
-        }
-
-        function drawSmithTransform(ctx, m, cx, cy, r, residues, pSize, theme) {
-            if (!smithChartEnabled || residues.length === 0) return;
-            
-            ctx.save();
-            
-            // Draw Smith grid
-            drawSmithChartGrid(ctx, cx, cy, r, theme);
-            
-            const R = getSmithRadius(m);
-            
-            residues.forEach(res => {
-                const theta = (2 * Math.PI * res / m) + smithAlpha;
-                const z = {
-                    re: R * Math.cos(theta),
-                    im: R * Math.sin(theta)
-                };
-                
-                const gamma = cayleyTransform(z);
-                
-                // Map to screen coordinates (scale to fit in radius)
-                const scale = r * 0.8;
-                const screenX = cx + gamma.re * scale;
-                const screenY = cy - gamma.im * scale;
-                
-                // Draw transformed point
-                ctx.beginPath();
-                ctx.arc(screenX, screenY, pSize + 3, 0, 2 * Math.PI);
-                ctx.fillStyle = theme === 'dark' ? 'rgba(0, 255, 255, 0.7)' : 'rgba(0, 145, 178, 0.7)';
-                ctx.fill();
-                ctx.strokeStyle = theme === 'dark' ? '#FFD700' : '#d69e00';
-                ctx.lineWidth = 2;
-                ctx.stroke();
-                
-                // Draw line from original to transformed
-                const origAng = (2 * Math.PI * res / m) - Math.PI / 2;
-                const origX = cx + r * Math.cos(origAng);
-                const origY = cy + r * Math.sin(origAng);
-                
-                ctx.beginPath();
-                ctx.moveTo(origX, origY);
-                ctx.lineTo(screenX, screenY);
-                ctx.strokeStyle = theme === 'dark' ? 'rgba(255, 215, 0, 0.2)' : 'rgba(217, 158, 0, 0.2)';
-                ctx.lineWidth = 1;
-                ctx.stroke();
-            });
-            
-            ctx.restore();
-        }
-
-        // ==================== LIFT DYNAMICS ====================
-        function updateLiftThickness() {
-            const val = parseFloat(document.getElementById('liftThickness').value);
-            document.getElementById('liftThicknessValue').textContent = val.toFixed(1);
-            draw1();
-        }
-
-        function drawLifts(ctx, m, cx, cy, r, residues, theme) {
-            const showDirect = document.getElementById('showDirectLifts')?.checked;
-            const showModular = document.getElementById('showModularLifts')?.checked;
-            
-            if (!showDirect && !showModular) return;
-            if (m >= 100) return; // Skip for very large m to avoid clutter
-            
-            const thickness = parseFloat(document.getElementById('liftThickness')?.value || 2);
-            const residues1 = residues;
-            const residues2 = getResidues(m + 1);
-            
-            // Use slightly different radii to show lift
-            const r1 = r * 0.92;
-            const r2 = r * 1.08;
-            
-            ctx.save();
-            ctx.globalAlpha = 0.4;
-            
-            // Direct lifts: r → r
-            if (showDirect) {
-                ctx.strokeStyle = theme === 'dark' ? '#FFD700' : '#d69e00';
-                ctx.lineWidth = thickness;
-                
-                residues1.forEach(res => {
-                    if (residues2.includes(res)) {
-                        const ang1 = (2 * Math.PI * res / m) - Math.PI / 2;
-                        const ang2 = (2 * Math.PI * res / (m + 1)) - Math.PI / 2;
-                        
-                        const x1 = cx + r1 * Math.cos(ang1);
-                        const y1 = cy + r1 * Math.sin(ang1);
-                        const x2 = cx + r2 * Math.cos(ang2);
-                        const y2 = cy + r2 * Math.sin(ang2);
-                        
-                        ctx.beginPath();
-                        ctx.moveTo(x1, y1);
-                        ctx.lineTo(x2, y2);
-                        ctx.stroke();
-                    }
-                });
-            }
-            
-            // Modular lifts: r → (r + m) mod (m+1)
-            if (showModular) {
-                ctx.strokeStyle = theme === 'dark' ? '#FF6384' : '#dc2626';
-                ctx.lineWidth = thickness * 0.8;
-                
-                residues1.forEach(res => {
-                    const liftedR = (res + m) % (m + 1);
-                    if (residues2.includes(liftedR)) {
-                        const ang1 = (2 * Math.PI * res / m) - Math.PI / 2;
-                        const ang2 = (2 * Math.PI * liftedR / (m + 1)) - Math.PI / 2;
-                        
-                        const x1 = cx + r1 * Math.cos(ang1);
-                        const y1 = cy + r1 * Math.sin(ang1);
-                        const x2 = cx + r2 * Math.cos(ang2);
-                        const y2 = cy + r2 * Math.sin(ang2);
-                        
-                        ctx.beginPath();
-                        ctx.moveTo(x1, y1);
-                        ctx.lineTo(x2, y2);
-                        ctx.stroke();
-                    }
-                });
-            }
-            
-            ctx.restore();
-        }
-
-        // Initialize gap controls on load
-        document.addEventListener('DOMContentLoaded', () => {
-            generateGaps();
-        });
-
         // Keyboard shortcuts
         document.addEventListener('keydown', (e) => {
             const modInput = document.getElementById('modulus');
@@ -2672,44 +1955,8 @@
                     modInput.value = 8;
                     updateModulus();
                     break;
-                case 'f':
-                case 'F':
-                    toggleFullscreen();
-                    break;
-                case 'Escape':
-                    if (document.getElementById('fullscreenMode').classList.contains('active')) {
-                        toggleFullscreen();
-                    }
-                    break;
             }
         });
-
-        // Fullscreen mode
-        function toggleFullscreen() {
-            const fsMode = document.getElementById('fullscreenMode');
-            const isActive = fsMode.classList.contains('active');
-            
-            if (isActive) {
-                fsMode.classList.remove('active');
-            } else {
-                fsMode.classList.add('active');
-                
-                // Copy current canvases to fullscreen canvases
-                const fs1 = document.getElementById('fullscreenCanvas1');
-                const fs2 = document.getElementById('fullscreenCanvas2');
-                const c1 = document.getElementById('canvas1');
-                const c2 = document.getElementById('canvas2');
-                
-                const ctx1 = fs1.getContext('2d');
-                const ctx2 = fs2.getContext('2d');
-                
-                ctx1.clearRect(0, 0, fs1.width, fs1.height);
-                ctx2.clearRect(0, 0, fs2.width, fs2.height);
-                
-                ctx1.drawImage(c1, 0, 0);
-                ctx2.drawImage(c2, 0, 0);
-            }
-        }
     </script>
 </body>
-                    </html>
+    </html>
