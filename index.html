@@ -30,11 +30,7 @@
     --grid-line: #1a1a28;
 }
 
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
     font-family: 'JetBrains Mono', monospace;
@@ -46,7 +42,7 @@ body {
 
 .app-container {
     display: grid;
-    grid-template-columns: 340px 1fr 320px;
+    grid-template-columns: 320px 1fr 300px;
     grid-template-rows: auto 1fr auto;
     min-height: 100vh;
     gap: 1px;
@@ -56,7 +52,7 @@ body {
 header {
     grid-column: 1 / -1;
     background: var(--bg-panel);
-    padding: 16px 24px;
+    padding: 12px 20px;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -65,30 +61,44 @@ header {
 
 .logo {
     font-family: 'Cormorant Garamond', serif;
-    font-size: 1.5rem;
+    font-size: 1.4rem;
     font-weight: 600;
     color: var(--accent-gold);
-    letter-spacing: 0.02em;
 }
 
 .logo-sub {
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     color: var(--text-muted);
     font-family: 'JetBrains Mono', monospace;
-    font-weight: 400;
-    margin-left: 12px;
+    margin-left: 10px;
 }
 
-.header-actions {
-    display: flex;
-    gap: 8px;
+.header-actions { display: flex; gap: 8px; align-items: center; }
+
+.status-indicator {
+    padding: 4px 10px;
+    font-size: 0.7rem;
+    border-radius: 3px;
+    background: var(--bg-tertiary);
+    color: var(--text-muted);
+}
+
+.status-indicator.computing {
+    background: var(--accent-gold-dim);
+    color: var(--text-primary);
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
 }
 
 .controls-panel {
     background: var(--bg-panel);
-    padding: 20px;
+    padding: 16px;
     overflow-y: auto;
-    max-height: calc(100vh - 120px);
+    max-height: calc(100vh - 100px);
 }
 
 .main-view {
@@ -100,56 +110,49 @@ header {
 
 .analysis-panel {
     background: var(--bg-panel);
-    padding: 20px;
+    padding: 16px;
     overflow-y: auto;
-    max-height: calc(100vh - 120px);
+    max-height: calc(100vh - 100px);
 }
 
 footer {
     grid-column: 1 / -1;
     background: var(--bg-panel);
-    padding: 10px 24px;
+    padding: 8px 20px;
     display: flex;
     align-items: center;
     justify-content: space-between;
     border-top: 1px solid var(--border-subtle);
-    font-size: 0.7rem;
+    font-size: 0.65rem;
     color: var(--text-muted);
 }
 
-.section {
-    margin-bottom: 24px;
-}
+.section { margin-bottom: 20px; }
 
 .section-title {
     font-family: 'Cormorant Garamond', serif;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     font-weight: 600;
     color: var(--accent-gold);
     text-transform: uppercase;
-    letter-spacing: 0.1em;
-    margin-bottom: 12px;
-    padding-bottom: 6px;
+    letter-spacing: 0.08em;
+    margin-bottom: 10px;
+    padding-bottom: 5px;
     border-bottom: 1px solid var(--border-subtle);
 }
 
-.control-group {
-    margin-bottom: 16px;
-}
+.control-group { margin-bottom: 14px; }
 
 .control-label {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     color: var(--text-secondary);
-    margin-bottom: 6px;
+    margin-bottom: 5px;
 }
 
-.control-value {
-    color: var(--accent-gold);
-    font-weight: 500;
-}
+.control-value { color: var(--accent-gold); font-weight: 500; }
 
 input[type="range"] {
     width: 100%;
@@ -163,32 +166,26 @@ input[type="range"] {
 
 input[type="range"]::-webkit-slider-thumb {
     -webkit-appearance: none;
-    width: 14px;
-    height: 14px;
+    width: 12px;
+    height: 12px;
     background: var(--accent-gold);
     border-radius: 50%;
     cursor: pointer;
-    transition: transform 0.15s ease;
 }
 
-input[type="range"]::-webkit-slider-thumb:hover {
-    transform: scale(1.2);
-}
-
-input[type="number"] {
+input[type="number"], input[type="text"] {
     width: 100%;
     background: var(--bg-tertiary);
     border: 1px solid var(--border-subtle);
     color: var(--text-primary);
-    padding: 8px 12px;
+    padding: 6px 10px;
     font-family: 'JetBrains Mono', monospace;
-    font-size: 0.8rem;
-    border-radius: 4px;
+    font-size: 0.75rem;
+    border-radius: 3px;
     outline: none;
-    transition: border-color 0.2s ease;
 }
 
-input[type="number"]:focus {
+input[type="number"]:focus, input[type="text"]:focus {
     border-color: var(--accent-gold);
 }
 
@@ -197,28 +194,23 @@ select {
     background: var(--bg-tertiary);
     border: 1px solid var(--border-subtle);
     color: var(--text-primary);
-    padding: 8px 12px;
+    padding: 6px 10px;
     font-family: 'JetBrains Mono', monospace;
-    font-size: 0.8rem;
-    border-radius: 4px;
+    font-size: 0.75rem;
+    border-radius: 3px;
     outline: none;
     cursor: pointer;
-    transition: border-color 0.2s ease;
-}
-
-select:focus {
-    border-color: var(--accent-gold);
 }
 
 .btn {
-    padding: 8px 16px;
+    padding: 6px 12px;
     font-family: 'JetBrains Mono', monospace;
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     font-weight: 500;
     border: 1px solid var(--border-subtle);
-    border-radius: 4px;
+    border-radius: 3px;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.15s ease;
     background: var(--bg-tertiary);
     color: var(--text-primary);
 }
@@ -232,64 +224,69 @@ select:focus {
     background: var(--accent-gold);
     color: var(--bg-primary);
     border-color: var(--accent-gold);
+    font-weight: 600;
 }
 
 .btn-primary:hover {
-    background: var(--accent-gold-dim);
-    border-color: var(--accent-gold-dim);
-    color: var(--text-primary);
+    background: #ddb52f;
+    border-color: #ddb52f;
+    color: var(--bg-primary);
 }
 
-.btn-group {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
+.btn-refresh {
+    background: var(--accent-green);
+    color: var(--bg-primary);
+    border-color: var(--accent-green);
 }
 
-.btn-sm {
-    padding: 6px 10px;
-    font-size: 0.7rem;
+.btn-refresh:hover {
+    background: #6dc86d;
+    border-color: #6dc86d;
 }
+
+.btn-group { display: flex; gap: 6px; flex-wrap: wrap; }
+
+.btn-sm { padding: 5px 8px; font-size: 0.65rem; }
 
 .checkbox-group {
     display: flex;
     align-items: center;
-    gap: 8px;
-    margin-bottom: 8px;
+    gap: 6px;
+    margin-bottom: 6px;
 }
 
 .checkbox-group input[type="checkbox"] {
-    width: 16px;
-    height: 16px;
+    width: 14px;
+    height: 14px;
     accent-color: var(--accent-gold);
     cursor: pointer;
 }
 
 .checkbox-group label {
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     color: var(--text-secondary);
     cursor: pointer;
 }
 
 .canvas-container {
     flex: 1;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: 1fr 1fr;
-    gap: 1px;
-    background: var(--border-subtle);
-    padding: 1px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: var(--bg-primary);
 }
 
 .canvas-wrapper {
     position: relative;
-    background: var(--bg-primary);
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-subtle);
+    border-radius: 4px;
     overflow: hidden;
-}
-
-.canvas-wrapper.full {
-    grid-column: 1 / -1;
-    grid-row: 1 / -1;
+    aspect-ratio: 1 / 1;
+    max-width: min(100%, calc(100vh - 200px));
+    max-height: calc(100vh - 200px);
+    width: 100%;
 }
 
 .canvas-wrapper canvas {
@@ -300,48 +297,45 @@ select:focus {
 
 .canvas-label {
     position: absolute;
-    top: 10px;
-    left: 10px;
-    font-size: 0.7rem;
+    top: 8px;
+    left: 8px;
+    font-size: 0.65rem;
     color: var(--text-muted);
-    background: rgba(10, 10, 15, 0.85);
-    padding: 4px 8px;
-    border-radius: 3px;
-    pointer-events: none;
+    background: rgba(10, 10, 15, 0.9);
+    padding: 3px 6px;
+    border-radius: 2px;
 }
 
 .canvas-stats {
     position: absolute;
-    bottom: 10px;
-    right: 10px;
-    font-size: 0.65rem;
+    bottom: 8px;
+    right: 8px;
+    font-size: 0.6rem;
     color: var(--text-muted);
-    background: rgba(10, 10, 15, 0.85);
-    padding: 6px 10px;
-    border-radius: 3px;
-    pointer-events: none;
+    background: rgba(10, 10, 15, 0.9);
+    padding: 4px 8px;
+    border-radius: 2px;
     text-align: right;
-    line-height: 1.5;
+    line-height: 1.4;
 }
 
 .view-tabs {
     display: flex;
     background: var(--bg-panel);
     border-bottom: 1px solid var(--border-subtle);
+    padding: 0 10px;
 }
 
 .view-tab {
-    padding: 10px 20px;
-    font-size: 0.75rem;
+    padding: 10px 16px;
+    font-size: 0.7rem;
     color: var(--text-muted);
     cursor: pointer;
     border-bottom: 2px solid transparent;
-    transition: all 0.2s ease;
+    transition: all 0.15s ease;
 }
 
-.view-tab:hover {
-    color: var(--text-secondary);
-}
+.view-tab:hover { color: var(--text-secondary); }
 
 .view-tab.active {
     color: var(--accent-gold);
@@ -352,35 +346,26 @@ select:focus {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 8px 0;
+    padding: 6px 0;
     border-bottom: 1px solid var(--border-subtle);
-    font-size: 0.75rem;
+    font-size: 0.7rem;
 }
 
-.stat-row:last-child {
-    border-bottom: none;
-}
+.stat-row:last-child { border-bottom: none; }
 
-.stat-label {
-    color: var(--text-secondary);
-}
+.stat-label { color: var(--text-secondary); }
 
-.stat-value {
-    color: var(--text-primary);
-    font-weight: 500;
-}
+.stat-value { color: var(--text-primary); font-weight: 500; }
 
-.stat-value.highlight {
-    color: var(--accent-gold);
-}
+.stat-value.highlight { color: var(--accent-gold); }
 
 .formula-box {
     background: var(--bg-tertiary);
     border: 1px solid var(--border-subtle);
-    border-radius: 4px;
-    padding: 12px;
-    margin-top: 8px;
-    font-size: 0.8rem;
+    border-radius: 3px;
+    padding: 10px;
+    margin-top: 6px;
+    font-size: 0.75rem;
     color: var(--text-secondary);
     font-family: 'Cormorant Garamond', serif;
     font-style: italic;
@@ -388,143 +373,42 @@ select:focus {
 
 .formula-main {
     color: var(--text-primary);
-    font-size: 1rem;
-    margin-bottom: 8px;
+    font-size: 0.9rem;
+    margin-bottom: 6px;
 }
 
-.legend {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    margin-top: 12px;
-}
+.legend { display: flex; flex-direction: column; gap: 5px; margin-top: 10px; }
 
 .legend-item {
     display: flex;
     align-items: center;
-    gap: 8px;
-    font-size: 0.7rem;
+    gap: 6px;
+    font-size: 0.65rem;
     color: var(--text-secondary);
 }
 
-.legend-color {
-    width: 12px;
-    height: 12px;
-    border-radius: 2px;
-}
-
-.progress-bar {
-    width: 100%;
-    height: 4px;
-    background: var(--bg-tertiary);
-    border-radius: 2px;
-    overflow: hidden;
-    margin-top: 8px;
-}
-
-.progress-fill {
-    height: 100%;
-    background: var(--accent-gold);
-    transition: width 0.3s ease;
-}
-
-.k-tuple-input {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-    flex-wrap: wrap;
-}
-
-.k-tuple-input input {
-    width: 60px;
-    text-align: center;
-}
-
-.tuple-preview {
-    font-size: 0.7rem;
-    color: var(--text-muted);
-    margin-top: 8px;
-    padding: 8px;
-    background: var(--bg-tertiary);
-    border-radius: 4px;
-}
-
-.export-section {
-    background: var(--bg-tertiary);
-    border: 1px solid var(--border-subtle);
-    border-radius: 4px;
-    padding: 12px;
-    margin-top: 12px;
-}
-
-.export-title {
-    font-size: 0.75rem;
-    color: var(--text-secondary);
-    margin-bottom: 10px;
-}
-
-.export-options {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-}
-
-.tab-content {
-    display: none;
-}
-
-.tab-content.active {
-    display: block;
-}
-
-.error-analysis {
-    margin-top: 16px;
-}
-
-.error-chart {
-    height: 120px;
-    background: var(--bg-tertiary);
-    border: 1px solid var(--border-subtle);
-    border-radius: 4px;
-    margin-top: 8px;
-}
-
-.tooltip {
-    position: absolute;
-    background: var(--bg-panel);
-    border: 1px solid var(--accent-gold);
-    border-radius: 4px;
-    padding: 8px 12px;
-    font-size: 0.7rem;
-    pointer-events: none;
-    z-index: 1000;
-    display: none;
-    max-width: 200px;
-}
-
-.tooltip.visible {
-    display: block;
-}
+.legend-color { width: 10px; height: 10px; border-radius: 2px; }
 
 .dimension-selector {
     display: flex;
     gap: 4px;
-    margin-bottom: 12px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
 }
 
 .dim-btn {
-    width: 32px;
-    height: 32px;
+    width: 28px;
+    height: 28px;
     display: flex;
     align-items: center;
     justify-content: center;
     background: var(--bg-tertiary);
     border: 1px solid var(--border-subtle);
-    border-radius: 4px;
+    border-radius: 3px;
     color: var(--text-secondary);
     cursor: pointer;
-    font-size: 0.8rem;
-    transition: all 0.2s ease;
+    font-size: 0.75rem;
+    transition: all 0.15s ease;
 }
 
 .dim-btn:hover {
@@ -538,6 +422,50 @@ select:focus {
     color: var(--bg-primary);
 }
 
+.export-section {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-subtle);
+    border-radius: 3px;
+    padding: 10px;
+    margin-top: 10px;
+}
+
+.export-title {
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+}
+
+.export-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+}
+
+.tuple-preview {
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    margin-top: 6px;
+    padding: 6px;
+    background: var(--bg-tertiary);
+    border-radius: 3px;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 3px;
+    background: var(--bg-tertiary);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-top: 6px;
+}
+
+.progress-fill {
+    height: 100%;
+    background: var(--accent-gold);
+    transition: width 0.2s ease;
+}
+
 .hidden-canvas {
     position: absolute;
     left: -9999px;
@@ -546,67 +474,74 @@ select:focus {
 
 .modal-overlay {
     position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.8);
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 0, 0.85);
     display: none;
     align-items: center;
     justify-content: center;
     z-index: 2000;
 }
 
-.modal-overlay.visible {
-    display: flex;
-}
+.modal-overlay.visible { display: flex; }
 
 .modal {
     background: var(--bg-panel);
     border: 1px solid var(--border-subtle);
-    border-radius: 8px;
-    padding: 24px;
-    max-width: 500px;
+    border-radius: 6px;
+    padding: 20px;
+    max-width: 450px;
     width: 90%;
 }
 
 .modal-title {
     font-family: 'Cormorant Garamond', serif;
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     color: var(--accent-gold);
-    margin-bottom: 16px;
+    margin-bottom: 12px;
 }
 
 .modal-content {
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     color: var(--text-secondary);
-    line-height: 1.6;
+    line-height: 1.5;
 }
 
 .modal-actions {
     display: flex;
     justify-content: flex-end;
     gap: 8px;
-    margin-top: 20px;
+    margin-top: 16px;
 }
 
-::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+.loading-overlay {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(10, 10, 15, 0.8);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
 }
 
-::-webkit-scrollbar-track {
-    background: var(--bg-secondary);
+.loading-overlay.visible { display: flex; }
+
+.loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid var(--border-subtle);
+    border-top-color: var(--accent-gold);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
 }
 
-::-webkit-scrollbar-thumb {
-    background: var(--border-accent);
-    border-radius: 3px;
+@keyframes spin {
+    to { transform: rotate(360deg); }
 }
 
-::-webkit-scrollbar-thumb:hover {
-    background: var(--accent-gold-dim);
-}
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: var(--bg-secondary); }
+::-webkit-scrollbar-thumb { background: var(--border-accent); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--accent-gold-dim); }
 </style>
 </head>
 <body>
@@ -618,8 +553,9 @@ select:focus {
             <span class="logo-sub">k-Tuple Lattice Visualizer</span>
         </div>
         <div class="header-actions">
+            <span class="status-indicator" id="statusIndicator">Ready</span>
             <button class="btn" onclick="showHelp()">Help</button>
-            <button class="btn btn-primary" onclick="compute()">Compute</button>
+            <button class="btn btn-refresh" onclick="compute()">Refresh</button>
         </div>
     </header>
 
@@ -628,9 +564,7 @@ select:focus {
             <div class="section-title">Lattice Structure</div>
             
             <div class="control-group">
-                <div class="control-label">
-                    <span>Structure Type</span>
-                </div>
+                <div class="control-label"><span>Structure Type</span></div>
                 <select id="structureType" onchange="updateStructure()">
                     <option value="coprime">Coprime Lattice Points</option>
                     <option value="squarefree">Squarefree Integers</option>
@@ -642,25 +576,22 @@ select:focus {
             </div>
 
             <div class="control-group">
-                <div class="control-label">
-                    <span>Dimension (k)</span>
-                </div>
+                <div class="control-label"><span>Dimension (k)</span></div>
                 <div class="dimension-selector">
-                    <button class="dim-btn" data-dim="2" onclick="setDimension(2)">2</button>
-                    <button class="dim-btn active" data-dim="3" onclick="setDimension(3)">3</button>
+                    <button class="dim-btn active" data-dim="2" onclick="setDimension(2)">2</button>
+                    <button class="dim-btn" data-dim="3" onclick="setDimension(3)">3</button>
                     <button class="dim-btn" data-dim="4" onclick="setDimension(4)">4</button>
                     <button class="dim-btn" data-dim="5" onclick="setDimension(5)">5</button>
                     <button class="dim-btn" data-dim="6" onclick="setDimension(6)">6</button>
-                    <input type="number" id="customDim" min="2" max="12" value="3" style="width:50px" onchange="setDimension(this.value)">
                 </div>
             </div>
 
             <div class="control-group">
                 <div class="control-label">
                     <span>Radius / Bound (R)</span>
-                    <span class="control-value" id="radiusValue">50</span>
+                    <span class="control-value" id="radiusValue">30</span>
                 </div>
-                <input type="range" id="radius" min="10" max="500" value="50" oninput="updateRadius()">
+                <input type="range" id="radius" min="10" max="200" value="30" oninput="updateRadius()">
             </div>
 
             <div class="control-group" id="kfreeParam" style="display:none">
@@ -675,13 +606,9 @@ select:focus {
         <div class="section" id="tupleSection" style="display:none">
             <div class="section-title">Admissible Tuple</div>
             <div class="control-group">
-                <div class="control-label">
-                    <span>Offsets (comma-separated)</span>
-                </div>
-                <input type="text" id="tupleOffsets" value="0,2,6,8" style="width:100%" onchange="updateTuple()">
-                <div class="tuple-preview" id="tuplePreview">
-                    Pattern: (n, n+2, n+6, n+8) - Prime quadruple
-                </div>
+                <div class="control-label"><span>Offsets (comma-separated)</span></div>
+                <input type="text" id="tupleOffsets" value="0,2,6,8">
+                <div class="tuple-preview" id="tuplePreview">Pattern: (n, n+2, n+6, n+8)</div>
             </div>
         </div>
 
@@ -689,73 +616,61 @@ select:focus {
             <div class="section-title">Visualization</div>
             
             <div class="checkbox-group">
-                <input type="checkbox" id="showGrid" checked onchange="redraw()">
+                <input type="checkbox" id="showGrid" checked>
                 <label for="showGrid">Show grid lines</label>
             </div>
             <div class="checkbox-group">
-                <input type="checkbox" id="showBoundary" checked onchange="redraw()">
+                <input type="checkbox" id="showBoundary" checked>
                 <label for="showBoundary">Highlight boundary</label>
             </div>
             <div class="checkbox-group">
-                <input type="checkbox" id="showRemoved" onchange="redraw()">
+                <input type="checkbox" id="showRemoved">
                 <label for="showRemoved">Show removed points</label>
             </div>
             <div class="checkbox-group">
-                <input type="checkbox" id="showAxes" checked onchange="redraw()">
+                <input type="checkbox" id="showAxes" checked>
                 <label for="showAxes">Show axes</label>
-            </div>
-            <div class="checkbox-group">
-                <input type="checkbox" id="colorByMobius" onchange="redraw()">
-                <label for="colorByMobius">Color by Mobius value</label>
             </div>
 
             <div class="control-group">
                 <div class="control-label">
                     <span>Point Size</span>
-                    <span class="control-value" id="pointSizeValue">3</span>
+                    <span class="control-value" id="pointSizeValue">4</span>
                 </div>
-                <input type="range" id="pointSize" min="1" max="10" value="3" oninput="updatePointSize()">
+                <input type="range" id="pointSize" min="1" max="12" value="4" oninput="updatePointSize()">
             </div>
 
             <div class="control-group">
                 <div class="control-label">
                     <span>Boundary Thickness</span>
-                    <span class="control-value" id="boundaryThickValue">5</span>
+                    <span class="control-value" id="boundaryThickValue">3</span>
                 </div>
-                <input type="range" id="boundaryThick" min="1" max="20" value="5" oninput="updateBoundaryThick()">
+                <input type="range" id="boundaryThick" min="1" max="15" value="3" oninput="updateBoundaryThick()">
             </div>
         </div>
 
         <div class="section">
-            <div class="section-title">3D Projection</div>
+            <div class="section-title">3D Rotation</div>
             
             <div class="control-group">
                 <div class="control-label">
                     <span>Rotation X</span>
-                    <span class="control-value" id="rotXValue">30</span>
+                    <span class="control-value" id="rotXValue">25</span>
                 </div>
-                <input type="range" id="rotX" min="0" max="360" value="30" oninput="updateRotation()">
+                <input type="range" id="rotX" min="0" max="360" value="25" oninput="updateRotation()">
             </div>
 
             <div class="control-group">
                 <div class="control-label">
                     <span>Rotation Y</span>
-                    <span class="control-value" id="rotYValue">45</span>
+                    <span class="control-value" id="rotYValue">35</span>
                 </div>
-                <input type="range" id="rotY" min="0" max="360" value="45" oninput="updateRotation()">
-            </div>
-
-            <div class="control-group">
-                <div class="control-label">
-                    <span>Rotation Z</span>
-                    <span class="control-value" id="rotZValue">0</span>
-                </div>
-                <input type="range" id="rotZ" min="0" max="360" value="0" oninput="updateRotation()">
+                <input type="range" id="rotY" min="0" max="360" value="35" oninput="updateRotation()">
             </div>
 
             <div class="btn-group">
                 <button class="btn btn-sm" onclick="resetRotation()">Reset</button>
-                <button class="btn btn-sm" onclick="animateRotation()">Animate</button>
+                <button class="btn btn-sm" id="animateBtn" onclick="toggleAnimation()">Animate</button>
             </div>
         </div>
 
@@ -763,17 +678,15 @@ select:focus {
             <div class="section-title">Export</div>
             
             <div class="export-section">
-                <div class="export-title">Image Export (4K PNG)</div>
+                <div class="export-title">4K PNG Export</div>
                 <div class="export-options">
-                    <button class="btn btn-sm" onclick="exportPNG('main')">Main View</button>
-                    <button class="btn btn-sm" onclick="exportPNG('boundary')">Boundary</button>
-                    <button class="btn btn-sm" onclick="exportPNG('error')">Error Plot</button>
+                    <button class="btn btn-sm" onclick="exportPNG('current')">Current View</button>
                     <button class="btn btn-sm" onclick="exportPNG('all')">All Views</button>
                 </div>
             </div>
 
             <div class="export-section">
-                <div class="export-title">Data Export (CSV)</div>
+                <div class="export-title">CSV Data Export</div>
                 <div class="export-options">
                     <button class="btn btn-sm" onclick="exportCSV('points')">Lattice Points</button>
                     <button class="btn btn-sm" onclick="exportCSV('stats')">Statistics</button>
@@ -786,71 +699,58 @@ select:focus {
 
     <main class="main-view">
         <div class="view-tabs">
-            <div class="view-tab active" data-view="quad" onclick="setView('quad')">Quad View</div>
-            <div class="view-tab" data-view="main" onclick="setView('main')">Main</div>
+            <div class="view-tab active" data-view="lattice" onclick="setView('lattice')">Lattice</div>
             <div class="view-tab" data-view="boundary" onclick="setView('boundary')">Boundary</div>
             <div class="view-tab" data-view="density" onclick="setView('density')">Density</div>
-            <div class="view-tab" data-view="error" onclick="setView('error')">Error Analysis</div>
+            <div class="view-tab" data-view="error" onclick="setView('error')">Error</div>
         </div>
 
-        <div class="canvas-container" id="canvasContainer">
-            <div class="canvas-wrapper" id="wrapper1">
-                <canvas id="canvas1"></canvas>
-                <div class="canvas-label">Lattice Structure</div>
-                <div class="canvas-stats" id="stats1"></div>
-            </div>
-            <div class="canvas-wrapper" id="wrapper2">
-                <canvas id="canvas2"></canvas>
-                <div class="canvas-label">Boundary Shell</div>
-                <div class="canvas-stats" id="stats2"></div>
-            </div>
-            <div class="canvas-wrapper" id="wrapper3">
-                <canvas id="canvas3"></canvas>
-                <div class="canvas-label">Radial Density</div>
-                <div class="canvas-stats" id="stats3"></div>
-            </div>
-            <div class="canvas-wrapper" id="wrapper4">
-                <canvas id="canvas4"></canvas>
-                <div class="canvas-label">Error Term Analysis</div>
-                <div class="canvas-stats" id="stats4"></div>
+        <div class="canvas-container">
+            <div class="canvas-wrapper" id="canvasWrapper">
+                <canvas id="mainCanvas"></canvas>
+                <div class="canvas-label" id="canvasLabel">Lattice Structure</div>
+                <div class="canvas-stats" id="canvasStats"></div>
+                <div class="loading-overlay" id="loadingOverlay">
+                    <div class="loading-spinner"></div>
+                </div>
             </div>
         </div>
     </main>
 
     <aside class="analysis-panel">
         <div class="section">
-            <div class="section-title">Current Configuration</div>
+            <div class="section-title">Configuration</div>
             <div class="stat-row">
                 <span class="stat-label">Structure</span>
                 <span class="stat-value" id="statStructure">Coprime Lattice</span>
             </div>
             <div class="stat-row">
                 <span class="stat-label">Dimension</span>
-                <span class="stat-value" id="statDimension">3</span>
+                <span class="stat-value" id="statDimension">2</span>
             </div>
             <div class="stat-row">
                 <span class="stat-label">Radius</span>
-                <span class="stat-value" id="statRadius">50</span>
+                <span class="stat-value" id="statRadius">30</span>
             </div>
         </div>
 
         <div class="section">
-            <div class="section-title">Counting Statistics</div>
+            <div class="section-title">Counting</div>
             <div class="stat-row">
                 <span class="stat-label">Total Points</span>
                 <span class="stat-value highlight" id="statTotal">0</span>
             </div>
             <div class="stat-row">
-                <span class="stat-label">Surviving Points</span>
+                <span class="stat-label">Surviving</span>
                 <span class="stat-value highlight" id="statSurviving">0</span>
             </div>
             <div class="stat-row">
-                <span class="stat-label">Removed Points</span>
+                <span class="stat-label">Removed</span>
                 <span class="stat-value" id="statRemoved">0</span>
             </div>
             <div class="stat-row">
                 <span class="stat-label">Density</span>
-                <span class="stat-value" id="statDensity">0</span>
+                <span class="stat-value" id="statDensity">0%</span>
             </div>
         </div>
 
@@ -858,7 +758,7 @@ select:focus {
             <div class="section-title">Main Term</div>
             <div class="formula-box">
                 <div class="formula-main" id="formulaMain">R^k / zeta(k)</div>
-                <div id="formulaExplain">Expected count based on volume and density</div>
+                <div id="formulaExplain">Expected count</div>
             </div>
             <div class="stat-row">
                 <span class="stat-label">Predicted</span>
@@ -874,10 +774,10 @@ select:focus {
             <div class="section-title">Error Analysis</div>
             <div class="formula-box">
                 <div class="formula-main" id="errorFormula">O(R^(k-1))</div>
-                <div id="errorExplain">Error scales with boundary measure</div>
+                <div id="errorExplain">Boundary scaling</div>
             </div>
             <div class="stat-row">
-                <span class="stat-label">Error (Actual - Pred)</span>
+                <span class="stat-label">Error</span>
                 <span class="stat-value highlight" id="statError">0</span>
             </div>
             <div class="stat-row">
@@ -888,28 +788,23 @@ select:focus {
                 <span class="stat-label">Relative Error</span>
                 <span class="stat-value" id="statRelError">0%</span>
             </div>
-
             <div class="progress-bar">
                 <div class="progress-fill" id="errorProgress" style="width: 0%"></div>
             </div>
         </div>
 
         <div class="section">
-            <div class="section-title">Boundary Analysis</div>
+            <div class="section-title">Boundary</div>
             <div class="stat-row">
-                <span class="stat-label">Boundary Points</span>
+                <span class="stat-label">Boundary Pts</span>
                 <span class="stat-value highlight" id="statBoundary">0</span>
             </div>
             <div class="stat-row">
-                <span class="stat-label">Interior Points</span>
+                <span class="stat-label">Interior Pts</span>
                 <span class="stat-value" id="statInterior">0</span>
             </div>
             <div class="stat-row">
-                <span class="stat-label">Boundary Ratio</span>
-                <span class="stat-value" id="statBoundaryRatio">0%</span>
-            </div>
-            <div class="stat-row">
-                <span class="stat-label">Critical Exponent</span>
+                <span class="stat-label">Critical Exp</span>
                 <span class="stat-value highlight" id="statExponent">1/2</span>
             </div>
         </div>
@@ -918,20 +813,16 @@ select:focus {
             <div class="section-title">Legend</div>
             <div class="legend">
                 <div class="legend-item">
-                    <div class="legend-color" style="background: var(--point-coprime)"></div>
+                    <div class="legend-color" style="background: #5ab87a"></div>
                     <span>Surviving (coprime/k-free)</span>
                 </div>
                 <div class="legend-item">
-                    <div class="legend-color" style="background: var(--point-boundary)"></div>
+                    <div class="legend-color" style="background: #c9a227"></div>
                     <span>Boundary shell</span>
                 </div>
                 <div class="legend-item">
-                    <div class="legend-color" style="background: var(--point-removed)"></div>
+                    <div class="legend-color" style="background: #5a2a2a"></div>
                     <span>Removed by sieve</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color" style="background: var(--point-interior)"></div>
-                    <span>Interior points</span>
                 </div>
             </div>
         </div>
@@ -939,29 +830,19 @@ select:focus {
 
     <footer>
         <span>Boundary Cancellation Principle Visualizer</span>
-        <span id="computeStatus">Ready</span>
+        <span id="computeTime">-</span>
     </footer>
 </div>
-
-<div class="tooltip" id="tooltip"></div>
 
 <div class="modal-overlay" id="helpModal">
     <div class="modal">
         <div class="modal-title">Boundary Cancellation Principle</div>
         <div class="modal-content">
-            <p>This tool visualizes the geometric principle governing error terms in Mobius-filtered arithmetic counting problems.</p>
-            <br>
             <p><strong>Core Principle:</strong> In k-dimensional lattice counting with Mobius inclusion-exclusion, interior contributions cancel efficiently while incomplete cancellation accumulates at the boundary.</p>
             <br>
-            <p><strong>Consequence:</strong> Error term exponent = (k-1)/k, where k is the lattice dimension. This explains why squarefree counting (k=2) gives O(x^{1/2}).</p>
+            <p><strong>Error Exponent:</strong> (k-1)/k determines error scaling. Squarefree (k=2) gives O(x^1/2), cubefree (k=3) gives O(x^1/3).</p>
             <br>
-            <p><strong>Structures:</strong></p>
-            <ul style="margin-left: 20px; margin-top: 8px;">
-                <li>Coprime lattice: gcd(a1,...,ak) = 1</li>
-                <li>Squarefree: not divisible by any p^2</li>
-                <li>k-free: not divisible by any p^k</li>
-                <li>Prime k-tuples: admissible patterns</li>
-            </ul>
+            <p><strong>Usage:</strong> Select structure type, set dimension and radius, then click Refresh to compute. Use tabs to switch views.</p>
         </div>
         <div class="modal-actions">
             <button class="btn btn-primary" onclick="hideHelp()">Close</button>
@@ -972,104 +853,54 @@ select:focus {
 <canvas id="exportCanvas" class="hidden-canvas"></canvas>
 
 <script>
-const State = {
-    dimension: 3,
-    radius: 50,
+const S = {
+    dimension: 2,
+    radius: 30,
     structure: 'coprime',
     kfreeParam: 2,
     tupleOffsets: [0, 2, 6, 8],
-    rotation: { x: 30, y: 45, z: 0 },
-    pointSize: 3,
-    boundaryThickness: 5,
+    rotation: { x: 25, y: 35 },
+    pointSize: 4,
+    boundaryThickness: 3,
     animating: false,
-    currentView: 'quad',
+    currentView: 'lattice',
     points: [],
-    survivingPoints: [],
-    boundaryPoints: [],
+    classified: [],
     errorData: [],
-    mobiusCache: new Map(),
-    primeCache: [],
-    maxPrimeComputed: 0
+    primes: [],
+    maxPrime: 0
 };
 
-const Colors = {
-    bg: '#0a0a0f',
-    grid: '#1a1a28',
-    axis: '#3a3a4a',
-    interior: '#2a5a8a',
-    boundary: '#c9a227',
-    coprime: '#5ab87a',
-    removed: '#5a2a2a',
-    text: '#9898a8',
-    accent: '#c9a227'
-};
-
-function initPrimes(max) {
-    if (max <= State.maxPrimeComputed) return;
+function sievePrimes(max) {
+    if (max <= S.maxPrime) return;
     const sieve = new Array(max + 1).fill(true);
     sieve[0] = sieve[1] = false;
     for (let i = 2; i * i <= max; i++) {
         if (sieve[i]) {
-            for (let j = i * i; j <= max; j += i) {
-                sieve[j] = false;
-            }
+            for (let j = i * i; j <= max; j += i) sieve[j] = false;
         }
     }
-    State.primeCache = [];
+    S.primes = [];
     for (let i = 2; i <= max; i++) {
-        if (sieve[i]) State.primeCache.push(i);
+        if (sieve[i]) S.primes.push(i);
     }
-    State.maxPrimeComputed = max;
-}
-
-function mobius(n) {
-    if (n === 1) return 1;
-    if (State.mobiusCache.has(n)) return State.mobiusCache.get(n);
-    
-    let result = 1;
-    let temp = n;
-    let primeCount = 0;
-    
-    initPrimes(Math.ceil(Math.sqrt(n)) + 1);
-    
-    for (const p of State.primeCache) {
-        if (p * p > temp) break;
-        if (temp % p === 0) {
-            temp /= p;
-            primeCount++;
-            if (temp % p === 0) {
-                State.mobiusCache.set(n, 0);
-                return 0;
-            }
-        }
-    }
-    
-    if (temp > 1) primeCount++;
-    
-    result = (primeCount % 2 === 0) ? 1 : -1;
-    State.mobiusCache.set(n, result);
-    return result;
+    S.maxPrime = max;
 }
 
 function gcd(a, b) {
-    a = Math.abs(a);
-    b = Math.abs(b);
-    while (b) {
-        [a, b] = [b, a % b];
-    }
+    a = Math.abs(a); b = Math.abs(b);
+    while (b) [a, b] = [b, a % b];
     return a;
 }
 
-function gcdArray(arr) {
+function gcdArr(arr) {
     return arr.reduce((a, b) => gcd(a, b));
 }
 
 function isKFree(n, k) {
-    if (n === 0) return false;
-    n = Math.abs(n);
-    initPrimes(Math.ceil(Math.pow(n, 1/k)) + 1);
-    
-    for (const p of State.primeCache) {
+    if (n <= 0) return false;
+    sievePrimes(Math.ceil(Math.pow(n, 1/k)) + 10);
+    for (const p of S.primes) {
         const pk = Math.pow(p, k);
         if (pk > n) break;
         if (n % pk === 0) return false;
@@ -1077,405 +908,291 @@ function isKFree(n, k) {
     return true;
 }
 
-function isSquarefree(n) {
-    return isKFree(n, 2);
-}
-
-function generateLatticePoints() {
-    const R = State.radius;
-    const k = State.dimension;
-    const points = [];
-    
-    const generate = (current, depth) => {
-        if (depth === k) {
-            const normSq = current.reduce((s, x) => s + x * x, 0);
-            if (normSq <= R * R && normSq > 0) {
-                points.push([...current]);
-            }
-            return;
-        }
-        
-        const maxVal = Math.floor(Math.sqrt(R * R - current.reduce((s, x) => s + x * x, 0)));
-        const start = depth === 0 ? 1 : -maxVal;
-        
-        for (let x = start; x <= maxVal; x++) {
-            current.push(x);
-            generate(current, depth + 1);
-            current.pop();
-        }
-    };
-    
-    generate([], 0);
-    return points;
-}
-
-function filterPoints(points) {
-    const structure = State.structure;
-    
-    return points.map(p => {
-        let survives = false;
-        let reason = '';
-        
-        switch (structure) {
-            case 'coprime':
-                survives = gcdArray(p.map(Math.abs)) === 1;
-                reason = survives ? 'coprime' : 'gcd > 1';
-                break;
-                
-            case 'squarefree':
-                const n2 = p.reduce((s, x) => s + x * x, 0);
-                survives = isSquarefree(Math.round(Math.sqrt(n2)));
-                reason = survives ? 'squarefree' : 'has square factor';
-                break;
-                
-            case 'kfree':
-                const nk = p.reduce((s, x) => s + x * x, 0);
-                survives = isKFree(Math.round(Math.pow(nk, 0.5)), State.kfreeParam);
-                reason = survives ? `${State.kfreeParam}-free` : `has ${State.kfreeParam}-power factor`;
-                break;
-                
-            case 'coprime-tuple':
-                survives = gcdArray(p.map(Math.abs)) === 1;
-                reason = survives ? 'coprime tuple' : 'gcd > 1';
-                break;
-                
-            case 'prime-ktuple':
-            case 'custom':
-                const base = Math.abs(p[0]);
-                survives = State.tupleOffsets.every(off => {
-                    const val = base + off;
-                    return val > 1 && isProbablyPrime(val);
-                });
-                reason = survives ? 'prime tuple' : 'not all prime';
-                break;
-                
-            default:
-                survives = gcdArray(p.map(Math.abs)) === 1;
-        }
-        
-        return { point: p, survives, reason };
-    });
-}
-
-function isProbablyPrime(n) {
+function isPrime(n) {
     if (n < 2) return false;
-    if (n === 2 || n === 3) return true;
+    if (n === 2) return true;
     if (n % 2 === 0) return false;
-    
-    initPrimes(Math.min(1000, Math.ceil(Math.sqrt(n))));
-    
-    for (const p of State.primeCache) {
+    sievePrimes(Math.ceil(Math.sqrt(n)) + 10);
+    for (const p of S.primes) {
         if (p * p > n) return true;
         if (n % p === 0) return false;
     }
     return true;
 }
 
-function classifyBoundary(points, thickness) {
-    const R = State.radius;
-    const innerR = R - thickness;
+function generatePoints() {
+    const R = S.radius;
+    const k = S.dimension;
+    const points = [];
+    const R2 = R * R;
     
-    return points.map(item => {
-        const normSq = item.point.reduce((s, x) => s + x * x, 0);
-        const norm = Math.sqrt(normSq);
-        const isBoundary = norm >= innerR;
-        return { ...item, isBoundary, norm };
-    });
+    if (k === 2) {
+        for (let x = 1; x <= R; x++) {
+            const maxY = Math.floor(Math.sqrt(R2 - x * x));
+            for (let y = -maxY; y <= maxY; y++) {
+                if (x * x + y * y <= R2) points.push([x, y]);
+            }
+        }
+    } else if (k === 3) {
+        for (let x = 1; x <= R; x++) {
+            const rem1 = R2 - x * x;
+            if (rem1 < 0) continue;
+            const maxY = Math.floor(Math.sqrt(rem1));
+            for (let y = -maxY; y <= maxY; y++) {
+                const rem2 = rem1 - y * y;
+                if (rem2 < 0) continue;
+                const maxZ = Math.floor(Math.sqrt(rem2));
+                for (let z = -maxZ; z <= maxZ; z++) {
+                    points.push([x, y, z]);
+                }
+            }
+        }
+    } else {
+        const generate = (current, depth, remaining) => {
+            if (depth === k) {
+                points.push([...current]);
+                return;
+            }
+            const max = Math.floor(Math.sqrt(remaining));
+            const start = depth === 0 ? 1 : -max;
+            for (let v = start; v <= max; v++) {
+                const newRem = remaining - v * v;
+                if (newRem >= 0) {
+                    current.push(v);
+                    generate(current, depth + 1, newRem);
+                    current.pop();
+                }
+            }
+        };
+        generate([], 0, R2);
+    }
+    
+    return points;
 }
 
-function computeMainTerm() {
-    const R = State.radius;
-    const k = State.dimension;
-    
-    switch (State.structure) {
-        case 'coprime':
-        case 'coprime-tuple':
-            return Math.pow(R, k) / zeta(k);
-            
-        case 'squarefree':
-            return R / zeta(2);
-            
-        case 'kfree':
-            return R / zeta(State.kfreeParam);
-            
-        case 'prime-ktuple':
-        case 'custom':
-            const C = hardyLittlewoodConstant(State.tupleOffsets);
-            const logR = Math.log(R);
-            return C * R / Math.pow(logR, State.tupleOffsets.length);
-            
-        default:
-            return Math.pow(R, k) / zeta(k);
-    }
+function filterPoints(points) {
+    return points.map(p => {
+        let survives = false;
+        
+        switch (S.structure) {
+            case 'coprime':
+            case 'coprime-tuple':
+                survives = gcdArr(p.map(Math.abs)) === 1;
+                break;
+            case 'squarefree':
+                const n2 = p.reduce((s, x) => s + x * x, 0);
+                survives = isKFree(Math.round(Math.sqrt(n2)), 2);
+                break;
+            case 'kfree':
+                const nk = p.reduce((s, x) => s + x * x, 0);
+                survives = isKFree(Math.round(Math.sqrt(nk)), S.kfreeParam);
+                break;
+            case 'prime-ktuple':
+            case 'custom':
+                const base = Math.abs(p[0]);
+                survives = S.tupleOffsets.every(off => isPrime(base + off));
+                break;
+            default:
+                survives = gcdArr(p.map(Math.abs)) === 1;
+        }
+        
+        const norm = Math.sqrt(p.reduce((s, x) => s + x * x, 0));
+        const isBoundary = norm >= S.radius - S.boundaryThickness;
+        
+        return { point: p, survives, isBoundary, norm };
+    });
 }
 
 function zeta(s) {
-    if (s === 2) return Math.PI * Math.PI / 6;
-    if (s === 3) return 1.2020569031595942;
-    if (s === 4) return Math.pow(Math.PI, 4) / 90;
-    if (s === 5) return 1.0369277551433699;
-    if (s === 6) return Math.pow(Math.PI, 6) / 945;
-    
+    const vals = { 2: Math.PI**2/6, 3: 1.202, 4: Math.PI**4/90, 5: 1.037, 6: Math.PI**6/945 };
+    if (vals[s]) return vals[s];
     let sum = 0;
-    for (let n = 1; n < 10000; n++) {
-        sum += 1 / Math.pow(n, s);
-    }
+    for (let n = 1; n < 5000; n++) sum += 1 / Math.pow(n, s);
     return sum;
 }
 
-function hardyLittlewoodConstant(offsets) {
-    let product = 1;
-    const k = offsets.length;
-    
-    initPrimes(1000);
-    
-    for (const p of State.primeCache.slice(0, 100)) {
-        const residues = new Set(offsets.map(h => ((h % p) + p) % p));
-        const nu = residues.size;
-        const factor = (1 - nu / p) / Math.pow(1 - 1/p, k);
-        product *= factor;
-        if (Math.abs(factor - 1) < 1e-10) break;
-    }
-    
-    return product;
-}
-
-function computeErrorBound() {
-    const R = State.radius;
-    const k = State.dimension;
-    
-    switch (State.structure) {
+function mainTerm() {
+    const R = S.radius, k = S.dimension;
+    switch (S.structure) {
         case 'coprime':
         case 'coprime-tuple':
-            return Math.pow(R, k - 1);
-            
+            return Math.pow(R, k) / zeta(k);
         case 'squarefree':
-            return Math.pow(R, 0.5);
-            
+            return R / zeta(2);
         case 'kfree':
-            return Math.pow(R, 1 / State.kfreeParam);
-            
+            return R / zeta(S.kfreeParam);
         default:
-            return Math.pow(R, k - 1);
+            return Math.pow(R, k) / zeta(k);
     }
 }
 
-function compute() {
-    document.getElementById('computeStatus').textContent = 'Computing...';
-    
-    setTimeout(() => {
-        State.points = generateLatticePoints();
-        const filtered = filterPoints(State.points);
-        const classified = classifyBoundary(filtered, State.boundaryThickness);
-        
-        State.survivingPoints = classified.filter(p => p.survives);
-        State.boundaryPoints = classified.filter(p => p.survives && p.isBoundary);
-        
-        const mainTerm = computeMainTerm();
-        const actual = State.survivingPoints.length;
-        const error = actual - mainTerm;
-        const errorBound = computeErrorBound();
-        
-        updateStats({
-            total: State.points.length,
-            surviving: actual,
-            removed: State.points.length - actual,
-            predicted: mainTerm,
-            error: error,
-            errorBound: errorBound,
-            boundary: State.boundaryPoints.length,
-            interior: actual - State.boundaryPoints.length
-        });
-        
-        computeErrorSeries();
-        redraw();
-        
-        document.getElementById('computeStatus').textContent = 'Ready';
-    }, 10);
+function errorBound() {
+    const R = S.radius, k = S.dimension;
+    switch (S.structure) {
+        case 'squarefree': return Math.pow(R, 0.5);
+        case 'kfree': return Math.pow(R, 1/S.kfreeParam);
+        default: return Math.pow(R, k - 1);
+    }
 }
 
 function computeErrorSeries() {
-    State.errorData = [];
-    const maxR = State.radius;
-    const step = Math.max(1, Math.floor(maxR / 50));
+    S.errorData = [];
+    const maxR = S.radius;
+    const step = Math.max(1, Math.floor(maxR / 40));
+    const origR = S.radius;
     
-    const originalRadius = State.radius;
-    
-    for (let r = 10; r <= maxR; r += step) {
-        State.radius = r;
-        const points = generateLatticePoints();
-        const filtered = filterPoints(points);
-        const surviving = filtered.filter(p => p.survives).length;
-        const predicted = computeMainTerm();
-        const error = surviving - predicted;
-        const bound = computeErrorBound();
+    for (let r = 5; r <= maxR; r += step) {
+        S.radius = r;
+        const pts = generatePoints();
+        const filt = filterPoints(pts);
+        const surv = filt.filter(p => p.survives).length;
+        const pred = mainTerm();
+        const err = surv - pred;
+        const bnd = errorBound();
         
-        State.errorData.push({
-            r: r,
-            actual: surviving,
-            predicted: predicted,
-            error: error,
-            bound: bound,
-            normalizedError: error / bound
-        });
+        S.errorData.push({ r, actual: surv, predicted: pred, error: err, bound: bnd });
     }
     
-    State.radius = originalRadius;
+    S.radius = origR;
 }
 
-function updateStats(stats) {
-    document.getElementById('statTotal').textContent = stats.total.toLocaleString();
-    document.getElementById('statSurviving').textContent = stats.surviving.toLocaleString();
-    document.getElementById('statRemoved').textContent = stats.removed.toLocaleString();
-    document.getElementById('statDensity').textContent = (stats.surviving / stats.total * 100).toFixed(2) + '%';
+function compute() {
+    const status = document.getElementById('statusIndicator');
+    const loading = document.getElementById('loadingOverlay');
+    status.textContent = 'Computing...';
+    status.classList.add('computing');
+    loading.classList.add('visible');
     
-    document.getElementById('statPredicted').textContent = stats.predicted.toFixed(2);
-    document.getElementById('statActual').textContent = stats.surviving.toLocaleString();
+    const start = performance.now();
     
-    document.getElementById('statError').textContent = stats.error.toFixed(2);
-    document.getElementById('statErrorBound').textContent = stats.errorBound.toFixed(2);
-    document.getElementById('statRelError').textContent = (Math.abs(stats.error) / stats.predicted * 100).toFixed(3) + '%';
-    
-    const errorRatio = Math.min(Math.abs(stats.error) / stats.errorBound, 1);
-    document.getElementById('errorProgress').style.width = (errorRatio * 100) + '%';
-    
-    document.getElementById('statBoundary').textContent = stats.boundary.toLocaleString();
-    document.getElementById('statInterior').textContent = stats.interior.toLocaleString();
-    document.getElementById('statBoundaryRatio').textContent = (stats.boundary / stats.surviving * 100).toFixed(2) + '%';
-    
-    const k = State.dimension;
-    document.getElementById('statExponent').textContent = `${k-1}/${k} = ${((k-1)/k).toFixed(4)}`;
-    
-    updateFormulas();
+    requestAnimationFrame(() => {
+        setTimeout(() => {
+            try {
+                S.points = generatePoints();
+                S.classified = filterPoints(S.points);
+                
+                const surviving = S.classified.filter(p => p.survives);
+                const boundary = surviving.filter(p => p.isBoundary);
+                const pred = mainTerm();
+                const actual = surviving.length;
+                const err = actual - pred;
+                const bnd = errorBound();
+                
+                document.getElementById('statTotal').textContent = S.points.length.toLocaleString();
+                document.getElementById('statSurviving').textContent = actual.toLocaleString();
+                document.getElementById('statRemoved').textContent = (S.points.length - actual).toLocaleString();
+                document.getElementById('statDensity').textContent = (actual / S.points.length * 100).toFixed(1) + '%';
+                document.getElementById('statPredicted').textContent = pred.toFixed(1);
+                document.getElementById('statActual').textContent = actual.toLocaleString();
+                document.getElementById('statError').textContent = err.toFixed(1);
+                document.getElementById('statErrorBound').textContent = bnd.toFixed(1);
+                document.getElementById('statRelError').textContent = (Math.abs(err) / pred * 100).toFixed(2) + '%';
+                document.getElementById('errorProgress').style.width = Math.min(Math.abs(err) / bnd * 100, 100) + '%';
+                document.getElementById('statBoundary').textContent = boundary.length.toLocaleString();
+                document.getElementById('statInterior').textContent = (actual - boundary.length).toLocaleString();
+                document.getElementById('statExponent').textContent = `${S.dimension-1}/${S.dimension}`;
+                
+                updateFormulas();
+                computeErrorSeries();
+                redraw();
+                
+                const elapsed = (performance.now() - start).toFixed(0);
+                document.getElementById('computeTime').textContent = `${elapsed}ms`;
+                
+            } catch (e) {
+                console.error(e);
+            }
+            
+            status.textContent = 'Ready';
+            status.classList.remove('computing');
+            loading.classList.remove('visible');
+        }, 20);
+    });
 }
 
 function updateFormulas() {
-    const k = State.dimension;
-    let mainFormula, mainExplain, errorFormula, errorExplain;
+    const k = S.dimension;
+    let main, mainEx, err, errEx;
     
-    switch (State.structure) {
+    switch (S.structure) {
         case 'coprime':
         case 'coprime-tuple':
-            mainFormula = `R^${k} / ζ(${k})`;
-            mainExplain = 'Volume scaled by coprime density';
-            errorFormula = `O(R^${k-1})`;
-            errorExplain = `Boundary measure in ${k}D`;
+            main = `R^${k} / zeta(${k})`;
+            mainEx = 'Coprime density';
+            err = `O(R^${k-1})`;
+            errEx = `${k}D boundary`;
             break;
-            
         case 'squarefree':
-            mainFormula = 'x / ζ(2) = 6x/π²';
-            mainExplain = 'Linear count scaled by squarefree density';
-            errorFormula = 'O(x^{1/2})';
-            errorExplain = 'Boundary of 2D divisor lattice';
+            main = '6x / pi^2';
+            mainEx = 'Squarefree density';
+            err = 'O(x^1/2)';
+            errEx = '2D boundary';
             break;
-            
         case 'kfree':
-            mainFormula = `x / ζ(${State.kfreeParam})`;
-            mainExplain = `${State.kfreeParam}-free density`;
-            errorFormula = `O(x^{1/${State.kfreeParam}})`;
-            errorExplain = `Boundary of ${State.kfreeParam}D divisor lattice`;
+            main = `x / zeta(${S.kfreeParam})`;
+            mainEx = `${S.kfreeParam}-free density`;
+            err = `O(x^{1/${S.kfreeParam}})`;
+            errEx = `${S.kfreeParam}D boundary`;
             break;
-            
-        case 'prime-ktuple':
-        case 'custom':
-            const len = State.tupleOffsets.length;
-            mainFormula = `C · x/(log x)^${len}`;
-            mainExplain = 'Hardy-Littlewood conjecture';
-            errorFormula = 'Sieve-dependent';
-            errorExplain = 'Complex sieve error terms';
-            break;
+        default:
+            main = `R^${k} / zeta(${k})`;
+            mainEx = 'Expected count';
+            err = `O(R^${k-1})`;
+            errEx = 'Boundary scaling';
     }
     
-    document.getElementById('formulaMain').textContent = mainFormula;
-    document.getElementById('formulaExplain').textContent = mainExplain;
-    document.getElementById('errorFormula').textContent = errorFormula;
-    document.getElementById('errorExplain').textContent = errorExplain;
+    document.getElementById('formulaMain').textContent = main;
+    document.getElementById('formulaExplain').textContent = mainEx;
+    document.getElementById('errorFormula').textContent = err;
+    document.getElementById('errorExplain').textContent = errEx;
 }
 
-function project3D(point, width, height) {
-    const k = point.length;
-    if (k < 2) return { x: width/2, y: height/2, z: 0 };
+function project(p, w, h) {
+    const k = p.length;
+    let x = p[0], y = p[1], z = k > 2 ? p[2] : 0;
+    for (let i = 3; i < k; i++) z += p[i] * 0.3;
     
-    let x = point[0];
-    let y = point[1];
-    let z = k > 2 ? point[2] : 0;
+    const rx = S.rotation.x * Math.PI / 180;
+    const ry = S.rotation.y * Math.PI / 180;
     
-    for (let i = 3; i < k; i++) {
-        z += point[i] * Math.pow(0.5, i - 2);
-    }
-    
-    const rx = State.rotation.x * Math.PI / 180;
-    const ry = State.rotation.y * Math.PI / 180;
-    const rz = State.rotation.z * Math.PI / 180;
-    
-    let x1 = x;
     let y1 = y * Math.cos(rx) - z * Math.sin(rx);
     let z1 = y * Math.sin(rx) + z * Math.cos(rx);
+    let x1 = x * Math.cos(ry) + z1 * Math.sin(ry);
+    let z2 = -x * Math.sin(ry) + z1 * Math.cos(ry);
     
-    let x2 = x1 * Math.cos(ry) + z1 * Math.sin(ry);
-    let y2 = y1;
-    let z2 = -x1 * Math.sin(ry) + z1 * Math.cos(ry);
-    
-    let x3 = x2 * Math.cos(rz) - y2 * Math.sin(rz);
-    let y3 = x2 * Math.sin(rz) + y2 * Math.cos(rz);
-    let z3 = z2;
-    
-    const scale = Math.min(width, height) / (State.radius * 2.5);
-    const perspective = 1 + z3 / (State.radius * 4);
+    const scale = Math.min(w, h) / (S.radius * 2.8);
+    const persp = 1 + z2 / (S.radius * 5);
     
     return {
-        x: width/2 + x3 * scale * perspective,
-        y: height/2 - y3 * scale * perspective,
-        z: z3
+        x: w/2 + x1 * scale * persp,
+        y: h/2 - y1 * scale * persp,
+        z: z2
     };
 }
 
-function drawMainCanvas(canvas, ctx) {
-    const width = canvas.width;
-    const height = canvas.height;
+function drawLattice(canvas, ctx) {
+    const w = canvas.width, h = canvas.height;
+    ctx.fillStyle = '#0a0a0f';
+    ctx.fillRect(0, 0, w, h);
     
-    ctx.fillStyle = Colors.bg;
-    ctx.fillRect(0, 0, width, height);
+    if (document.getElementById('showGrid').checked) drawGrid(ctx, w, h);
+    if (document.getElementById('showAxes').checked) drawAxes(ctx, w, h);
     
-    if (document.getElementById('showGrid').checked) {
-        drawGrid(ctx, width, height);
-    }
+    const showRem = document.getElementById('showRemoved').checked;
+    const showBnd = document.getElementById('showBoundary').checked;
     
-    if (document.getElementById('showAxes').checked) {
-        drawAxes(ctx, width, height);
-    }
+    const sorted = [...S.classified].sort((a, b) => project(a.point, w, h).z - project(b.point, w, h).z);
     
-    const showRemoved = document.getElementById('showRemoved').checked;
-    const showBoundary = document.getElementById('showBoundary').checked;
-    const colorByMobius = document.getElementById('colorByMobius').checked;
-    
-    const allPoints = filterPoints(State.points);
-    const classified = classifyBoundary(allPoints, State.boundaryThickness);
-    
-    classified.sort((a, b) => {
-        const pa = project3D(a.point, width, height);
-        const pb = project3D(b.point, width, height);
-        return pa.z - pb.z;
-    });
-    
-    for (const item of classified) {
-        if (!item.survives && !showRemoved) continue;
+    for (const item of sorted) {
+        if (!item.survives && !showRem) continue;
         
-        const proj = project3D(item.point, width, height);
-        const size = State.pointSize * (1 + proj.z / (State.radius * 2));
+        const proj = project(item.point, w, h);
+        const size = S.pointSize * (0.7 + proj.z / (S.radius * 3) * 0.5);
         
         let color;
-        if (!item.survives) {
-            color = Colors.removed;
-        } else if (colorByMobius) {
-            const g = gcdArray(item.point.map(Math.abs));
-            const mu = mobius(g === 0 ? 1 : g);
-            color = mu === 1 ? '#5ab87a' : mu === -1 ? '#b85a5a' : '#4a4a5a';
-        } else if (showBoundary && item.isBoundary) {
-            color = Colors.boundary;
-        } else {
-            color = Colors.coprime;
-        }
+        if (!item.survives) color = '#5a2a2a';
+        else if (showBnd && item.isBoundary) color = '#c9a227';
+        else color = '#5ab87a';
         
         ctx.beginPath();
         ctx.arc(proj.x, proj.y, Math.max(1, size), 0, Math.PI * 2);
@@ -1483,541 +1200,451 @@ function drawMainCanvas(canvas, ctx) {
         ctx.fill();
     }
     
-    const surviving = classified.filter(p => p.survives).length;
-    document.getElementById('stats1').innerHTML = 
-        `Points: ${surviving.toLocaleString()}<br>` +
-        `Dimension: ${State.dimension}`;
+    const surv = S.classified.filter(p => p.survives).length;
+    document.getElementById('canvasStats').innerHTML = `Points: ${surv.toLocaleString()}<br>Dim: ${S.dimension}`;
 }
 
-function drawBoundaryCanvas(canvas, ctx) {
-    const width = canvas.width;
-    const height = canvas.height;
+function drawBoundary(canvas, ctx) {
+    const w = canvas.width, h = canvas.height;
+    ctx.fillStyle = '#0a0a0f';
+    ctx.fillRect(0, 0, w, h);
     
-    ctx.fillStyle = Colors.bg;
-    ctx.fillRect(0, 0, width, height);
+    if (document.getElementById('showAxes').checked) drawAxes(ctx, w, h);
     
-    if (document.getElementById('showAxes').checked) {
-        drawAxes(ctx, width, height);
-    }
-    
-    const R = State.radius;
-    const thickness = State.boundaryThickness;
-    const scale = Math.min(width, height) / (R * 2.5);
-    
-    ctx.strokeStyle = 'rgba(201, 162, 39, 0.3)';
+    const scale = Math.min(w, h) / (S.radius * 2.8);
+    ctx.strokeStyle = 'rgba(201, 162, 39, 0.25)';
     ctx.lineWidth = 1;
     ctx.beginPath();
-    ctx.arc(width/2, height/2, R * scale, 0, Math.PI * 2);
+    ctx.arc(w/2, h/2, S.radius * scale, 0, Math.PI * 2);
     ctx.stroke();
     
-    ctx.strokeStyle = 'rgba(201, 162, 39, 0.15)';
+    ctx.strokeStyle = 'rgba(201, 162, 39, 0.12)';
     ctx.beginPath();
-    ctx.arc(width/2, height/2, (R - thickness) * scale, 0, Math.PI * 2);
+    ctx.arc(w/2, h/2, (S.radius - S.boundaryThickness) * scale, 0, Math.PI * 2);
     ctx.stroke();
     
-    const allPoints = filterPoints(State.points);
-    const classified = classifyBoundary(allPoints, thickness);
-    const boundaryPts = classified.filter(p => p.survives && p.isBoundary);
+    const bndPts = S.classified.filter(p => p.survives && p.isBoundary);
+    const sorted = bndPts.sort((a, b) => project(a.point, w, h).z - project(b.point, w, h).z);
     
-    boundaryPts.sort((a, b) => {
-        const pa = project3D(a.point, width, height);
-        const pb = project3D(b.point, width, height);
-        return pa.z - pb.z;
-    });
-    
-    for (const item of boundaryPts) {
-        const proj = project3D(item.point, width, height);
-        const size = State.pointSize * (1 + proj.z / (State.radius * 2));
+    for (const item of sorted) {
+        const proj = project(item.point, w, h);
+        const size = S.pointSize * (0.7 + proj.z / (S.radius * 3) * 0.5);
         
         ctx.beginPath();
         ctx.arc(proj.x, proj.y, Math.max(1, size), 0, Math.PI * 2);
-        ctx.fillStyle = Colors.boundary;
+        ctx.fillStyle = '#c9a227';
         ctx.fill();
     }
     
-    document.getElementById('stats2').innerHTML = 
-        `Boundary: ${boundaryPts.length.toLocaleString()}<br>` +
-        `Shell: ${thickness}`;
+    document.getElementById('canvasStats').innerHTML = `Boundary: ${bndPts.length.toLocaleString()}<br>Shell: ${S.boundaryThickness}`;
 }
 
-function drawDensityCanvas(canvas, ctx) {
-    const width = canvas.width;
-    const height = canvas.height;
+function drawDensity(canvas, ctx) {
+    const w = canvas.width, h = canvas.height;
+    ctx.fillStyle = '#0a0a0f';
+    ctx.fillRect(0, 0, w, h);
     
-    ctx.fillStyle = Colors.bg;
-    ctx.fillRect(0, 0, width, height);
-    
-    const R = State.radius;
-    const bins = 50;
-    const binWidth = R / bins;
-    const densities = new Array(bins).fill(0);
+    const bins = 40;
+    const binW = S.radius / bins;
     const counts = new Array(bins).fill(0);
+    const surviving = new Array(bins).fill(0);
     
-    const allPoints = filterPoints(State.points);
-    
-    for (const item of allPoints) {
-        const norm = Math.sqrt(item.point.reduce((s, x) => s + x * x, 0));
-        const bin = Math.min(bins - 1, Math.floor(norm / binWidth));
+    for (const item of S.classified) {
+        const bin = Math.min(bins - 1, Math.floor(item.norm / binW));
         counts[bin]++;
-        if (item.survives) densities[bin]++;
+        if (item.survives) surviving[bin]++;
     }
     
-    const margin = 40;
-    const chartWidth = width - 2 * margin;
-    const chartHeight = height - 2 * margin;
+    const densities = counts.map((c, i) => c > 0 ? surviving[i] / c : 0);
+    const maxD = Math.max(...densities, 0.01);
     
-    ctx.strokeStyle = Colors.axis;
+    const margin = 50;
+    const chartW = w - 2 * margin;
+    const chartH = h - 2 * margin;
+    
+    ctx.strokeStyle = '#3a3a4a';
     ctx.lineWidth = 1;
     ctx.beginPath();
     ctx.moveTo(margin, margin);
-    ctx.lineTo(margin, height - margin);
-    ctx.lineTo(width - margin, height - margin);
+    ctx.lineTo(margin, h - margin);
+    ctx.lineTo(w - margin, h - margin);
     ctx.stroke();
     
-    const maxDensity = Math.max(...densities.map((d, i) => counts[i] > 0 ? d / counts[i] : 0));
-    
-    ctx.fillStyle = Colors.coprime;
-    const barWidth = chartWidth / bins;
-    
+    const barW = chartW / bins;
     for (let i = 0; i < bins; i++) {
-        const density = counts[i] > 0 ? densities[i] / counts[i] : 0;
-        const barHeight = (density / maxDensity) * chartHeight * 0.9;
+        const barH = (densities[i] / maxD) * chartH * 0.9;
+        const isBnd = i >= bins - Math.ceil(S.boundaryThickness / binW);
         
-        ctx.fillStyle = i >= bins - State.boundaryThickness / binWidth ? Colors.boundary : Colors.coprime;
-        ctx.fillRect(
-            margin + i * barWidth,
-            height - margin - barHeight,
-            barWidth - 1,
-            barHeight
-        );
+        ctx.fillStyle = isBnd ? '#c9a227' : '#5ab87a';
+        ctx.fillRect(margin + i * barW + 1, h - margin - barH, barW - 2, barH);
     }
     
-    ctx.fillStyle = Colors.text;
-    ctx.font = '10px JetBrains Mono';
+    ctx.fillStyle = '#9898a8';
+    ctx.font = '11px JetBrains Mono';
     ctx.textAlign = 'center';
-    ctx.fillText('0', margin, height - margin + 15);
-    ctx.fillText(R.toString(), width - margin, height - margin + 15);
-    ctx.fillText('Radius', width/2, height - margin + 25);
+    ctx.fillText('Radius', w/2, h - margin + 25);
+    ctx.fillText('0', margin, h - margin + 15);
+    ctx.fillText(S.radius.toString(), w - margin, h - margin + 15);
     
     ctx.save();
-    ctx.translate(15, height/2);
+    ctx.translate(18, h/2);
     ctx.rotate(-Math.PI/2);
     ctx.fillText('Density', 0, 0);
     ctx.restore();
     
-    document.getElementById('stats3').innerHTML = 
-        `Bins: ${bins}<br>` +
-        `Max density: ${maxDensity.toFixed(4)}`;
+    document.getElementById('canvasStats').innerHTML = `Bins: ${bins}<br>Max: ${maxD.toFixed(3)}`;
 }
 
-function drawErrorCanvas(canvas, ctx) {
-    const width = canvas.width;
-    const height = canvas.height;
+function drawError(canvas, ctx) {
+    const w = canvas.width, h = canvas.height;
+    ctx.fillStyle = '#0a0a0f';
+    ctx.fillRect(0, 0, w, h);
     
-    ctx.fillStyle = Colors.bg;
-    ctx.fillRect(0, 0, width, height);
-    
-    if (State.errorData.length === 0) {
-        ctx.fillStyle = Colors.text;
+    if (S.errorData.length === 0) {
+        ctx.fillStyle = '#9898a8';
         ctx.font = '12px JetBrains Mono';
         ctx.textAlign = 'center';
-        ctx.fillText('Computing error series...', width/2, height/2);
+        ctx.fillText('No error data', w/2, h/2);
         return;
     }
     
-    const margin = 50;
-    const chartWidth = width - 2 * margin;
-    const chartHeight = height - 2 * margin;
+    const margin = 55;
+    const chartW = w - 2 * margin;
+    const chartH = h - 2 * margin;
     
-    ctx.strokeStyle = Colors.axis;
+    ctx.strokeStyle = '#3a3a4a';
     ctx.lineWidth = 1;
     ctx.beginPath();
     ctx.moveTo(margin, margin);
-    ctx.lineTo(margin, height - margin);
-    ctx.lineTo(width - margin, height - margin);
+    ctx.lineTo(margin, h - margin);
+    ctx.lineTo(w - margin, h - margin);
     ctx.stroke();
     
-    const maxR = Math.max(...State.errorData.map(d => d.r));
-    const maxError = Math.max(...State.errorData.map(d => Math.abs(d.error)));
-    const maxBound = Math.max(...State.errorData.map(d => d.bound));
-    const yMax = Math.max(maxError, maxBound) * 1.1;
+    const maxR = Math.max(...S.errorData.map(d => d.r));
+    const maxE = Math.max(...S.errorData.map(d => Math.abs(d.error)));
+    const maxB = Math.max(...S.errorData.map(d => d.bound));
+    const yMax = Math.max(maxE, maxB) * 1.1;
     
-    ctx.strokeStyle = 'rgba(90, 184, 122, 0.5)';
+    ctx.strokeStyle = '#5ab87a';
     ctx.lineWidth = 2;
     ctx.beginPath();
-    for (let i = 0; i < State.errorData.length; i++) {
-        const d = State.errorData[i];
-        const x = margin + (d.r / maxR) * chartWidth;
-        const y = height - margin - (Math.abs(d.error) / yMax) * chartHeight;
-        if (i === 0) ctx.moveTo(x, y);
-        else ctx.lineTo(x, y);
-    }
+    S.errorData.forEach((d, i) => {
+        const x = margin + (d.r / maxR) * chartW;
+        const y = h - margin - (Math.abs(d.error) / yMax) * chartH;
+        i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    });
     ctx.stroke();
     
-    ctx.strokeStyle = 'rgba(201, 162, 39, 0.7)';
-    ctx.setLineDash([5, 5]);
+    ctx.strokeStyle = '#c9a227';
+    ctx.setLineDash([4, 4]);
     ctx.beginPath();
-    for (let i = 0; i < State.errorData.length; i++) {
-        const d = State.errorData[i];
-        const x = margin + (d.r / maxR) * chartWidth;
-        const y = height - margin - (d.bound / yMax) * chartHeight;
-        if (i === 0) ctx.moveTo(x, y);
-        else ctx.lineTo(x, y);
-    }
+    S.errorData.forEach((d, i) => {
+        const x = margin + (d.r / maxR) * chartW;
+        const y = h - margin - (d.bound / yMax) * chartH;
+        i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    });
     ctx.stroke();
     ctx.setLineDash([]);
     
-    ctx.fillStyle = Colors.text;
-    ctx.font = '10px JetBrains Mono';
+    ctx.fillStyle = '#9898a8';
+    ctx.font = '11px JetBrains Mono';
     ctx.textAlign = 'center';
-    ctx.fillText('R', width/2, height - margin + 30);
+    ctx.fillText('R', w/2, h - margin + 25);
     
     ctx.save();
-    ctx.translate(20, height/2);
+    ctx.translate(20, h/2);
     ctx.rotate(-Math.PI/2);
     ctx.fillText('|Error|', 0, 0);
     ctx.restore();
     
-    ctx.fillStyle = Colors.coprime;
-    ctx.fillRect(width - margin - 80, margin + 10, 10, 10);
-    ctx.fillStyle = Colors.text;
+    ctx.fillStyle = '#5ab87a';
+    ctx.fillRect(w - margin - 70, margin + 10, 10, 10);
+    ctx.fillStyle = '#9898a8';
     ctx.textAlign = 'left';
-    ctx.fillText('Actual', width - margin - 65, margin + 18);
+    ctx.fillText('Actual', w - margin - 55, margin + 18);
     
-    ctx.fillStyle = Colors.boundary;
-    ctx.fillRect(width - margin - 80, margin + 25, 10, 10);
-    ctx.fillStyle = Colors.text;
-    ctx.fillText('Bound', width - margin - 65, margin + 33);
+    ctx.fillStyle = '#c9a227';
+    ctx.fillRect(w - margin - 70, margin + 26, 10, 10);
+    ctx.fillStyle = '#9898a8';
+    ctx.fillText('Bound', w - margin - 55, margin + 34);
     
-    const lastData = State.errorData[State.errorData.length - 1];
-    document.getElementById('stats4').innerHTML = 
-        `Error: ${lastData.error.toFixed(2)}<br>` +
-        `Bound: ${lastData.bound.toFixed(2)}`;
+    const last = S.errorData[S.errorData.length - 1];
+    document.getElementById('canvasStats').innerHTML = `Err: ${last.error.toFixed(1)}<br>Bnd: ${last.bound.toFixed(1)}`;
 }
 
-function drawGrid(ctx, width, height) {
-    const R = State.radius;
-    const scale = Math.min(width, height) / (R * 2.5);
-    const step = Math.max(1, Math.floor(R / 10));
+function drawGrid(ctx, w, h) {
+    const scale = Math.min(w, h) / (S.radius * 2.8);
+    const step = Math.max(1, Math.floor(S.radius / 8));
     
-    ctx.strokeStyle = Colors.grid;
+    ctx.strokeStyle = '#1a1a28';
     ctx.lineWidth = 0.5;
     
-    for (let i = -R; i <= R; i += step) {
-        const proj1 = project3D([i, -R, 0], width, height);
-        const proj2 = project3D([i, R, 0], width, height);
+    for (let i = -S.radius; i <= S.radius; i += step) {
+        const p1 = project([i, -S.radius, 0], w, h);
+        const p2 = project([i, S.radius, 0], w, h);
         ctx.beginPath();
-        ctx.moveTo(proj1.x, proj1.y);
-        ctx.lineTo(proj2.x, proj2.y);
+        ctx.moveTo(p1.x, p1.y);
+        ctx.lineTo(p2.x, p2.y);
         ctx.stroke();
         
-        const proj3 = project3D([-R, i, 0], width, height);
-        const proj4 = project3D([R, i, 0], width, height);
+        const p3 = project([-S.radius, i, 0], w, h);
+        const p4 = project([S.radius, i, 0], w, h);
         ctx.beginPath();
-        ctx.moveTo(proj3.x, proj3.y);
-        ctx.lineTo(proj4.x, proj4.y);
+        ctx.moveTo(p3.x, p3.y);
+        ctx.lineTo(p4.x, p4.y);
         ctx.stroke();
     }
 }
 
-function drawAxes(ctx, width, height) {
-    const R = State.radius;
+function drawAxes(ctx, w, h) {
+    const len = S.radius * 0.85;
+    const o = project([0, 0, 0], w, h);
+    const xEnd = project([len, 0, 0], w, h);
+    const yEnd = project([0, len, 0], w, h);
+    const zEnd = project([0, 0, len], w, h);
     
     ctx.lineWidth = 1.5;
     
-    const origin = project3D([0, 0, 0], width, height);
-    const xEnd = project3D([R * 0.9, 0, 0], width, height);
-    const yEnd = project3D([0, R * 0.9, 0], width, height);
-    const zEnd = project3D([0, 0, R * 0.9], width, height);
-    
     ctx.strokeStyle = '#b85a5a';
     ctx.beginPath();
-    ctx.moveTo(origin.x, origin.y);
+    ctx.moveTo(o.x, o.y);
     ctx.lineTo(xEnd.x, xEnd.y);
     ctx.stroke();
     
     ctx.strokeStyle = '#5ab85a';
     ctx.beginPath();
-    ctx.moveTo(origin.x, origin.y);
+    ctx.moveTo(o.x, o.y);
     ctx.lineTo(yEnd.x, yEnd.y);
     ctx.stroke();
     
-    if (State.dimension > 2) {
+    if (S.dimension > 2) {
         ctx.strokeStyle = '#5a5ab8';
         ctx.beginPath();
-        ctx.moveTo(origin.x, origin.y);
+        ctx.moveTo(o.x, o.y);
         ctx.lineTo(zEnd.x, zEnd.y);
         ctx.stroke();
     }
     
     ctx.font = '10px JetBrains Mono';
     ctx.fillStyle = '#b85a5a';
-    ctx.fillText('x', xEnd.x + 5, xEnd.y);
+    ctx.fillText('x', xEnd.x + 4, xEnd.y);
     ctx.fillStyle = '#5ab85a';
-    ctx.fillText('y', yEnd.x + 5, yEnd.y);
-    if (State.dimension > 2) {
+    ctx.fillText('y', yEnd.x + 4, yEnd.y);
+    if (S.dimension > 2) {
         ctx.fillStyle = '#5a5ab8';
-        ctx.fillText('z', zEnd.x + 5, zEnd.y);
+        ctx.fillText('z', zEnd.x + 4, zEnd.y);
     }
 }
 
 function redraw() {
-    const canvases = [
-        { canvas: document.getElementById('canvas1'), draw: drawMainCanvas },
-        { canvas: document.getElementById('canvas2'), draw: drawBoundaryCanvas },
-        { canvas: document.getElementById('canvas3'), draw: drawDensityCanvas },
-        { canvas: document.getElementById('canvas4'), draw: drawErrorCanvas }
-    ];
+    const canvas = document.getElementById('mainCanvas');
+    const wrapper = document.getElementById('canvasWrapper');
+    const rect = wrapper.getBoundingClientRect();
+    const size = Math.min(rect.width, rect.height);
     
-    for (const { canvas, draw } of canvases) {
-        const rect = canvas.parentElement.getBoundingClientRect();
-        const dpr = window.devicePixelRatio || 1;
-        
-        canvas.width = rect.width * dpr;
-        canvas.height = rect.height * dpr;
-        canvas.style.width = rect.width + 'px';
-        canvas.style.height = rect.height + 'px';
-        
-        const ctx = canvas.getContext('2d');
-        ctx.scale(dpr, dpr);
-        
-        canvas.width = rect.width * dpr;
-        canvas.height = rect.height * dpr;
-        
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-        
-        draw(canvas, ctx);
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = size * dpr;
+    canvas.height = size * dpr;
+    canvas.style.width = size + 'px';
+    canvas.style.height = size + 'px';
+    
+    const ctx = canvas.getContext('2d');
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    
+    const labels = { lattice: 'Lattice Structure', boundary: 'Boundary Shell', density: 'Radial Density', error: 'Error Analysis' };
+    document.getElementById('canvasLabel').textContent = labels[S.currentView];
+    
+    switch (S.currentView) {
+        case 'lattice': drawLattice(canvas, ctx); break;
+        case 'boundary': drawBoundary(canvas, ctx); break;
+        case 'density': drawDensity(canvas, ctx); break;
+        case 'error': drawError(canvas, ctx); break;
     }
 }
 
 function setView(view) {
-    State.currentView = view;
-    
-    document.querySelectorAll('.view-tab').forEach(tab => {
-        tab.classList.toggle('active', tab.dataset.view === view);
-    });
-    
-    const wrappers = ['wrapper1', 'wrapper2', 'wrapper3', 'wrapper4'];
-    
-    if (view === 'quad') {
-        wrappers.forEach(id => {
-            document.getElementById(id).style.display = 'block';
-            document.getElementById(id).classList.remove('full');
-        });
-    } else {
-        const viewMap = { main: 0, boundary: 1, density: 2, error: 3 };
-        wrappers.forEach((id, i) => {
-            const el = document.getElementById(id);
-            if (i === viewMap[view]) {
-                el.style.display = 'block';
-                el.classList.add('full');
-            } else {
-                el.style.display = 'none';
-            }
-        });
-    }
-    
-    setTimeout(redraw, 10);
+    S.currentView = view;
+    document.querySelectorAll('.view-tab').forEach(t => t.classList.toggle('active', t.dataset.view === view));
+    redraw();
 }
 
 function setDimension(k) {
     k = parseInt(k);
-    if (k < 2 || k > 12) return;
+    if (k < 2 || k > 6) return;
     
-    State.dimension = k;
-    document.getElementById('customDim').value = k;
-    
-    document.querySelectorAll('.dim-btn').forEach(btn => {
-        btn.classList.toggle('active', parseInt(btn.dataset.dim) === k);
-    });
-    
+    S.dimension = k;
+    document.querySelectorAll('.dim-btn').forEach(b => b.classList.toggle('active', parseInt(b.dataset.dim) === k));
     document.getElementById('statDimension').textContent = k;
+    
+    if (k >= 4 && S.radius > 40) {
+        S.radius = 25;
+        document.getElementById('radius').value = 25;
+        document.getElementById('radiusValue').textContent = '25';
+        document.getElementById('statRadius').textContent = '25';
+    }
+    
     compute();
 }
 
 function updateRadius() {
-    const val = document.getElementById('radius').value;
-    State.radius = parseInt(val);
-    document.getElementById('radiusValue').textContent = val;
-    document.getElementById('statRadius').textContent = val;
+    const v = parseInt(document.getElementById('radius').value);
+    S.radius = v;
+    document.getElementById('radiusValue').textContent = v;
+    document.getElementById('statRadius').textContent = v;
 }
 
 function updateKfree() {
-    const val = document.getElementById('kfree').value;
-    State.kfreeParam = parseInt(val);
-    document.getElementById('kfreeValue').textContent = val;
+    const v = parseInt(document.getElementById('kfree').value);
+    S.kfreeParam = v;
+    document.getElementById('kfreeValue').textContent = v;
 }
 
 function updatePointSize() {
-    const val = document.getElementById('pointSize').value;
-    State.pointSize = parseInt(val);
-    document.getElementById('pointSizeValue').textContent = val;
+    const v = parseInt(document.getElementById('pointSize').value);
+    S.pointSize = v;
+    document.getElementById('pointSizeValue').textContent = v;
     redraw();
 }
 
 function updateBoundaryThick() {
-    const val = document.getElementById('boundaryThick').value;
-    State.boundaryThickness = parseInt(val);
-    document.getElementById('boundaryThickValue').textContent = val;
+    const v = parseInt(document.getElementById('boundaryThick').value);
+    S.boundaryThickness = v;
+    document.getElementById('boundaryThickValue').textContent = v;
     redraw();
 }
 
 function updateRotation() {
-    State.rotation.x = parseInt(document.getElementById('rotX').value);
-    State.rotation.y = parseInt(document.getElementById('rotY').value);
-    State.rotation.z = parseInt(document.getElementById('rotZ').value);
-    
-    document.getElementById('rotXValue').textContent = State.rotation.x;
-    document.getElementById('rotYValue').textContent = State.rotation.y;
-    document.getElementById('rotZValue').textContent = State.rotation.z;
-    
+    S.rotation.x = parseInt(document.getElementById('rotX').value);
+    S.rotation.y = parseInt(document.getElementById('rotY').value);
+    document.getElementById('rotXValue').textContent = S.rotation.x;
+    document.getElementById('rotYValue').textContent = S.rotation.y;
     redraw();
 }
 
 function resetRotation() {
-    State.rotation = { x: 30, y: 45, z: 0 };
-    document.getElementById('rotX').value = 30;
-    document.getElementById('rotY').value = 45;
-    document.getElementById('rotZ').value = 0;
+    S.rotation = { x: 25, y: 35 };
+    document.getElementById('rotX').value = 25;
+    document.getElementById('rotY').value = 35;
     updateRotation();
 }
 
-let animationId = null;
-
-function animateRotation() {
-    if (State.animating) {
-        State.animating = false;
-        if (animationId) cancelAnimationFrame(animationId);
-        return;
+let animId = null;
+function toggleAnimation() {
+    S.animating = !S.animating;
+    document.getElementById('animateBtn').textContent = S.animating ? 'Stop' : 'Animate';
+    
+    if (S.animating) {
+        const animate = () => {
+            if (!S.animating) return;
+            S.rotation.y = (S.rotation.y + 0.8) % 360;
+            document.getElementById('rotY').value = S.rotation.y;
+            document.getElementById('rotYValue').textContent = Math.round(S.rotation.y);
+            redraw();
+            animId = requestAnimationFrame(animate);
+        };
+        animate();
+    } else if (animId) {
+        cancelAnimationFrame(animId);
     }
-    
-    State.animating = true;
-    
-    function animate() {
-        if (!State.animating) return;
-        
-        State.rotation.y = (State.rotation.y + 0.5) % 360;
-        document.getElementById('rotY').value = State.rotation.y;
-        document.getElementById('rotYValue').textContent = Math.round(State.rotation.y);
-        
-        redraw();
-        animationId = requestAnimationFrame(animate);
-    }
-    
-    animate();
 }
 
 function updateStructure() {
     const type = document.getElementById('structureType').value;
-    State.structure = type;
+    S.structure = type;
     
-    document.getElementById('statStructure').textContent = {
+    const names = {
         'coprime': 'Coprime Lattice',
-        'squarefree': 'Squarefree Integers',
-        'kfree': 'k-Free Integers',
-        'coprime-tuple': 'Coprime m-Tuples',
-        'prime-ktuple': 'Prime k-Tuple Sieve',
+        'squarefree': 'Squarefree',
+        'kfree': 'k-Free',
+        'coprime-tuple': 'Coprime Tuples',
+        'prime-ktuple': 'Prime k-Tuple',
         'custom': 'Custom Tuple'
-    }[type];
+    };
+    document.getElementById('statStructure').textContent = names[type];
     
     document.getElementById('kfreeParam').style.display = type === 'kfree' ? 'block' : 'none';
-    document.getElementById('tupleSection').style.display = 
-        (type === 'prime-ktuple' || type === 'custom') ? 'block' : 'none';
-}
-
-function updateTuple() {
-    const input = document.getElementById('tupleOffsets').value;
-    const offsets = input.split(',').map(s => parseInt(s.trim())).filter(n => !isNaN(n));
-    
-    if (offsets.length > 0) {
-        State.tupleOffsets = offsets;
-        const pattern = offsets.map(h => `n+${h}`).join(', ');
-        document.getElementById('tuplePreview').textContent = `Pattern: (${pattern})`;
-    }
+    document.getElementById('tupleSection').style.display = (type === 'prime-ktuple' || type === 'custom') ? 'block' : 'none';
 }
 
 function exportPNG(type) {
-    const exportCanvas = document.getElementById('exportCanvas');
-    const ctx = exportCanvas.getContext('2d');
+    const exp = document.getElementById('exportCanvas');
+    exp.width = 3840;
+    exp.height = 3840;
+    const ctx = exp.getContext('2d');
     
-    exportCanvas.width = 3840;
-    exportCanvas.height = 2160;
-    
-    ctx.fillStyle = Colors.bg;
-    ctx.fillRect(0, 0, 3840, 2160);
-    
-    const drawFuncs = {
-        main: drawMainCanvas,
-        boundary: drawBoundaryCanvas,
-        density: drawDensityCanvas,
-        error: drawErrorCanvas
-    };
+    const origView = S.currentView;
     
     if (type === 'all') {
-        const tempCanvas = document.createElement('canvas');
-        tempCanvas.width = 1920;
-        tempCanvas.height = 1080;
-        const tempCtx = tempCanvas.getContext('2d');
+        const views = ['lattice', 'boundary', 'density', 'error'];
+        const positions = [[0, 0], [1920, 0], [0, 1920], [1920, 1920]];
         
-        const funcs = [drawMainCanvas, drawBoundaryCanvas, drawDensityCanvas, drawErrorCanvas];
-        const positions = [[0, 0], [1920, 0], [0, 1080], [1920, 1080]];
+        const temp = document.createElement('canvas');
+        temp.width = 1920;
+        temp.height = 1920;
+        const tCtx = temp.getContext('2d');
         
-        funcs.forEach((fn, i) => {
-            tempCtx.fillStyle = Colors.bg;
-            tempCtx.fillRect(0, 0, 1920, 1080);
-            fn(tempCanvas, tempCtx);
-            ctx.drawImage(tempCanvas, positions[i][0], positions[i][1]);
+        views.forEach((v, i) => {
+            S.currentView = v;
+            switch (v) {
+                case 'lattice': drawLattice(temp, tCtx); break;
+                case 'boundary': drawBoundary(temp, tCtx); break;
+                case 'density': drawDensity(temp, tCtx); break;
+                case 'error': drawError(temp, tCtx); break;
+            }
+            ctx.drawImage(temp, positions[i][0], positions[i][1]);
         });
+        
+        S.currentView = origView;
     } else {
-        drawFuncs[type](exportCanvas, ctx);
+        switch (S.currentView) {
+            case 'lattice': drawLattice(exp, ctx); break;
+            case 'boundary': drawBoundary(exp, ctx); break;
+            case 'density': drawDensity(exp, ctx); break;
+            case 'error': drawError(exp, ctx); break;
+        }
     }
     
-    ctx.fillStyle = Colors.text;
-    ctx.font = '24px JetBrains Mono';
-    ctx.fillText(`Boundary Cancellation Principle - ${State.structure} - k=${State.dimension} - R=${State.radius}`, 20, 40);
+    ctx.fillStyle = '#9898a8';
+    ctx.font = '28px JetBrains Mono';
+    ctx.fillText(`BCP - ${S.structure} - k=${S.dimension} - R=${S.radius}`, 20, 50);
     
     const link = document.createElement('a');
-    link.download = `boundary-cancellation-${type}-${Date.now()}.png`;
-    link.href = exportCanvas.toDataURL('image/png');
+    link.download = `bcp-${type}-${Date.now()}.png`;
+    link.href = exp.toDataURL('image/png');
     link.click();
 }
 
 function exportCSV(type) {
-    let csv = '';
-    let filename = '';
+    let csv = '', filename = '';
     
     switch (type) {
         case 'points':
-            csv = 'index,' + Array.from({length: State.dimension}, (_, i) => `x${i+1}`).join(',') + ',survives,is_boundary,norm\n';
-            const allPoints = filterPoints(State.points);
-            const classified = classifyBoundary(allPoints, State.boundaryThickness);
-            
-            classified.forEach((item, i) => {
-                const norm = Math.sqrt(item.point.reduce((s, x) => s + x * x, 0));
-                csv += `${i},${item.point.join(',')},${item.survives ? 1 : 0},${item.isBoundary ? 1 : 0},${norm.toFixed(6)}\n`;
+            csv = 'idx,' + Array.from({length: S.dimension}, (_, i) => `x${i+1}`).join(',') + ',survives,boundary,norm\n';
+            S.classified.forEach((item, i) => {
+                csv += `${i},${item.point.join(',')},${item.survives?1:0},${item.isBoundary?1:0},${item.norm.toFixed(4)}\n`;
             });
             filename = 'lattice-points';
             break;
             
         case 'stats':
             csv = 'metric,value\n';
-            csv += `structure,${State.structure}\n`;
-            csv += `dimension,${State.dimension}\n`;
-            csv += `radius,${State.radius}\n`;
-            csv += `total_points,${State.points.length}\n`;
-            csv += `surviving_points,${State.survivingPoints.length}\n`;
-            csv += `boundary_points,${State.boundaryPoints.length}\n`;
-            csv += `predicted,${computeMainTerm()}\n`;
-            csv += `error,${State.survivingPoints.length - computeMainTerm()}\n`;
-            csv += `error_bound,${computeErrorBound()}\n`;
-            csv += `critical_exponent,${(State.dimension - 1) / State.dimension}\n`;
+            csv += `structure,${S.structure}\n`;
+            csv += `dimension,${S.dimension}\n`;
+            csv += `radius,${S.radius}\n`;
+            csv += `total,${S.points.length}\n`;
+            csv += `surviving,${S.classified.filter(p=>p.survives).length}\n`;
+            csv += `boundary,${S.classified.filter(p=>p.survives&&p.isBoundary).length}\n`;
+            csv += `predicted,${mainTerm()}\n`;
+            csv += `error,${S.classified.filter(p=>p.survives).length - mainTerm()}\n`;
+            csv += `error_bound,${errorBound()}\n`;
+            csv += `critical_exponent,${(S.dimension-1)/S.dimension}\n`;
             filename = 'statistics';
             break;
             
         case 'error':
-            csv = 'radius,actual,predicted,error,bound,normalized_error\n';
-            State.errorData.forEach(d => {
-                csv += `${d.r},${d.actual},${d.predicted.toFixed(6)},${d.error.toFixed(6)},${d.bound.toFixed(6)},${d.normalizedError.toFixed(6)}\n`;
+            csv = 'radius,actual,predicted,error,bound\n';
+            S.errorData.forEach(d => {
+                csv += `${d.r},${d.actual},${d.predicted.toFixed(4)},${d.error.toFixed(4)},${d.bound.toFixed(4)}\n`;
             });
             filename = 'error-analysis';
             break;
@@ -2036,27 +1663,18 @@ function exportCSV(type) {
     link.click();
 }
 
-function showHelp() {
-    document.getElementById('helpModal').classList.add('visible');
-}
+function showHelp() { document.getElementById('helpModal').classList.add('visible'); }
+function hideHelp() { document.getElementById('helpModal').classList.remove('visible'); }
 
-function hideHelp() {
-    document.getElementById('helpModal').classList.remove('visible');
-}
+window.addEventListener('resize', () => setTimeout(redraw, 50));
 
-window.addEventListener('resize', () => {
-    setTimeout(redraw, 100);
+document.getElementById('helpModal').addEventListener('click', e => {
+    if (e.target === document.getElementById('helpModal')) hideHelp();
 });
 
 document.addEventListener('DOMContentLoaded', () => {
     updateStructure();
     compute();
-});
-
-document.getElementById('helpModal').addEventListener('click', (e) => {
-    if (e.target === document.getElementById('helpModal')) {
-        hideHelp();
-    }
 });
 </script>
 
