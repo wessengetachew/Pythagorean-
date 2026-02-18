@@ -1,1422 +1,2670 @@
-
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Boundary Cancellation Principle - Complete Analysis</title>
+<title>Polar vs Cartesian · Gap Analysis</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=Source+Code+Pro:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=JetBrains+Mono:wght@300;400;700&display=swap');
 
 :root {
-    --bg-primary: #faf9f7;
-    --bg-secondary: #f0eeeb;
-    --bg-card: #fff;
-    --text-primary: #1a1a1a;
-    --text-secondary: #555;
-    --text-muted: #888;
-    --border: #ddd;
-    --border-dark: #ccc;
-    --accent: #2a2a2a;
-    --accent-light: #444;
-    --highlight: #fffde7;
-    --theorem-bg: #f5f5f0;
-    --definition-bg: #f0f5f5;
-    --definition-border: #4a7a7a;
-    --table-header: #2a2a2a;
-    --table-header-text: #fff;
-    --table-alt: #f9f9f7;
-    --code-bg: #f5f5f5;
-    --success: #2e7d32;
-    --warning: #f57c00;
-    --error: #c62828;
+  --pink: #ff3db4;
+  --gold: #ffd700;
+  --bg: #060608;
+  --surface: rgba(255,255,255,0.03);
+  --border: rgba(255,61,180,0.22);
+  --gold-border: rgba(255,215,0,0.22);
+  --green: #22c55e;
 }
 
-body.dark {
-    --bg-primary: #0d0d0f;
-    --bg-secondary: #161618;
-    --bg-card: #1a1a1e;
-    --text-primary: #e8e8ec;
-    --text-secondary: #a0a0a8;
-    --text-muted: #686870;
-    --border: #2a2a32;
-    --border-dark: #3a3a42;
-    --accent: #c9a227;
-    --accent-light: #ddb52f;
-    --highlight: #2a2820;
-    --theorem-bg: #1e1e22;
-    --definition-bg: #1a2020;
-    --definition-border: #5a9a9a;
-    --table-header: #252528;
-    --table-header-text: #e8e8ec;
-    --table-alt: #141416;
-    --code-bg: #1e1e22;
-    --success: #66bb6a;
-    --warning: #ffa726;
-    --error: #ef5350;
-}
-
-* { margin: 0; padding: 0; box-sizing: border-box; }
+* { margin:0; padding:0; box-sizing:border-box; }
 
 body {
-    font-family: 'Crimson Pro', Georgia, serif;
-    font-size: 18px;
-    line-height: 1.7;
-    color: var(--text-primary);
-    background: var(--bg-primary);
-    padding: 40px 20px;
-    transition: background 0.3s, color 0.3s;
+  background: var(--bg);
+  color: #d8f0d8;
+  font-family: 'JetBrains Mono', monospace;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 28px 16px 80px;
+  overflow-x: hidden;
 }
 
-.container { max-width: 1000px; margin: 0 auto; }
-
-header {
-    text-align: center;
-    margin-bottom: 40px;
-    padding-bottom: 25px;
-    border-bottom: 1px solid var(--border-dark);
-    position: relative;
+h1 {
+  font-family: 'IM Fell English', serif;
+  font-size: clamp(1.7rem, 5.5vw, 3rem);
+  color: var(--pink);
+  text-shadow: 0 0 28px rgba(255,61,180,.65), 0 0 70px rgba(255,61,180,.25);
+  letter-spacing: .05em;
+  margin-bottom: 18px;
+  text-align: center;
 }
 
-.theme-toggle {
-    position: absolute;
-    top: 0;
-    right: 0;
-    padding: 8px 16px;
-    background: var(--bg-secondary);
-    border: 1px solid var(--border);
-    color: var(--text-primary);
-    font-family: 'Source Code Pro', monospace;
-    font-size: 0.8rem;
-    cursor: pointer;
+/* ── Presets ─────────────────────── */
+.presets-wrap { max-width: 580px; width: 100%; margin-bottom: 16px; }
+.pg-label {
+  font-size:.57rem; text-transform:uppercase; letter-spacing:.18em;
+  color:rgba(255,61,180,.5); margin-bottom:5px; margin-top:8px; margin-left:2px;
+}
+.pg-label.gold { color:rgba(255,215,0,.6); }
+.presets { display:flex; flex-wrap:wrap; gap:6px; }
+.preset-btn {
+  font-family:'JetBrains Mono',monospace; font-size:.63rem;
+  letter-spacing:.07em; text-transform:uppercase;
+  padding:5px 12px; border-radius:20px; cursor:pointer;
+  border:1px solid rgba(255,61,180,.25); background:rgba(255,255,255,.03);
+  color:#8ab88a; transition:all .15s;
+}
+.preset-btn:hover { border-color:var(--pink); color:var(--pink); }
+.preset-btn.active { background:var(--pink); border-color:var(--pink); color:#000; box-shadow:0 0 12px rgba(255,61,180,.45); }
+.preset-btn.gap-active { background:var(--gold); border-color:var(--gold); color:#000; box-shadow:0 0 12px rgba(255,215,0,.45); }
+
+/* ── Sphere canvas ───────────────── */
+.sphere-wrap {
+  width:100%; max-width:540px;
+  display:flex; flex-direction:column; align-items:center; gap:13px;
+}
+#polarCanvas {
+  display:block; border-radius:50%;
+  box-shadow: 0 0 60px rgba(255,61,180,.12), 0 0 120px rgba(255,61,180,.04);
+  cursor:grab;
+}
+#polarCanvas:active { cursor:grabbing; }
+
+.formula-box {
+  border:2px solid var(--gold); border-radius:8px;
+  padding:9px 20px; background:rgba(255,215,0,.05);
+  font-size:clamp(.75rem,2.3vw,.96rem); color:#fff;
+  text-align:center; box-shadow:0 0 18px rgba(255,215,0,.18);
+}
+.formula-box em { color:var(--gold); font-style:normal; }
+#cartCanvas { display:block; border-radius:4px; }
+
+/* ── Live Stats Bar ──────────────── */
+.live-stats {
+  width:100%; max-width:540px;
+  background:rgba(255,215,0,.04); border:1px solid var(--gold-border);
+  border-radius:8px; padding:8px 14px;
+  display:grid; grid-template-columns:repeat(4,1fr); gap:6px 10px;
+  margin-top:4px;
+}
+.stat-cell { display:flex; flex-direction:column; gap:2px; }
+.stat-lbl { font-size:.5rem; text-transform:uppercase; letter-spacing:.12em; color:rgba(255,215,0,.45); }
+.stat-val { font-size:.7rem; color:var(--gold); font-weight:700; }
+
+/* ── Rotation controls ───────────── */
+.rot-controls {
+  display:flex; align-items:center; gap:12px;
+  flex-wrap:wrap; justify-content:center; margin-top:2px;
+}
+.rot-hint { font-size:.62rem; color:rgba(255,61,180,.5); letter-spacing:.08em; }
+
+/* ── Panels ──────────────────────── */
+.panels { display:flex; flex-direction:column; gap:11px; max-width:560px; width:100%; margin-top:18px; }
+.panel { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:16px 18px; }
+.panel.gold-panel { border-color:var(--gold-border); }
+.panel-title {
+  font-size:.59rem; text-transform:uppercase; letter-spacing:.18em;
+  color:var(--pink); margin-bottom:13px;
+  display:flex; align-items:center; gap:8px;
+}
+.panel-title.gold { color:var(--gold); }
+.panel-title::after { content:''; flex:1; height:1px; background:var(--border); }
+.panel-title.gold::after { background:var(--gold-border); }
+.grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:11px 20px; }
+.cg { display:flex; flex-direction:column; gap:5px; }
+label { font-size:.62rem; color:#88cc88; text-transform:uppercase; letter-spacing:.1em; }
+input[type=range] {
+  -webkit-appearance:none; width:100%; height:3px;
+  background:rgba(255,61,180,.22); border-radius:2px; outline:none; cursor:pointer;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance:none; width:14px; height:14px; border-radius:50%;
+  background:var(--pink); box-shadow:0 0 8px rgba(255,61,180,.9); cursor:pointer;
+}
+.vd { font-size:.72rem; color:var(--gold); text-align:right; }
+
+/* ── Playback ────────────────────── */
+.pb-row { display:grid; grid-template-columns:1fr auto; gap:14px; align-items:end; }
+.btn-row { display:flex; gap:9px; flex-wrap:wrap; }
+button.ctrl {
+  font-family:'JetBrains Mono',monospace; font-size:.7rem;
+  letter-spacing:.1em; text-transform:uppercase;
+  padding:8px 16px; border-radius:6px; cursor:pointer;
+  transition:all .15s; border:1px solid var(--pink);
+  background:transparent; color:var(--pink); white-space:nowrap;
+}
+button.ctrl:hover, button.ctrl.on { background:var(--pink); color:#000; box-shadow:0 0 14px rgba(255,61,180,.5); }
+button.ctrl.gold-ctrl { border-color:var(--gold); color:var(--gold); }
+button.ctrl.gold-ctrl:hover, button.ctrl.gold-ctrl.on { background:var(--gold); color:#000; box-shadow:0 0 14px rgba(255,215,0,.5); }
+.speed-sub { font-size:.58rem; color:rgba(255,215,0,.5); margin-top:-2px; }
+.qrow { display:flex; gap:6px; flex-wrap:wrap; margin-top:11px; align-items:center; }
+.qlabel { font-size:.59rem; color:#88aa88; text-transform:uppercase; letter-spacing:.1em; }
+
+/* loop toggle */
+.loop-row {
+  display:flex; align-items:center; gap:10px; margin-top:9px;
+  padding-top:9px; border-top:1px solid rgba(255,61,180,.1);
+}
+.loop-check {
+  -webkit-appearance:none; width:32px; height:17px; border-radius:9px;
+  background:rgba(255,61,180,.15); border:1px solid rgba(255,61,180,.3);
+  cursor:pointer; position:relative; transition:background .2s; flex-shrink:0;
+}
+.loop-check:checked { background:var(--pink); border-color:var(--pink); }
+.loop-check::after {
+  content:''; position:absolute; top:2px; left:2px;
+  width:11px; height:11px; border-radius:50%; background:#fff;
+  transition:transform .2s; box-shadow:0 1px 4px rgba(0,0,0,.4);
+}
+.loop-check:checked::after { transform:translateX(15px); }
+.loop-lbl { font-size:.62rem; color:#88cc88; text-transform:uppercase; letter-spacing:.1em; }
+.loop-state { font-size:.57rem; color:rgba(255,215,0,.45); }
+
+/* ── Gap Decomposition Panel ─────── */
+.gap-panel {
+  max-width:560px; width:100%; margin-top:0;
+  background:var(--surface); border:1px solid var(--gold-border);
+  border-radius:12px; overflow:hidden;
+}
+.gap-header {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:14px 18px; cursor:pointer; user-select:none;
+  border-bottom:1px solid transparent; transition:border-color .2s;
+}
+.gap-header.open { border-bottom-color:var(--gold-border); }
+.gap-header-title {
+  font-size:.59rem; text-transform:uppercase; letter-spacing:.18em; color:var(--gold);
+}
+.gap-chevron { font-size:.75rem; color:var(--gold); transition:transform .25s; }
+.gap-chevron.open { transform:rotate(180deg); }
+.gap-body { display:none; padding:16px 18px 18px; }
+.gap-body.open { display:block; }
+
+/* Gap controls grid */
+.gap-ctrl-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px 20px; margin-bottom:12px; }
+.gap-ctrl-grid label { color:#88bb88; }
+.gap-ctrl-grid input[type=range] { background:rgba(255,215,0,.18); }
+.gap-ctrl-grid input[type=range]::-webkit-slider-thumb { background:var(--gold); box-shadow:0 0 8px rgba(255,215,0,.8); }
+.gap-vd { font-size:.72rem; color:var(--gold); text-align:right; }
+
+.gap-filter-row { display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:12px; }
+.gap-filter-lbl { font-size:.57rem; color:rgba(255,215,0,.5); text-transform:uppercase; letter-spacing:.12em; }
+.gap-filter-btn {
+  font-family:'JetBrains Mono',monospace; font-size:.57rem; letter-spacing:.06em;
+  text-transform:uppercase; padding:3px 9px; border-radius:12px; cursor:pointer;
+  border:1px solid rgba(255,215,0,.25); background:transparent; color:#88aa55; transition:all .12s;
+}
+.gap-filter-btn:hover { border-color:var(--gold); color:var(--gold); }
+.gap-filter-btn.active { background:var(--gold); color:#000; }
+
+.gap-run-row { display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap; }
+
+/* Status */
+.gap-status {
+  font-size:.62rem; color:#88cc88; min-height:1.4em;
+  border-left:2px solid var(--gold); padding-left:8px;
+  margin-bottom:10px; line-height:1.7;
 }
 
-.theme-toggle:hover { background: var(--accent); color: var(--table-header-text); }
+/* Progress bar */
+.gap-progress { height:3px; background:rgba(255,215,0,.12); border-radius:2px; margin-bottom:10px; overflow:hidden; display:none; }
+.gap-progress-fill { height:100%; background:var(--gold); border-radius:2px; width:0%; transition:width .1s; }
 
-h1 { font-size: 2rem; font-weight: 600; margin-bottom: 8px; }
-.subtitle { font-size: 1.05rem; color: var(--text-secondary); font-style: italic; }
+/* Live stats grid for gap */
+.gap-live-stats {
+  display:grid; grid-template-columns:repeat(3,1fr); gap:6px; margin-bottom:12px;
+}
+.gap-stat {
+  background:rgba(255,215,0,.04); border:1px solid rgba(255,215,0,.1);
+  border-radius:6px; padding:6px 8px;
+}
+.gap-stat-lbl { font-size:.48rem; text-transform:uppercase; letter-spacing:.1em; color:rgba(255,215,0,.4); margin-bottom:2px; }
+.gap-stat-val { font-size:.68rem; color:var(--gold); font-weight:700; word-break:break-all; }
 
-.controls {
-    background: var(--bg-secondary);
-    border: 1px solid var(--border);
-    padding: 20px 25px;
-    margin-bottom: 35px;
+/* Chart tabs */
+.gap-tabs { display:flex; gap:5px; margin-bottom:10px; flex-wrap:wrap; }
+.gap-tab {
+  font-family:'JetBrains Mono',monospace; font-size:.57rem; letter-spacing:.06em;
+  text-transform:uppercase; padding:4px 10px; border-radius:12px; cursor:pointer;
+  border:1px solid rgba(255,215,0,.25); background:transparent; color:#88aa55; transition:all .12s;
+}
+.gap-tab:hover { border-color:var(--gold); color:var(--gold); }
+.gap-tab.active { background:var(--gold); color:#000; border-color:var(--gold); }
+
+#gapCanvas { display:block; border-radius:4px; width:100%; background:#060608; }
+
+.gap-legend { display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
+.gap-leg { display:flex; align-items:center; gap:4px; font-size:.55rem; color:#88aa66; }
+.gap-leg-sw { width:9px; height:9px; border-radius:2px; flex-shrink:0; }
+
+/* Export row */
+.export-row { display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; padding-top:12px; border-top:1px solid rgba(255,215,0,.1); }
+
+/* Gap presets inside the gap panel */
+.gap-wave-presets { margin-bottom:14px; }
+.gap-wave-presets .pg-label { font-size:.52rem; margin-top:0; margin-bottom:6px; color:rgba(255,215,0,.5); }
+.gap-wave-row { display:flex; flex-wrap:wrap; gap:5px; }
+.gap-wave-btn {
+  font-family:'JetBrains Mono',monospace; font-size:.57rem; letter-spacing:.06em;
+  text-transform:uppercase; padding:4px 10px; border-radius:16px; cursor:pointer;
+  border:1px solid rgba(255,215,0,.2); background:rgba(255,215,0,.03);
+  color:#88aa55; transition:all .15s;
+}
+.gap-wave-btn:hover { border-color:var(--gold); color:var(--gold); }
+.gap-wave-btn.active { background:var(--gold); border-color:var(--gold); color:#000; }
+.gap-wave-btn .n-badge {
+  font-size:.48rem; opacity:.7; margin-left:3px;
 }
 
-.controls-title {
-    font-size: 0.85rem;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: var(--text-muted);
-    margin-bottom: 12px;
+/* ── Multi-gap selector ──────────── */
+.gap-selector-wrap {
+  margin-bottom:13px;
+}
+.gap-selector-label {
+  font-size:.55rem; text-transform:uppercase; letter-spacing:.14em;
+  color:rgba(255,215,0,.55); margin-bottom:6px;
+  display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+}
+.gap-selector-label span { opacity:.6; font-size:.5rem; }
+.gap-chips { display:flex; flex-wrap:wrap; gap:5px; }
+.gap-chip {
+  font-family:'JetBrains Mono',monospace; font-size:.6rem;
+  letter-spacing:.06em; padding:3px 9px; border-radius:14px;
+  cursor:pointer; border:2px solid transparent;
+  background:rgba(255,255,255,.04); color:#667766;
+  transition:all .12s; position:relative; user-select:none;
+}
+.gap-chip:hover { color:#aaccaa; border-color:rgba(255,255,255,.15); }
+.gap-chip.selected {
+  color:#000 !important; font-weight:700;
+  box-shadow:0 0 10px currentColor;
+}
+.gap-chip .chip-dot {
+  display:inline-block; width:6px; height:6px; border-radius:50%;
+  margin-right:4px; vertical-align:middle; background:currentColor;
 }
 
-.controls-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 15px;
-    margin-bottom: 15px;
+/* ── Thickness slider ─────────────── */
+.thick-row {
+  display:flex; align-items:center; gap:12px; margin-bottom:12px;
+  padding:8px 10px; background:rgba(255,215,0,.03);
+  border:1px solid rgba(255,215,0,.1); border-radius:8px;
+}
+.thick-row label { color:#88bb88; font-size:.6rem; white-space:nowrap; flex-shrink:0; }
+.thick-row input[type=range] { flex:1; background:rgba(255,215,0,.18); }
+.thick-row input[type=range]::-webkit-slider-thumb { background:var(--gold); box-shadow:0 0 8px rgba(255,215,0,.8); }
+.thick-val { font-size:.7rem; color:var(--gold); min-width:28px; text-align:right; }
+
+/* ── All-gaps stats table ─────────── */
+.gap-table-wrap {
+  margin-top:12px; overflow-x:auto;
+  border:1px solid rgba(255,215,0,.15); border-radius:8px;
+}
+.gap-table-controls {
+  display:flex; gap:8px; flex-wrap:wrap; align-items:center;
+  padding:8px 12px; background:rgba(255,215,0,.03);
+  border-bottom:1px solid rgba(255,215,0,.1);
+}
+.gap-table-controls label { font-size:.55rem; color:#88bb88; white-space:nowrap; }
+.gap-table-controls select, .gap-table-controls input {
+  font-family:'JetBrains Mono',monospace; font-size:.6rem;
+  background:#0a0c0a; border:1px solid rgba(255,215,0,.25); color:var(--gold);
+  padding:3px 6px; border-radius:4px; cursor:pointer;
+}
+#gdTableWrap table {
+  width:100%; border-collapse:collapse; font-size:.6rem;
+  font-family:'JetBrains Mono',monospace;
+}
+#gdTableWrap th {
+  position:sticky; top:0; background:#0a0a08;
+  color:rgba(255,215,0,.7); font-size:.52rem; text-transform:uppercase;
+  letter-spacing:.1em; padding:5px 8px; text-align:right;
+  border-bottom:1px solid rgba(255,215,0,.2); white-space:nowrap;
+}
+#gdTableWrap th:first-child { text-align:left; }
+#gdTableWrap td {
+  padding:4px 8px; text-align:right; border-bottom:1px solid rgba(255,215,0,.05);
+  white-space:nowrap; color:#8aaa8a;
+}
+#gdTableWrap td:first-child { text-align:left; }
+#gdTableWrap tr:hover td { background:rgba(255,215,0,.04); }
+#gdTableWrap tr.gap-row-selected td { background:rgba(255,215,0,.06); }
+#gdTableWrap td.gap-id { font-weight:700; }
+#gdTableWrap { max-height:340px; overflow-y:auto; }
+
+/* ── Convergence dropdown table ───── */
+.conv-dropdown-wrap {
+  margin-top:14px;
+  border:1px solid rgba(255,215,0,.15); border-radius:8px; overflow:hidden;
+}
+.conv-dropdown-header {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:9px 14px; background:rgba(255,215,0,.04); cursor:pointer;
+  user-select:none;
+}
+.conv-dropdown-title { font-size:.57rem; text-transform:uppercase; letter-spacing:.16em; color:var(--gold); }
+.conv-dropdown-chevron { font-size:.7rem; color:var(--gold); transition:transform .2s; }
+.conv-dropdown-chevron.open { transform:rotate(180deg); }
+.conv-dropdown-body { display:none; }
+.conv-dropdown-body.open { display:block; }
+.conv-table-controls {
+  display:flex; gap:10px; flex-wrap:wrap; align-items:center;
+  padding:8px 12px; background:rgba(255,215,0,.02);
+  border-bottom:1px solid rgba(255,215,0,.08);
+}
+.conv-table-controls label { font-size:.55rem; color:#88bb88; white-space:nowrap; }
+.conv-table-controls select, .conv-table-controls input[type=number] {
+  font-family:'JetBrains Mono',monospace; font-size:.6rem;
+  background:#0a0c0a; border:1px solid rgba(255,215,0,.25); color:var(--gold);
+  padding:3px 6px; border-radius:4px; width:56px;
+}
+.conv-table-controls select { width:auto; }
+#gdConvTableWrap { max-height:400px; overflow-y:auto; }
+#gdConvTableWrap table { width:100%; border-collapse:collapse; font-size:.58rem; font-family:'JetBrains Mono',monospace; }
+#gdConvTableWrap th {
+  position:sticky; top:0; background:#0a0a08;
+  color:rgba(255,215,0,.65); font-size:.5rem; text-transform:uppercase;
+  letter-spacing:.1em; padding:5px 7px; text-align:right;
+  border-bottom:1px solid rgba(255,215,0,.2); white-space:nowrap;
+}
+#gdConvTableWrap th:first-child, #gdConvTableWrap th:nth-child(2) { text-align:left; }
+#gdConvTableWrap td {
+  padding:3px 7px; text-align:right; border-bottom:1px solid rgba(255,215,0,.04);
+  white-space:nowrap;
+}
+#gdConvTableWrap td:first-child, #gdConvTableWrap td:nth-child(2) { text-align:left; }
+#gdConvTableWrap tr:hover td { background:rgba(255,215,0,.04); }
+.conv-row-improving td { color:#88cc88; }
+.conv-row-worsening td { color:#cc8888; }
+.conv-row-best td { color:#ffd700 !important; font-weight:700; }
+.conv-cell-product { color:#4ecdc4; }
+.conv-cell-pi { color:#ff3db4; }
+.conv-cell-err { color:#f97316; }
+.conv-cell-logerr { color:#a855f7; }
+.conv-cell-gap { color:var(--gold); font-weight:700; }
+
+/* ── Harmonics Panel ─────────────────── */
+.harm-panel {
+  max-width:560px; width:100%; margin-top:0;
+  background:var(--surface); border:1px solid rgba(100,180,255,.2);
+  border-radius:12px; overflow:hidden;
+}
+.harm-header {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:13px 18px; cursor:pointer; user-select:none;
+  border-bottom:1px solid transparent; transition:border-color .2s;
+}
+.harm-header.open { border-bottom-color:rgba(100,180,255,.2); }
+.harm-header-title { font-size:.59rem; text-transform:uppercase; letter-spacing:.18em; color:#60a5fa; }
+.harm-chevron { font-size:.75rem; color:#60a5fa; transition:transform .25s; }
+.harm-chevron.open { transform:rotate(180deg); }
+.harm-body { display:none; padding:14px 18px 18px; }
+.harm-body.open { display:block; }
+
+.harm-section-title {
+  font-size:.52rem; text-transform:uppercase; letter-spacing:.14em;
+  color:rgba(100,180,255,.55); margin-bottom:8px; margin-top:12px;
+}
+.harm-section-title:first-child { margin-top:0; }
+
+/* Interval grid */
+.harm-interval-grid {
+  display:flex; flex-wrap:wrap; gap:5px; margin-bottom:10px;
+}
+.harm-interval-btn {
+  font-family:'JetBrains Mono',monospace; font-size:.6rem;
+  letter-spacing:.06em; padding:4px 10px; border-radius:14px;
+  cursor:pointer; border:1px solid rgba(100,180,255,.25);
+  background:rgba(100,180,255,.04); color:#60a5fa66;
+  transition:all .12s;
+}
+.harm-interval-btn:hover { border-color:#60a5fa; color:#60a5fa; }
+.harm-interval-btn.active {
+  background:#60a5fa; border-color:#60a5fa; color:#000; font-weight:700;
+  box-shadow:0 0 10px rgba(96,165,250,.4);
+}
+.harm-interval-btn .ratio-badge { font-size:.48rem; opacity:.7; margin-left:3px; }
+
+/* Consonance color key */
+.harm-consonance-key {
+  display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px;
+}
+.harm-cons-pill {
+  font-size:.53rem; padding:2px 8px; border-radius:10px;
+  display:flex; align-items:center; gap:4px;
+}
+.harm-cons-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+
+/* Audio row */
+.harm-audio-row {
+  display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px;
+}
+.harm-freq-display {
+  font-size:.9rem; color:#60a5fa; font-weight:700; text-align:center;
+  padding:8px; background:rgba(96,165,250,.08); border:1px solid rgba(96,165,250,.2);
+  border-radius:6px; letter-spacing:.05em;
+}
+.harm-note-display {
+  font-size:.7rem; color:#a3e635; text-align:center;
+  padding:8px; background:rgba(163,230,53,.06); border:1px solid rgba(163,230,53,.15);
+  border-radius:6px;
 }
 
-.control-item label {
-    display: block;
-    font-size: 0.8rem;
-    color: var(--text-secondary);
-    margin-bottom: 4px;
+.harm-btn-row { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:8px; }
+.harm-btn {
+  font-family:'JetBrains Mono',monospace; font-size:.65rem;
+  letter-spacing:.08em; text-transform:uppercase; padding:7px 14px;
+  border-radius:6px; cursor:pointer; border:1px solid rgba(96,165,250,.35);
+  background:transparent; color:#60a5fa; transition:all .15s;
 }
+.harm-btn:hover, .harm-btn.on { background:#60a5fa; color:#000; box-shadow:0 0 12px rgba(96,165,250,.4); }
 
-.control-item select, .control-item input {
-    width: 100%;
-    padding: 7px 10px;
-    font-family: 'Source Code Pro', monospace;
-    font-size: 0.85rem;
-    border: 1px solid var(--border);
-    background: var(--bg-card);
-    color: var(--text-primary);
+/* Harmonic mode toggle */
+.harm-mode-row {
+  display:flex; align-items:center; gap:10px; margin-top:8px;
+  padding-top:8px; border-top:1px solid rgba(96,165,250,.1);
 }
-
-.compute-btn {
-    display: block;
-    width: 100%;
-    padding: 10px;
-    background: var(--accent);
-    color: var(--table-header-text);
-    border: none;
-    font-family: 'Crimson Pro', serif;
-    font-size: 0.95rem;
-    cursor: pointer;
+.harm-toggle {
+  -webkit-appearance:none; width:32px; height:17px; border-radius:9px;
+  background:rgba(96,165,250,.15); border:1px solid rgba(96,165,250,.3);
+  cursor:pointer; position:relative; transition:background .2s; flex-shrink:0;
 }
-
-.compute-btn:hover { background: var(--accent-light); }
-.compute-btn:disabled { opacity: 0.6; cursor: wait; }
-
-section { margin-bottom: 40px; }
-
-h2 {
-    font-size: 1.3rem;
-    font-weight: 600;
-    margin-bottom: 15px;
-    padding-bottom: 6px;
-    border-bottom: 2px solid var(--accent);
+.harm-toggle:checked { background:#60a5fa; border-color:#60a5fa; }
+.harm-toggle::after {
+  content:''; position:absolute; top:2px; left:2px;
+  width:11px; height:11px; border-radius:50%; background:#fff;
+  transition:transform .2s; box-shadow:0 1px 4px rgba(0,0,0,.4);
 }
+.harm-toggle:checked::after { transform:translateX(15px); }
+.harm-lbl { font-size:.62rem; color:#88cc88; text-transform:uppercase; letter-spacing:.1em; }
+.harm-state { font-size:.57rem; color:rgba(96,165,250,.45); }
 
-h3 { font-size: 1.1rem; font-weight: 600; margin: 20px 0 10px 0; }
+/* Arnold tongue mini display */
+.arnold-row { display:flex; gap:10px; align-items:center; margin-bottom:8px; }
+.arnold-val { font-size:.65rem; color:#e879f9; min-width:32px; text-align:right; }
 
-p { margin-bottom: 12px; text-align: justify; }
-
-.theorem {
-    background: var(--theorem-bg);
-    border-left: 4px solid var(--accent);
-    padding: 15px 20px;
-    margin: 20px 0;
-}
-
-.theorem-title { font-weight: 600; margin-bottom: 8px; }
-
-.definition {
-    background: var(--definition-bg);
-    border-left: 4px solid var(--definition-border);
-    padding: 15px 20px;
-    margin: 20px 0;
-}
-
-.formula {
-    background: var(--code-bg);
-    border: 1px solid var(--border);
-    padding: 15px;
-    margin: 15px 0;
-    text-align: center;
-    font-family: 'Source Code Pro', monospace;
-    font-size: 1rem;
-    overflow-x: auto;
-}
-
-.data-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 15px 0;
-    font-size: 0.9rem;
-}
-
-.data-table th {
-    background: var(--table-header);
-    color: var(--table-header-text);
-    padding: 10px 12px;
-    text-align: left;
-    font-weight: 500;
-    font-size: 0.85rem;
-}
-
-.data-table td {
-    padding: 8px 12px;
-    border-bottom: 1px solid var(--border);
-}
-
-.data-table tr:nth-child(even) { background: var(--table-alt); }
-.data-table .num { font-family: 'Source Code Pro', monospace; text-align: right; }
-.highlight-row { background: var(--highlight) !important; }
-
-.stat-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 15px;
-    margin: 20px 0;
-}
-
-.stat-card {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    padding: 15px;
-}
-
-.stat-label {
-    font-size: 0.8rem;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-}
-
-.stat-value {
-    font-family: 'Source Code Pro', monospace;
-    font-size: 1.5rem;
-    font-weight: 500;
-    margin: 4px 0;
-}
-
-.stat-note { font-size: 0.8rem; color: var(--text-muted); font-style: italic; }
-
-.scrollable-table {
-    max-height: 350px;
-    overflow-y: auto;
-    border: 1px solid var(--border);
-}
-
-.scrollable-table table { margin: 0; }
-
-.proof {
-    margin: 15px 0;
-    padding-left: 18px;
-    border-left: 2px solid var(--border-dark);
-}
-
-.proof-title { font-style: italic; color: var(--text-secondary); margin-bottom: 8px; }
-.qed { text-align: right; font-size: 1.1rem; }
-
-.export-section {
-    background: var(--bg-secondary);
-    border: 1px solid var(--border);
-    padding: 15px 20px;
-    margin-top: 30px;
-}
-
-.export-title {
-    font-size: 0.85rem;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: var(--text-muted);
-    margin-bottom: 12px;
-}
-
-.export-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
-
-.export-btn {
-    padding: 8px 14px;
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    color: var(--text-primary);
-    font-family: 'Crimson Pro', serif;
-    font-size: 0.9rem;
-    cursor: pointer;
-}
-
-.export-btn:hover { background: var(--accent); color: var(--table-header-text); }
-
-.point-list {
-    max-height: 250px;
-    overflow-y: auto;
-    font-family: 'Source Code Pro', monospace;
-    font-size: 0.75rem;
-    background: var(--code-bg);
-    padding: 12px;
-    border: 1px solid var(--border);
-    white-space: pre;
-}
-
-.good { color: var(--success); }
-.warn { color: var(--warning); }
-.bad { color: var(--error); }
-
-.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-@media (max-width: 700px) { .two-col { grid-template-columns: 1fr; } }
-
-footer {
-    margin-top: 50px;
-    padding-top: 15px;
-    border-top: 1px solid var(--border-dark);
-    text-align: center;
-    font-size: 0.8rem;
-    color: var(--text-muted);
-}
-
-@media print {
-    .controls, .export-section, .theme-toggle { display: none; }
-    body { padding: 15px; font-size: 11pt; }
-    .scrollable-table { max-height: none; overflow: visible; }
-}
 </style>
 </head>
 <body>
 
-<div class="container">
-    <header>
-        <button class="theme-toggle" id="themeBtn" onclick="toggleTheme()">Dark Mode</button>
-        <h1>The Boundary Cancellation Principle</h1>
-        <p class="subtitle">Complete Computational Analysis of Error Terms in Arithmetic Lattices</p>
-    </header>
+<h1>Polar vs Cartesian</h1>
 
-    <div class="controls">
-        <div class="controls-title">Parameters</div>
-        <div class="controls-grid">
-            <div class="control-item">
-                <label>Structure Type</label>
-                <select id="structureType">
-                    <option value="coprime">Coprime Lattice Points</option>
-                    <option value="squarefree">Squarefree Integers</option>
-                    <option value="kfree">k-Free Integers</option>
-                    <option value="coprime-tuple">Coprime m-Tuples</option>
-                </select>
-            </div>
-            <div class="control-item">
-                <label>Dimension (k)</label>
-                <select id="dimension">
-                    <option value="2" selected>2</option>
-                    <option value="3">3</option>
-                    <option value="4">4</option>
-                    <option value="5">5</option>
-                    <option value="6">6</option>
-                </select>
-            </div>
-            <div class="control-item">
-                <label>Radius / Bound (R)</label>
-                <input type="number" id="radius" value="50" min="5" max="200">
-            </div>
-            <div class="control-item">
-                <label>k-free parameter</label>
-                <input type="number" id="kfreeK" value="2" min="2" max="10">
-            </div>
-            <div class="control-item">
-                <label>Error series step</label>
-                <input type="number" id="errorStep" value="2" min="1" max="10">
-            </div>
-        </div>
-        <button class="compute-btn" id="computeBtn" onclick="runCompute()">Compute Full Analysis</button>
+<!-- Preset groups -->
+<div class="presets-wrap">
+  <div class="pg-label">Classics</div>
+  <div class="presets" id="pgClassic"></div>
+  <div class="pg-label">Complex</div>
+  <div class="presets" id="pgComplex"></div>
+  <div class="pg-label">Organic</div>
+  <div class="presets" id="pgOrganic"></div>
+  <div class="pg-label">Geometric</div>
+  <div class="presets" id="pgGeo"></div>
+  <div class="pg-label">Ethereal</div>
+  <div class="presets" id="pgEth"></div>
+  <div class="pg-label gold">Gap Waves <span style="font-size:.5rem;opacity:.5">— run decomposition below to refine</span></div>
+  <div class="presets" id="pgGapWave"></div>
+</div>
+
+<!-- Sphere + formula + cart -->
+<div class="sphere-wrap">
+  <canvas id="polarCanvas"></canvas>
+
+  <div class="rot-controls">
+    <span class="rot-hint">⟳ drag sphere to rotate</span>
+    <button class="ctrl" id="btnAutoRot">⟳ Auto-Rotate</button>
+    <button class="ctrl" id="btnResetRot" style="font-size:.63rem;padding:6px 11px">↺ Reset View</button>
+  </div>
+
+  <div class="formula-box">
+    f(θ) = <em id="fA">1.9</em> + sin(<em id="fB">3</em>θ) · sin(<em id="fC">3</em>θ / <em id="fD">32</em>)
+  </div>
+  <canvas id="cartCanvas"></canvas>
+
+  <!-- Multi-gap selector — main sphere area, shown after compute -->
+  <div id="mainGapSelector" style="display:none;width:100%;max-width:540px;margin-bottom:4px;">
+    <div style="font-size:.53rem;text-transform:uppercase;letter-spacing:.16em;color:rgba(255,215,0,.55);margin-bottom:6px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+      <span>🎨 Highlight gap classes on sphere &amp; cart</span>
+      <span style="opacity:.5;font-size:.48rem">— click multiple to overlay in color</span>
+      <button class="gap-filter-btn" onclick="gdClearSelection()" style="margin-left:auto;font-size:.52rem">✕ Clear all</button>
+    </div>
+    <div class="gap-chips" id="mainGapChips"></div>
+  </div>
+
+  <!-- Live stats always visible -->
+  <div class="live-stats" id="liveStats">
+    <div class="stat-cell"><div class="stat-lbl">Progress</div><div class="stat-val" id="stProg">0%</div></div>
+    <div class="stat-cell"><div class="stat-lbl">θ current</div><div class="stat-val" id="stTheta">0</div></div>
+    <div class="stat-cell"><div class="stat-lbl">f(θ) current</div><div class="stat-val" id="stFTheta">—</div></div>
+    <div class="stat-cell"><div class="stat-lbl">f(θ) min</div><div class="stat-val" id="stFMin">—</div></div>
+    <div class="stat-cell"><div class="stat-lbl">f(θ) max</div><div class="stat-val" id="stFMax">—</div></div>
+    <div class="stat-cell"><div class="stat-lbl">f(θ) mean</div><div class="stat-val" id="stFMean">—</div></div>
+    <div class="stat-cell"><div class="stat-lbl">Pts drawn</div><div class="stat-val" id="stPts">0</div></div>
+    <div class="stat-cell"><div class="stat-lbl">θ total (×π)</div><div class="stat-val" id="stThetaMax">64</div></div>
+  </div>
+</div>
+
+<!-- Panels -->
+<div class="panels">
+
+  <!-- Formula -->
+  <div class="panel">
+    <div class="panel-title">Formula Parameters</div>
+    <div class="grid-2">
+      <div class="cg"><label>A — offset</label><input type="range" id="sA" min="0.1" max="4" step="0.05" value="1.9"><div class="vd" id="dA">1.9</div></div>
+      <div class="cg"><label>B — outer freq</label><input type="range" id="sB" min="1" max="12" step="0.5" value="3"><div class="vd" id="dB">3</div></div>
+      <div class="cg"><label>C — inner freq</label><input type="range" id="sC" min="1" max="12" step="0.5" value="3"><div class="vd" id="dC">3</div></div>
+      <div class="cg"><label>D — modulation</label><input type="range" id="sD" min="4" max="128" step="1" value="32"><div class="vd" id="dD">32</div></div>
+      <div class="cg"><label>θ range (× π)</label><input type="range" id="sTheta" min="2" max="300" step="1" value="64"><div class="vd" id="dTheta">64π</div></div>
+      <div class="cg"><label>Trail / History</label><input type="range" id="sTrail" min="1" max="40" step="1" value="6"><div class="vd" id="dTrail">6</div></div>
+    </div>
+  </div>
+
+  <!-- Playback -->
+  <div class="panel">
+    <div class="panel-title">Playback &amp; Speed</div>
+    <div class="pb-row">
+      <div class="cg">
+        <label>Draw speed</label>
+        <input type="range" id="sSpeed" min="0.05" max="40" step="0.05" value="8">
+        <div class="vd" id="dSpeed">8.0</div>
+        <div class="speed-sub" id="speedDesc">normal</div>
+      </div>
+      <div class="btn-row">
+        <button class="ctrl" id="btnPlay">▶ Play</button>
+        <button class="ctrl" id="btnReset">↺ Reset</button>
+        <button class="ctrl gold-ctrl" id="btnExport4K" title="Export 4K PNG of sphere">⬇ 4K</button>
+      </div>
+    </div>
+    <div class="loop-row">
+      <input type="checkbox" class="loop-check" id="cbLoop">
+      <span class="loop-lbl">Loop</span>
+      <span class="loop-state" id="loopState">off — stops at end</span>
+    </div>
+    <div class="qrow">
+      <span class="qlabel">Quick:</span>
+      <button class="ctrl" style="font-size:.6rem;padding:4px 9px" onclick="setSpeed(0.1)">Ultra Slow</button>
+      <button class="ctrl" style="font-size:.6rem;padding:4px 9px" onclick="setSpeed(0.5)">Crawl</button>
+      <button class="ctrl" style="font-size:.6rem;padding:4px 9px" onclick="setSpeed(2)">Slow</button>
+      <button class="ctrl" style="font-size:.6rem;padding:4px 9px" onclick="setSpeed(8)">Normal</button>
+      <button class="ctrl" style="font-size:.6rem;padding:4px 9px" onclick="setSpeed(20)">Fast</button>
+      <button class="ctrl" style="font-size:.6rem;padding:4px 9px" onclick="setSpeed(40)">Max</button>
+    </div>
+  </div>
+
+</div>
+
+
+<!-- ══ Harmonics Panel ══════════════════════════════════════════ -->
+<div class="harm-panel panels" style="margin-top:11px" id="harmPanel">
+  <div class="harm-header" id="harmHeader">
+    <div class="harm-header-title">♪ Harmonic Analysis · Farey Intervals</div>
+    <span class="harm-chevron" id="harmChevron">▼</span>
+  </div>
+  <div class="harm-body" id="harmBody">
+
+    <!-- Harmonic sphere coloring mode -->
+    <div class="harm-mode-row">
+      <input type="checkbox" class="harm-toggle" id="harmColorMode">
+      <span class="harm-lbl">Harmonic Color Mode</span>
+      <span class="harm-state" id="harmModeState">off — sphere uses default colors</span>
     </div>
 
-    <!-- Section 1: Principle Statement -->
-    <section>
-        <h2>1. Statement of the Principle</h2>
-        
-        <div class="theorem">
-            <div class="theorem-title">Boundary Cancellation Principle</div>
-            <p>Let N(R) denote a counting function associated with a k-dimensional lattice problem subject to Möbius-filtered arithmetic constraints (such as coprimality or k-free conditions). Then</p>
-            <div class="formula">N(R) = R<sup>k</sup> / ζ(k) + O(R<sup>k−1</sup>)</div>
-            <p>where the error term is controlled by the (k−1)-dimensional boundary measure of the region.</p>
-        </div>
+    <!-- Farey interval presets -->
+    <div class="harm-section-title">Farey Harmonic Intervals</div>
+    <div class="harm-interval-grid" id="harmIntervalGrid"></div>
 
-        <p>Equivalently, when translating from lattice radius R to an integer counting parameter x ~ R<sup>k</sup>, the error term becomes:</p>
-        <div class="formula">N(x) = x / ζ(k) + O(x<sup>(k−1)/k</sup>)</div>
-        <p>Thus, the critical error exponent is <strong>(k−1)/k</strong>.</p>
-    </section>
-
-    <!-- Section 2: Geometric Interpretation -->
-    <section>
-        <h2>2. Geometric Interpretation</h2>
-        
-        <p>The origin of the error term can be understood geometrically:</p>
-        
-        <div class="definition">
-            <p><strong>1. Interior Cancellation.</strong> Möbius inversion produces near-complete cancellation in the interior of the lattice region.</p>
-            <p><strong>2. Boundary Truncation.</strong> Near the boundary, arithmetic divisibility constraints are only partially represented due to truncation effects.</p>
-            <p><strong>3. Boundary Dominance.</strong> Since the boundary of a k-dimensional region scales as R<sup>k−1</sup>, the surviving error contribution is necessarily of that order.</p>
-        </div>
-        
-        <p>The error term is therefore not an analytic anomaly, but a <em>geometric inevitability</em>.</p>
-    </section>
-
-    <!-- Section 3: Configuration -->
-    <section>
-        <h2>3. Current Configuration</h2>
-        
-        <div class="stat-grid">
-            <div class="stat-card">
-                <div class="stat-label">Structure</div>
-                <div class="stat-value" id="dispStructure">—</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Dimension k</div>
-                <div class="stat-value" id="dispDim">—</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Radius R</div>
-                <div class="stat-value" id="dispRadius">—</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Critical Exponent</div>
-                <div class="stat-value" id="dispExp">—</div>
-            </div>
-        </div>
-
-        <div class="definition">
-            <div class="theorem-title" id="defTitle">Definition</div>
-            <p id="defContent">—</p>
-        </div>
-    </section>
-
-    <!-- Section 4: Möbius Density -->
-    <section>
-        <h2>4. Möbius Density</h2>
-        
-        <p>The main term constant is determined by the classical identity:</p>
-        <div class="formula">
-            Σ<sub>d=1</sub><sup>∞</sup> μ(d)/d<sup>k</sup> = 1/ζ(k) = Π<sub>p</sub> (1 − 1/p<sup>k</sup>)
-        </div>
-        <p>which gives the asymptotic density of admissible points.</p>
-
-        <h3>Riemann Zeta Reference</h3>
-        <table class="data-table">
-            <thead><tr><th>k</th><th>ζ(k)</th><th>1/ζ(k)</th><th>Closed Form</th></tr></thead>
-            <tbody>
-                <tr><td>2</td><td class="num">1.6449340668</td><td class="num">0.6079271019</td><td>π²/6</td></tr>
-                <tr><td>3</td><td class="num">1.2020569032</td><td class="num">0.8319073725</td><td>Apéry's constant</td></tr>
-                <tr><td>4</td><td class="num">1.0823232337</td><td class="num">0.9239384669</td><td>π⁴/90</td></tr>
-                <tr><td>5</td><td class="num">1.0369277551</td><td class="num">0.9643895748</td><td>—</td></tr>
-                <tr><td>6</td><td class="num">1.0173430620</td><td class="num">0.9829523809</td><td>π⁶/945</td></tr>
-            </tbody>
-        </table>
-    </section>
-
-    <!-- Section 5: Classical Examples -->
-    <section>
-        <h2>5. Classical Examples</h2>
-        
-        <p>This framework explains several well-known results:</p>
-        
-        <table class="data-table">
-            <thead><tr><th>Structure</th><th>Dimension</th><th>Main Term</th><th>Error Term</th></tr></thead>
-            <tbody>
-                <tr><td>Squarefree integers</td><td class="num">k = 2</td><td>6x/π²</td><td>O(x<sup>1/2</sup>)</td></tr>
-                <tr><td>Cubefree integers</td><td class="num">k = 3</td><td>x/ζ(3)</td><td>O(x<sup>1/3</sup>)</td></tr>
-                <tr><td>k-free integers</td><td class="num">k</td><td>x/ζ(k)</td><td>O(x<sup>1/k</sup>)</td></tr>
-                <tr><td>Coprime pairs</td><td class="num">k = 2</td><td>6R²/π²</td><td>O(R)</td></tr>
-                <tr><td>Coprime m-tuples</td><td class="num">m</td><td>R<sup>m</sup>/ζ(m)</td><td>O(R<sup>m−1</sup>)</td></tr>
-            </tbody>
-        </table>
-        
-        <p>In each case, the exponent arises from the codimension-one boundary of the associated Möbius-filtered lattice.</p>
-    </section>
-
-    <!-- Section 6: Exact Counting -->
-    <section>
-        <h2>6. Exact Counting Results</h2>
-
-        <div class="stat-grid">
-            <div class="stat-card">
-                <div class="stat-label">Total Lattice Points</div>
-                <div class="stat-value" id="statTotal">—</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Surviving Points</div>
-                <div class="stat-value" id="statSurv">—</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Removed Points</div>
-                <div class="stat-value" id="statRem">—</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Empirical Density</div>
-                <div class="stat-value" id="statDens">—</div>
-            </div>
-        </div>
-
-        <h3>Prediction vs Reality</h3>
-        <table class="data-table">
-            <thead><tr><th>Quantity</th><th>Value</th><th>Notes</th></tr></thead>
-            <tbody>
-                <tr><td>Predicted (Main Term)</td><td class="num" id="tblPred">—</td><td id="tblPredNote">—</td></tr>
-                <tr><td>Actual Count</td><td class="num" id="tblActual">—</td><td>Exact enumeration</td></tr>
-                <tr class="highlight-row"><td>Error</td><td class="num" id="tblError">—</td><td>Actual − Predicted</td></tr>
-                <tr><td>Error Bound O(R<sup id="tblExpSpan">k−1</sup>)</td><td class="num" id="tblBound">—</td><td id="tblBoundNote">—</td></tr>
-                <tr><td>Relative Error</td><td class="num" id="tblRelErr">—</td><td>|Error|/Predicted</td></tr>
-                <tr><td>|Error|/Bound Ratio</td><td class="num" id="tblRatio">—</td><td id="tblRatioNote">—</td></tr>
-            </tbody>
-        </table>
-    </section>
-
-    <!-- Section 7: Boundary Analysis -->
-    <section>
-        <h2>7. Boundary Shell Analysis</h2>
-
-        <p>Testing multiple shell thicknesses to verify error concentration at boundary:</p>
-
-        <div class="scrollable-table">
-            <table class="data-table">
-                <thead><tr><th>Shell δ</th><th>Range</th><th>Boundary Pts</th><th>Interior Pts</th><th>Boundary %</th><th>Bnd Density</th><th>Int Density</th></tr></thead>
-                <tbody id="boundaryBody"></tbody>
-            </table>
-        </div>
-
-        <h3>Radial Density Distribution</h3>
-        <div class="scrollable-table">
-            <table class="data-table">
-                <thead><tr><th>Radius Range</th><th>Total</th><th>Surviving</th><th>Density</th><th>Deviation</th></tr></thead>
-                <tbody id="radialBody"></tbody>
-            </table>
-        </div>
-    </section>
-
-    <!-- Section 8: Error Series -->
-    <section>
-        <h2>8. Error Term Scaling Analysis</h2>
-
-        <p>Full range computation of error vs theoretical bound O(R<sup id="errExpSpan">k−1</sup>):</p>
-
-        <div class="stat-grid">
-            <div class="stat-card">
-                <div class="stat-label">Max |Error|/Bound</div>
-                <div class="stat-value" id="maxRatio">—</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Avg |Error|/Bound</div>
-                <div class="stat-value" id="avgRatio">—</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Fitted Constant C</div>
-                <div class="stat-value" id="fittedC">—</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Fit Quality R²</div>
-                <div class="stat-value" id="fitR2">—</div>
-            </div>
-        </div>
-
-        <div class="scrollable-table">
-            <table class="data-table">
-                <thead><tr><th>R</th><th>Actual</th><th>Predicted</th><th>Error</th><th>|Error|</th><th>Bound</th><th>Ratio</th></tr></thead>
-                <tbody id="errorBody"></tbody>
-            </table>
-        </div>
-    </section>
-
-    <!-- Section 9: Möbius Convergence -->
-    <section>
-        <h2>9. Möbius Sum Convergence</h2>
-
-        <p>Verifying Σ μ(d)/d<sup>k</sup> → 1/ζ(k):</p>
-
-        <div class="scrollable-table">
-            <table class="data-table">
-                <thead><tr><th>Truncation N</th><th>Partial Sum</th><th>Target</th><th>Error</th><th>Rel Error</th></tr></thead>
-                <tbody id="mobiusBody"></tbody>
-            </table>
-        </div>
-    </section>
-
-    <!-- Section 10: Dimensional Comparison -->
-    <section>
-        <h2>10. Dimensional Comparison</h2>
-
-        <p>Same radius across dimensions to verify exponent dependence:</p>
-
-        <div class="scrollable-table">
-            <table class="data-table">
-                <thead><tr><th>k</th><th>Exponent</th><th>Total</th><th>Surviving</th><th>Predicted</th><th>Error</th><th>Bound</th><th>Ratio</th></tr></thead>
-                <tbody id="dimBody"></tbody>
-            </table>
-        </div>
-    </section>
-
-    <!-- Section 11: GCD Distribution -->
-    <section>
-        <h2>11. GCD Distribution of Removed Points</h2>
-
-        <div class="two-col">
-            <div class="scrollable-table">
-                <table class="data-table">
-                    <thead><tr><th>gcd</th><th>Count</th><th>Percentage</th><th>μ(gcd)</th></tr></thead>
-                    <tbody id="gcdBody"></tbody>
-                </table>
-            </div>
-            <div>
-                <div class="stat-card">
-                    <div class="stat-label">Distinct GCD Values</div>
-                    <div class="stat-value" id="distinctGcd">—</div>
-                </div>
-                <div class="stat-card" style="margin-top:15px">
-                    <div class="stat-label">Most Common GCD</div>
-                    <div class="stat-value" id="commonGcd">—</div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Section 12: Scope -->
-    <section>
-        <h2>12. Scope and Limitations</h2>
-        
-        <p>This principle does not assert new analytic bounds, nor does it rely on conjectures such as the Riemann Hypothesis. Rather, it provides a geometric explanation for why known error exponents take their observed values across a wide class of arithmetic counting problems.</p>
-        
-        <p>The Boundary Cancellation Principle should therefore be viewed as an <em>interpretive framework</em>, unifying classical sieve results through boundary geometry.</p>
-    </section>
-
-    <!-- Section 13: Sample Data -->
-    <section>
-        <h2>13. Sample Data</h2>
-
-        <h3>First 50 Surviving Points (by norm)</h3>
-        <div class="point-list" id="survList">—</div>
-
-        <h3>First 30 Removed Points (by norm)</h3>
-        <div class="point-list" id="remList">—</div>
-    </section>
-
-    <!-- Exports -->
-    <div class="export-section">
-        <div class="export-title">Export All Data (CSV)</div>
-        <div class="export-buttons">
-            <button class="export-btn" onclick="exportCSV('points')">All Points</button>
-            <button class="export-btn" onclick="exportCSV('surviving')">Surviving</button>
-            <button class="export-btn" onclick="exportCSV('error')">Error Series</button>
-            <button class="export-btn" onclick="exportCSV('boundary')">Boundary</button>
-            <button class="export-btn" onclick="exportCSV('density')">Density</button>
-            <button class="export-btn" onclick="exportCSV('mobius')">Möbius</button>
-            <button class="export-btn" onclick="exportCSV('dim')">Dimensional</button>
-            <button class="export-btn" onclick="exportCSV('gcd')">GCD</button>
-            <button class="export-btn" onclick="exportCSV('summary')">Summary</button>
-            <button class="export-btn" onclick="window.print()">Print/PDF</button>
-        </div>
+    <!-- Consonance color key -->
+    <div class="harm-consonance-key">
+      <div class="harm-cons-pill"><div class="harm-cons-dot" style="background:#22c55e"></div><span style="color:#22c55e;font-size:.52rem">Unison (1:1)</span></div>
+      <div class="harm-cons-pill"><div class="harm-cons-dot" style="background:#60a5fa"></div><span style="color:#60a5fa;font-size:.52rem">Consonant q≤4</span></div>
+      <div class="harm-cons-pill"><div class="harm-cons-dot" style="background:#ffd700"></div><span style="color:#ffd700;font-size:.52rem">Moderate q≤16</span></div>
+      <div class="harm-cons-pill"><div class="harm-cons-dot" style="background:#f97316"></div><span style="color:#f97316;font-size:.52rem">Complex q≤64</span></div>
+      <div class="harm-cons-pill"><div class="harm-cons-dot" style="background:#a855f7"></div><span style="color:#a855f7;font-size:.52rem">Dissonant q>64</span></div>
     </div>
 
-    <footer>
-        Boundary Cancellation Principle — Complete Analysis<br>
-        Computed: <span id="compTime">—</span> | <span id="compDur">—</span>
-    </footer>
+    <!-- Selected interval info -->
+    <div class="harm-audio-row">
+      <div class="harm-freq-display" id="harmFreqDisplay">— Hz</div>
+      <div class="harm-note-display" id="harmNoteDisplay">— · —</div>
+    </div>
+
+    <!-- Audio controls -->
+    <div class="harm-section-title">Audio</div>
+    <div class="harm-btn-row">
+      <button class="harm-btn" id="harmPlayBtn" onclick="harmPlay()">▶ Play</button>
+      <button class="harm-btn" id="harmChordBtn" onclick="harmChord()">♪ Chord</button>
+      <button class="harm-btn" id="harmArpBtn" onclick="harmArp()">∿ Arpeggio</button>
+      <button class="harm-btn" onclick="harmStop()">■ Stop</button>
+    </div>
+    <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+      <div class="cg" style="flex:1;min-width:120px">
+        <label style="font-size:.58rem;color:#88bb88">Base Hz</label>
+        <input type="range" id="harmBaseHz" min="110" max="880" step="1" value="220" style="background:rgba(96,165,250,.2)">
+        <div class="vd" id="harmBaseHzVal" style="color:#60a5fa">220 Hz</div>
+      </div>
+      <div class="cg" style="flex:1;min-width:100px">
+        <label style="font-size:.58rem;color:#88bb88">Volume</label>
+        <input type="range" id="harmVol" min="0" max="1" step="0.05" value="0.35" style="background:rgba(96,165,250,.2)">
+        <div class="vd" id="harmVolVal" style="color:#60a5fa">35%</div>
+      </div>
+      <div class="cg" style="flex:1;min-width:100px">
+        <label style="font-size:.58rem;color:#88bb88">Waveform</label>
+        <select id="harmWave" style="font-family:'JetBrains Mono',monospace;font-size:.62rem;background:#0a0c0a;border:1px solid rgba(96,165,250,.25);color:#60a5fa;padding:4px 6px;border-radius:4px;width:100%">
+          <option value="sine">Sine</option>
+          <option value="triangle">Triangle</option>
+          <option value="square">Square</option>
+          <option value="sawtooth">Sawtooth</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Arnold Tongue K parameter -->
+    <div class="harm-section-title">Arnold Tongue · Sphere Warp</div>
+    <div class="arnold-row">
+      <label style="font-size:.58rem;color:#88bb88;flex-shrink:0">K coupling</label>
+      <input type="range" id="harmArnold" min="0" max="2" step="0.01" value="0" style="flex:1;background:rgba(232,121,249,.2)">
+      <span class="arnold-val" id="harmArnoldVal">0.00</span>
+      <button class="harm-btn" style="font-size:.55rem;padding:4px 8px" onclick="applyArnoldWarp()">Apply</button>
+      <button class="harm-btn" style="font-size:.55rem;padding:4px 8px" onclick="resetArnold()">Reset</button>
+    </div>
+    <div style="font-size:.52rem;color:rgba(96,165,250,.4);margin-top:-4px">
+      Warp sphere with K·sin(2π·f(θ)) perturbation from Arnold circle map
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ Gap Decomposition Panel ══════════════════════════════════════ -->
+<div class="gap-panel panels" style="margin-top:11px">
+  <div class="gap-header" id="gapHeader">
+    <div class="gap-header-title">⚡ Gap Decomposition &amp; ζ(s) Analysis</div>
+    <span class="gap-chevron" id="gapChevron">▼</span>
+  </div>
+  <div class="gap-body" id="gapBody">
+
+    <!-- Controls -->
+    <div class="gap-ctrl-grid">
+      <div class="cg">
+        <label>Max N (primes up to)</label>
+        <input type="range" id="gdN" min="100000" max="300000000" step="100000" value="10000000">
+        <div class="gap-vd" id="gdND">10,000,000</div>
+      </div>
+      <div class="cg">
+        <label>ζ exponent s</label>
+        <input type="range" id="gdS" min="1.01" max="10" step="0.01" value="2">
+        <div class="gap-vd" id="gdSD" style="color:var(--gold)">s = 2.00</div>
+      </div>
+    </div>
+
+    <div class="gap-filter-row">
+      <span class="gap-filter-lbl">Gap filter:</span>
+      <button class="gap-filter-btn active" data-filter="all" onclick="setGapFilter(this,'all')">All</button>
+      <button class="gap-filter-btn" data-filter="tiny" onclick="setGapFilter(this,'tiny')">2–10</button>
+      <button class="gap-filter-btn" data-filter="small" onclick="setGapFilter(this,'small')">2–30</button>
+      <button class="gap-filter-btn" data-filter="medium" onclick="setGapFilter(this,'medium')">20–80</button>
+      <button class="gap-filter-btn" data-filter="large" onclick="setGapFilter(this,'large')">50–200</button>
+    </div>
+
+    <div class="gap-run-row">
+      <button class="ctrl gold-ctrl" id="gdRunBtn" onclick="gdRun()">▶ Compute</button>
+      <button class="ctrl gold-ctrl" onclick="gdClear()" style="font-size:.63rem;padding:6px 11px">✕ Clear</button>
+      <button class="ctrl gold-ctrl" id="gdExportPNG" onclick="gdExport4K()" style="display:none">⬇ 4K PNG</button>
+      <button class="ctrl gold-ctrl" id="gdExportCSV" onclick="gdExportCSV()" style="display:none">⬇ Full CSV</button>
+      <button class="ctrl gold-ctrl" id="gdExportTXT" onclick="gdExportTXT()" style="display:none">⬇ Report TXT</button>
+    </div>
+
+    <!-- Thickness & gap multi-selector (always visible for viz panel) -->
+    <div class="thick-row">
+      <label>Trace Thickness</label>
+      <input type="range" id="gdThick" min="0.5" max="8" step="0.5" value="1.35">
+      <span class="thick-val" id="gdThickVal">1.35px</span>
+    </div>
+
+    <!-- Multi-gap color selector — populated after compute -->
+    <div class="gap-selector-wrap" id="gdSelectorWrap" style="display:none">
+      <div class="gap-selector-label">
+        Click gaps to highlight on sphere &amp; cart
+        <span>— each gets its own color; deselect to remove</span>
+        <button class="gap-filter-btn" onclick="gdClearSelection()" style="margin-left:auto">✕ Clear all</button>
+      </div>
+      <div class="gap-chips" id="gdChips"></div>
+    </div>
+
+    <div class="gap-progress" id="gdProgress"><div class="gap-progress-fill" id="gdProgressFill"></div></div>
+    <div class="gap-status" id="gdStatus">Run decomposition to analyze prime gap contributions to ζ(s). Default: 10M primes.</div>
+
+    <!-- Live stats -->
+    <div class="gap-live-stats" id="gdStatsGrid" style="display:none">
+      <div class="gap-stat"><div class="gap-stat-lbl">Total primes</div><div class="gap-stat-val" id="gst0">—</div></div>
+      <div class="gap-stat"><div class="gap-stat-lbl">Gap families</div><div class="gap-stat-val" id="gst1">—</div></div>
+      <div class="gap-stat"><div class="gap-stat-lbl">Max gap</div><div class="gap-stat-val" id="gst2">—</div></div>
+      <div class="gap-stat"><div class="gap-stat-lbl">Target ζ(s)</div><div class="gap-stat-val" id="gst3">—</div></div>
+      <div class="gap-stat"><div class="gap-stat-lbl">Computed product</div><div class="gap-stat-val" id="gst4">—</div></div>
+      <div class="gap-stat"><div class="gap-stat-lbl">Rel. error</div><div class="gap-stat-val" id="gst5">—</div></div>
+      <div class="gap-stat"><div class="gap-stat-lbl">Twin primes (g=2)</div><div class="gap-stat-val" id="gst6">—</div></div>
+      <div class="gap-stat"><div class="gap-stat-lbl">Cousin primes (g=4)</div><div class="gap-stat-val" id="gst7">—</div></div>
+      <div class="gap-stat"><div class="gap-stat-lbl">Sexy primes (g=6)</div><div class="gap-stat-val" id="gst8">—</div></div>
+      <div class="gap-stat"><div class="gap-stat-lbl">Most common gap</div><div class="gap-stat-val" id="gst9">—</div></div>
+      <div class="gap-stat"><div class="gap-stat-lbl">Twin ratio (g2/g4)</div><div class="gap-stat-val" id="gst10">—</div></div>
+      <div class="gap-stat"><div class="gap-stat-lbl">Calculated π</div><div class="gap-stat-val" id="gst11">—</div></div>
+    </div>
+
+
+    <!-- Chart tabs -->
+    <div class="gap-tabs" id="gdTabs" style="display:none">
+      <button class="gap-tab active" onclick="gdSwitchTab(this,'contrib')">Contributions</button>
+      <button class="gap-tab" onclick="gdSwitchTab(this,'dist')">Distribution</button>
+      <button class="gap-tab" onclick="gdSwitchTab(this,'conv')">Convergence</button>
+      <button class="gap-tab" onclick="gdSwitchTab(this,'ratio')">Gap Ratios</button>
+      <button class="gap-tab" onclick="gdSwitchTab(this,'pct')">% Share</button>
+    </div>
+
+    <canvas id="gapCanvas" height="300"></canvas>
+    <div class="gap-legend" id="gdLegend"></div>
+
+    <!-- All-gaps stats table -->
+    <div class="gap-table-wrap" id="gdTableSection" style="display:none">
+      <div class="gap-table-controls">
+        <label>Sort by:
+          <select id="gdTableSort" onchange="gdBuildTable()">
+            <option value="gap">Gap ↑</option>
+            <option value="count_desc">Count ↓</option>
+            <option value="logshare_desc">Log-ζ share ↓</option>
+            <option value="product_desc">Product ↓</option>
+            <option value="cumulative">Cumulative ↑</option>
+          </select>
+        </label>
+        <label>Decimals:
+          <input type="number" id="gdTableDec" min="2" max="20" value="8" style="width:46px" onchange="gdBuildTable()">
+        </label>
+        <label>Show top:
+          <select id="gdTableTop" onchange="gdBuildTable()">
+            <option value="0">All</option>
+            <option value="10">10</option>
+            <option value="25">25</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+          </select>
+        </label>
+        <label><input type="checkbox" id="gdTableHighlight" checked onchange="gdBuildTable()"> Highlight selected</label>
+      </div>
+      <div id="gdTableWrap"></div>
+    </div>
+
+    <!-- Convergence to π²/6 dropdown table -->
+    <div class="conv-dropdown-wrap" id="gdConvSection" style="display:none">
+      <div class="conv-dropdown-header" id="convDropHeader">
+        <div class="conv-dropdown-title">⟶ Step-by-step convergence to π²/6 = ζ(2)</div>
+        <span class="conv-dropdown-chevron" id="convDropChev">▼</span>
+      </div>
+      <div class="conv-dropdown-body" id="convDropBody">
+        <div class="conv-table-controls">
+          <label>Sort:
+            <select id="convSort" onchange="gdBuildConvTable()">
+              <option value="gap_asc">Gap ↑ (natural order)</option>
+              <option value="logshare_desc">Log-share ↓</option>
+              <option value="cumulative_asc">Cumulative product ↑</option>
+              <option value="relerr_asc">Rel. error ↑ (best first)</option>
+            </select>
+          </label>
+          <label>Decimals:
+            <input type="number" id="convDec" min="2" max="20" value="12" onchange="gdBuildConvTable()">
+          </label>
+          <label>Show top:
+            <select id="convTop" onchange="gdBuildConvTable()">
+              <option value="0">All steps</option>
+              <option value="10">10</option>
+              <option value="25">25</option>
+              <option value="50">50</option>
+            </select>
+          </label>
+          <label><input type="checkbox" id="convShowPi" checked onchange="gdBuildConvTable()"> Show π estimate</label>
+          <label><input type="checkbox" id="convShowLog" checked onchange="gdBuildConvTable()"> log₁₀ error</label>
+          <label><input type="checkbox" id="convShowDelta" checked onchange="gdBuildConvTable()"> Δ product</label>
+        </div>
+        <div id="gdConvTableWrap"></div>
+      </div>
+    </div>
+
+  </div>
 </div>
 
 <script>
-// State
-var S = {
-    structure: 'coprime',
-    dim: 2,
-    radius: 50,
-    kfreeK: 2,
-    step: 2,
-    points: [],
-    classified: [],
-    errorData: [],
-    densityData: [],
-    boundaryData: [],
-    mobiusData: [],
-    dimData: [],
-    gcdData: [],
-    primes: [],
-    maxPrime: 0
+// ═══════════════════════════════════════════════════════════════
+//  PRESETS
+// ═══════════════════════════════════════════════════════════════
+const PRESET_GROUPS = {
+  pgClassic: [
+    { name:'Original',   A:1.9, B:3,  C:3,  D:32,  theta:64,  trail:6  },
+    { name:'Halo',       A:2,   B:1,  C:1,  D:128, theta:4,   trail:1  },
+    { name:'Daisy',      A:1.0, B:5,  C:5,  D:20,  theta:40,  trail:6  },
+    { name:'Sunflower',  A:1.0, B:5,  C:5,  D:21,  theta:42,  trail:5  },
+    { name:'Rose',       A:2.0, B:4,  C:4,  D:16,  theta:32,  trail:6  },
+    { name:'Lily',       A:1.5, B:6,  C:6,  D:18,  theta:36,  trail:6  },
+  ],
+  pgComplex: [
+    { name:'Hypnotic',   A:0.5, B:7,  C:7,  D:16,  theta:64,  trail:8  },
+    { name:'Galaxy',     A:1.5, B:9,  C:1,  D:64,  theta:128, trail:4  },
+    { name:'Fractal',    A:0.8, B:11, C:11, D:43,  theta:86,  trail:8  },
+    { name:'Mandala',    A:1.2, B:8,  C:8,  D:40,  theta:80,  trail:6  },
+    { name:'Deep Space', A:0.6, B:12, C:3,  D:96,  theta:128, trail:3  },
+    { name:'Cosmos',     A:1.0, B:10, C:2,  D:80,  theta:128, trail:4  },
+    { name:'Nebula',     A:1.3, B:9,  C:4,  D:72,  theta:108, trail:5  },
+    { name:'Quasar',     A:0.7, B:11, C:7,  D:55,  theta:110, trail:3  },
+  ],
+  pgOrganic: [
+    { name:'Butterfly',  A:2.0, B:2,  C:4,  D:8,   theta:32,  trail:10 },
+    { name:'Jellyfish',  A:1.8, B:3,  C:2,  D:12,  theta:48,  trail:8  },
+    { name:'Fern',       A:1.1, B:2,  C:5,  D:10,  theta:40,  trail:7  },
+    { name:'Coral',      A:1.4, B:4,  C:2,  D:28,  theta:56,  trail:6  },
+    { name:'Anemone',    A:1.6, B:5,  C:3,  D:15,  theta:60,  trail:6  },
+    { name:'Seashell',   A:2.2, B:3,  C:1,  D:24,  theta:48,  trail:5  },
+    { name:'Vine',       A:1.0, B:3,  C:7,  D:14,  theta:56,  trail:6  },
+    { name:'Mycelium',   A:0.9, B:6,  C:2,  D:36,  theta:72,  trail:4  },
+  ],
+  pgGeo: [
+    { name:'Crystal',    A:2.5, B:4,  C:4,  D:24,  theta:48,  trail:6  },
+    { name:'Spiral',     A:1.2, B:1,  C:6,  D:12,  theta:96,  trail:5  },
+    { name:'Hexagon',    A:2.0, B:6,  C:6,  D:36,  theta:72,  trail:6  },
+    { name:'Star-12',    A:1.8, B:12, C:12, D:48,  theta:96,  trail:7  },
+    { name:'Diamond',    A:2.1, B:4,  C:8,  D:20,  theta:40,  trail:6  },
+    { name:'Pinwheel',   A:1.3, B:3,  C:9,  D:18,  theta:54,  trail:6  },
+    { name:'Web',        A:0.9, B:7,  C:3,  D:42,  theta:84,  trail:5  },
+    { name:'Lattice',    A:1.7, B:5,  C:7,  D:35,  theta:70,  trail:5  },
+  ],
+  pgEth: [
+    { name:'Whisper',    A:3.5, B:2,  C:1,  D:16,  theta:8,   trail:2  },
+    { name:'Phantom',    A:0.3, B:8,  C:8,  D:32,  theta:64,  trail:2  },
+    { name:'Aurora',     A:1.9, B:4,  C:1,  D:48,  theta:96,  trail:3  },
+    { name:'Mirage',     A:2.3, B:5,  C:2,  D:30,  theta:60,  trail:4  },
+    { name:'Specter',    A:1.5, B:7,  C:2,  D:56,  theta:112, trail:2  },
+    { name:'Wraith',     A:0.5, B:10, C:5,  D:100, theta:100, trail:1  },
+    { name:'Solstice',   A:2.8, B:3,  C:3,  D:64,  theta:64,  trail:5  },
+    { name:'Eclipse',    A:1.9, B:2,  C:6,  D:12,  theta:24,  trail:3  },
+  ],
+  pgGapWave: [], // populated dynamically from decomposition data
 };
 
-// Theme toggle
-function toggleTheme() {
-    document.body.classList.toggle('dark');
-    var isDark = document.body.classList.contains('dark');
-    document.getElementById('themeBtn').textContent = isDark ? 'Light Mode' : 'Dark Mode';
-    try { localStorage.setItem('bcpTheme', isDark ? 'dark' : 'light'); } catch(e) {}
+// ═══════════════════════════════════════════════════════════════
+//  GAP COLOR PALETTE (shared everywhere)
+// ═══════════════════════════════════════════════════════════════
+const GAP_PALETTE = {
+  2:'#ffd700', 4:'#4ecdc4', 6:'#a855f7', 8:'#f97316',
+  10:'#22c55e', 12:'#38bdf8', 14:'#fb7185', 18:'#e879f9',
+  24:'#facc15', 30:'#34d399', 36:'#60a5fa', 42:'#f87171',
+  48:'#a3e635', 72:'#fb923c', 86:'#c084fc',
+};
+const FALLBACK_COLORS = [
+  '#ffd700','#4ecdc4','#a855f7','#f97316','#22c55e','#38bdf8',
+  '#fb7185','#e879f9','#facc15','#34d399','#60a5fa','#f87171',
+  '#a3e635','#fb923c','#c084fc','#ff6b9d','#00d2ff','#7fff00',
+];
+function gapColor(g, idx){ return GAP_PALETTE[g] || FALLBACK_COLORS[idx % FALLBACK_COLORS.length]; }
+
+// ═══════════════════════════════════════════════════════════════
+//  MULTI-GAP SELECTION STATE
+// ═══════════════════════════════════════════════════════════════
+// Map: gapValue → color string (when selected)
+let selectedGaps = new Map();
+// Lookup: gapValue → index in allGaps array (for color assignment)
+let gapIndexMap = {};
+
+// ═══════════════════════════════════════════════════════════════
+//  VISUALIZATION STATE
+// ═══════════════════════════════════════════════════════════════
+let A=1.9, B=3, C=3, D=32, thetaTotal=64*Math.PI, trailFade=6;
+let speed=8, paused=true, looping=false;
+let traceThickness = 1.35;
+
+const TOTAL_PTS = 8000;
+let precomputed = [];
+let drawProgress = 0;
+let lastCartProg = 0;
+
+// Precomputed stats
+let fMin=Infinity, fMax=-Infinity, fSum=0;
+
+// 3D rotation
+let rotMat = [1,0,0, 0,1,0, 0,0,1];
+let autoRotate = false;
+let isDrag=false, lastMX=0, lastMY=0;
+
+const PAD = {l:38,r:14,t:12,b:26};
+
+// ═══════════════════════════════════════════════════════════════
+//  CANVASES
+// ═══════════════════════════════════════════════════════════════
+const pCv = document.getElementById('polarCanvas');
+const pCtx = pCv.getContext('2d');
+const cCv = document.getElementById('cartCanvas');
+const cCtx = cCv.getContext('2d');
+let cBuf;
+
+function setSize() {
+  const w = Math.min(window.innerWidth - 40, 520);
+  pCv.width = pCv.height = w;
+  cCv.width = w; cCv.height = Math.round(w * 0.38);
+}
+setSize();
+window.addEventListener('resize', () => { setSize(); hardReset(); });
+
+// ═══════════════════════════════════════════════════════════════
+//  3D MATH
+// ═══════════════════════════════════════════════════════════════
+function mmul(a, b) {
+  return [
+    a[0]*b[0]+a[1]*b[3]+a[2]*b[6], a[0]*b[1]+a[1]*b[4]+a[2]*b[7], a[0]*b[2]+a[1]*b[5]+a[2]*b[8],
+    a[3]*b[0]+a[4]*b[3]+a[5]*b[6], a[3]*b[1]+a[4]*b[4]+a[5]*b[7], a[3]*b[2]+a[4]*b[5]+a[5]*b[8],
+    a[6]*b[0]+a[7]*b[3]+a[8]*b[6], a[6]*b[1]+a[7]*b[4]+a[8]*b[7], a[6]*b[2]+a[7]*b[5]+a[8]*b[8]
+  ];
+}
+function mrotX(a) { const c=Math.cos(a),s=Math.sin(a); return [1,0,0, 0,c,-s, 0,s,c]; }
+function mrotY(a) { const c=Math.cos(a),s=Math.sin(a); return [c,0,s, 0,1,0, -s,0,c]; }
+function applyM(m, x, y, z) {
+  return [m[0]*x+m[1]*y+m[2]*z, m[3]*x+m[4]*y+m[5]*z, m[6]*x+m[7]*y+m[8]*z];
+}
+function proj(rx, ry, rz) {
+  const fov = 2.8, scale = fov / (fov - rz);
+  const R = pCv.width * 0.37;
+  return [pCv.width/2 + rx*R*scale, pCv.height/2 - ry*R*scale];
 }
 
-// Load theme on start
-(function() {
+// ═══════════════════════════════════════════════════════════════
+//  FORMULA & SPHERE MAPPING
+// ═══════════════════════════════════════════════════════════════
+function f(t) { return A + Math.sin(B*t) * Math.sin(C*t/D); }
+
+function toSphere(t, r) {
+  const lon = t;
+  const polar = (t / thetaTotal) * Math.PI;
+  const rn = r / (A + 1.2);
+  const x = rn * Math.sin(polar) * Math.cos(lon);
+  const y = rn * Math.cos(polar);
+  const z = rn * Math.sin(polar) * Math.sin(lon);
+  return [x, y, z];
+}
+
+function updateFormula() {
+  document.getElementById('fA').textContent = A;
+  document.getElementById('fB').textContent = B;
+  document.getElementById('fC').textContent = C;
+  document.getElementById('fD').textContent = D;
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  PRECOMPUTE — now stores gap-class identity per point
+// ═══════════════════════════════════════════════════════════════
+function precompute() {
+  precomputed = new Array(TOTAL_PTS);
+  fMin=Infinity; fMax=-Infinity; fSum=0;
+
+  // Build a fast lookup: for each point index → which gap class does it visually correspond to
+  // We derive this from the gdData if available: primes falling inside [t, t+dt] map to gap families.
+  // For the sphere rendering, gap assignment is computed from visualization parameters (B, C, D)
+  // We use a simpler approach: tag each point by the nearest gap class from gapFamilies if data exists.
+  // Without data, gap = null (no coloring).
+  let gapAtPoint = null;
+  if (gdData) {
+    gapAtPoint = buildGapAtPoint();
+  }
+
+  for (let i = 0; i < TOTAL_PTS; i++) {
+    const t = (i / TOTAL_PTS) * thetaTotal;
+    const r = f(t);
+    if (r < fMin) fMin = r;
+    if (r > fMax) fMax = r;
+    fSum += r;
+    const [x,y,z] = harmArnoldK > 0 ? toSphereWarped(t, r) : toSphere(t, r);
+    const hue = harmColorMode
+      ? null  // will be set to harmonic color below
+      : 295 + (i/TOTAL_PTS)*40;
+    const gap = gapAtPoint ? gapAtPoint[i] : null;
+    const harmCol = harmColorMode ? harmColorForProgress(i/TOTAL_PTS) : null;
+    precomputed[i] = [x, y, z, hue, gap, harmCol];
+  }
+  document.getElementById('stFMin').textContent = fMin.toFixed(4);
+  document.getElementById('stFMax').textContent = fMax.toFixed(4);
+  document.getElementById('stFMean').textContent = (fSum/TOTAL_PTS).toFixed(4);
+  document.getElementById('stThetaMax').textContent = Math.round(thetaTotal/Math.PI);
+}
+
+// Map each point index to a gap class by finding which prime gap the θ value falls within.
+// θ at point i → t = (i/TOTAL_PTS)*thetaTotal. We scale t into [0, maxPrime] range and find
+// the surrounding prime pair. The gap between that prime pair gives the gap class.
+function buildGapAtPoint() {
+  const { primes, gapFamilies } = gdData;
+  if (!primes || primes.length < 2) return null;
+  const maxP = primes[primes.length-1];
+
+  // Build sorted list of [prime, gap] pairs for binary search
+  // gap[i] = primes[i+1] - primes[i], associated with primes[i]
+  const pArr = primes; // already sorted
+  const result = new Array(TOTAL_PTS).fill(null);
+
+  for (let i = 0; i < TOTAL_PTS; i++) {
+    const t = (i / TOTAL_PTS) * thetaTotal;
+    // Map t (0..thetaTotal) → prime index using t/thetaTotal * primes.length
+    const pIdx = Math.min(pArr.length - 2, Math.floor((t / thetaTotal) * (pArr.length - 1)));
+    if (pIdx >= 0 && pIdx < pArr.length - 1) {
+      result[i] = pArr[pIdx+1] - pArr[pIdx];
+    }
+  }
+  return result;
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  CARTESIAN BUFFER
+// ═══════════════════════════════════════════════════════════════
+function makeCartBuf() {
+  cBuf = document.createElement('canvas');
+  cBuf.width = cCv.width; cBuf.height = cCv.height;
+  drawCartGrid(cBuf.getContext('2d'));
+  lastCartProg = 0;
+}
+
+function drawCartGrid(ctx) {
+  const w=ctx.canvas.width, h=ctx.canvas.height;
+  const {l,r:pr,t,b}=PAD, pw=w-l-pr, ph=h-t-b;
+  const yMax=Math.ceil(A+1.2);
+  ctx.fillStyle='#060608'; ctx.fillRect(0,0,w,h);
+  ctx.font=`${Math.max(8,w*.021)}px JetBrains Mono,monospace`;
+  for(let yv=0;yv<=yMax;yv++){
+    const py=h-b-(yv/yMax)*ph;
+    ctx.strokeStyle='#182018'; ctx.lineWidth=0.7;
+    ctx.beginPath(); ctx.moveTo(l,py); ctx.lineTo(w-pr,py); ctx.stroke();
+    ctx.fillStyle='#3a7040'; ctx.textAlign='right'; ctx.textBaseline='middle';
+    ctx.fillText(yv,l-5,py);
+  }
+  const tmPi=Math.round(thetaTotal/Math.PI);
+  [4,8,16,32,48,64,96,128,160,192,240,300].filter(v=>v<=tmPi).forEach(tv=>{
+    const px=l+(tv/tmPi)*pw;
+    if(px<w-pr){
+      ctx.strokeStyle='#182018'; ctx.lineWidth=0.7;
+      ctx.beginPath(); ctx.moveTo(px,t); ctx.lineTo(px,h-b); ctx.stroke();
+      ctx.fillStyle='#3a7040'; ctx.textAlign='center'; ctx.textBaseline='top';
+      ctx.fillText(tv+'π',px,h-b+4);
+    }
+  });
+  ctx.strokeStyle='#ff3db4'; ctx.fillStyle='#ff3db4'; ctx.lineWidth=1.5;
+  ctx.beginPath(); ctx.moveTo(l,t); ctx.lineTo(l,h-b+6); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(l-4,t+4); ctx.lineTo(l,t-5); ctx.lineTo(l+4,t+4); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(l-6,h-b); ctx.lineTo(w-pr+6,h-b); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(w-pr+2,h-b-4); ctx.lineTo(w-pr+7,h-b); ctx.lineTo(w-pr+2,h-b+4); ctx.fill();
+}
+
+function cartXY(t, rv) {
+  const {l,r:pr,t:pt,b}=PAD, pw=cCv.width-l-pr, ph=cCv.height-pt-b;
+  const yMax=Math.ceil(A+1.2);
+  return [l+(t/thetaTotal)*pw, cCv.height-b-(rv/yMax)*ph];
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  SPHERE WIREFRAME
+// ═══════════════════════════════════════════════════════════════
+function drawSphereGrid(ctx) {
+  ctx.lineWidth=0.55;
+  for(let li=-2; li<=2; li++){
+    const lat=(li/3)*Math.PI/2;
+    const cosLat=Math.cos(lat), sinLat=Math.sin(lat);
+    ctx.beginPath(); let first=true;
+    for(let lo=0; lo<=Math.PI*2+0.05; lo+=0.08){
+      const x=cosLat*Math.cos(lo), y=sinLat, z=cosLat*Math.sin(lo);
+      const [rx,ry,rz]=applyM(rotMat,x,y,z);
+      const [px,py]=proj(rx,ry,rz);
+      ctx.globalAlpha=Math.max(0.05, 0.06+(rz+1)*0.12);
+      ctx.strokeStyle='#3a7040';
+      if(first){ctx.moveTo(px,py);first=false;}else ctx.lineTo(px,py);
+    }
+    ctx.stroke();
+  }
+  for(let lo=0; lo<8; lo++){
+    const lon=(lo/8)*Math.PI*2;
+    const cosLon=Math.cos(lon), sinLon=Math.sin(lon);
+    ctx.beginPath(); let first=true;
+    for(let la=-Math.PI/2; la<=Math.PI/2+0.05; la+=0.08){
+      const x=Math.cos(la)*cosLon, y=Math.sin(la), z=Math.cos(la)*sinLon;
+      const [rx,ry,rz]=applyM(rotMat,x,y,z);
+      const [px,py]=proj(rx,ry,rz);
+      ctx.globalAlpha=Math.max(0.05, 0.06+(rz+1)*0.12);
+      ctx.strokeStyle='#3a7040';
+      if(first){ctx.moveTo(px,py);first=false;}else ctx.lineTo(px,py);
+    }
+    ctx.stroke();
+  }
+  ctx.globalAlpha=1;
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  RENDER — sphere base + per-gap isolated paths
+// ═══════════════════════════════════════════════════════════════
+const HUE_BANDS = 24;
+
+function renderSphere() {
+  pCtx.fillStyle='#060608';
+  pCtx.fillRect(0,0,pCv.width,pCv.height);
+  drawSphereGrid(pCtx);
+
+  const end = Math.floor(drawProgress);
+  if (end < 2) return;
+
+  const histFrac = 1 - ((trailFade-1)/39)*0.9;
+  const histLen = Math.max(2, Math.floor(end * histFrac));
+  const startIdx = Math.max(1, end - histLen);
+  const hasGapSel = selectedGaps.size > 0;
+  const dimBase = hasGapSel;
+
+  // ── Base continuous curve ──
+  const bands = [];
+  for(let b=0; b<HUE_BANDS; b++) bands.push({segs:[], bright:0, n:0});
+  for(let i=startIdx; i<end; i++){
+    const p0=precomputed[i-1], p1=precomputed[i];
+    if(!p0||!p1) continue;
+    const [rx1,ry1,rz1]=applyM(rotMat,p0[0],p0[1],p0[2]);
+    const [rx2,ry2,rz2]=applyM(rotMat,p1[0],p1[1],p1[2]);
+    const [px1,py1]=proj(rx1,ry1,rz1);
+    const [px2,py2]=proj(rx2,ry2,rz2);
+    const depth=(rz1+rz2)*0.5;
+    const bi=Math.min(HUE_BANDS-1, Math.floor((i-startIdx)/histLen*HUE_BANDS));
+    bands[bi].segs.push(px1,py1,px2,py2);
+    bands[bi].bright+=depth; bands[bi].n++;
+  }
+
+  if(dimBase){
+    for(let bi=0; bi<HUE_BANDS; bi++){
+      const bd=bands[bi]; if(!bd.segs.length) continue;
+      const avgZ=bd.n>0?bd.bright/bd.n:0;
+      pCtx.strokeStyle=`rgba(55,75,55,${Math.max(0.04,0.08+avgZ*0.06)})`;
+      pCtx.lineWidth=traceThickness*0.5; pCtx.globalAlpha=1; pCtx.shadowBlur=0;
+      pCtx.beginPath();
+      for(let j=0;j<bd.segs.length;j+=4){ pCtx.moveTo(bd.segs[j],bd.segs[j+1]); pCtx.lineTo(bd.segs[j+2],bd.segs[j+3]); }
+      pCtx.stroke();
+    }
+  } else {
+    pCtx.lineWidth=traceThickness; pCtx.shadowColor='#ff3db4'; pCtx.shadowBlur=4;
+    for(let bi=0; bi<HUE_BANDS; bi++){
+      const bd=bands[bi]; if(!bd.segs.length) continue;
+      const hue=295+(bi/HUE_BANDS)*40;
+      const avgZ=bd.n>0?bd.bright/bd.n:0;
+      const bright=48+avgZ*22;
+      // Use harmonic color if mode active, else standard hue
+      const harmBandCol = harmColorMode ? (harmColorForProgress(bi/HUE_BANDS)||`hsl(${hue},100%,${bright}%)`) : `hsl(${hue},100%,${bright}%)`;
+      pCtx.strokeStyle = harmBandCol;
+      pCtx.globalAlpha=Math.max(0.2, 0.4+avgZ*0.55);
+      pCtx.beginPath();
+      for(let j=0;j<bd.segs.length;j+=4){ pCtx.moveTo(bd.segs[j],bd.segs[j+1]); pCtx.lineTo(bd.segs[j+2],bd.segs[j+3]); }
+      pCtx.stroke();
+    }
+    pCtx.globalAlpha=1; pCtx.shadowBlur=0;
+  }
+
+  // ── Per-gap ISOLATED paths: each selected gap draws its own independent orbit ──
+  if(hasGapSel){
+    selectedGaps.forEach((col, gv) => {
+      // Collect all point indices in [startIdx,end) where gap == gv
+      const pts = [];
+      for(let i=startIdx; i<end; i++){
+        if(precomputed[i] && precomputed[i][4]===gv) pts.push(i);
+      }
+      if(!pts.length) return;
+
+      // Draw each gap-class point as a glowing dot on its sphere position
+      pCtx.shadowColor=col; pCtx.shadowBlur=8; pCtx.globalAlpha=0.85;
+      pCtx.fillStyle=col;
+      pts.forEach(i=>{
+        const p=precomputed[i];
+        const [rx,ry,rz]=applyM(rotMat,p[0],p[1],p[2]);
+        if(rz < -0.5) return; // hide far side
+        const [px,py]=proj(rx,ry,rz);
+        const r=Math.max(1.5, traceThickness*0.9);
+        pCtx.beginPath(); pCtx.arc(px,py,r,0,Math.PI*2); pCtx.fill();
+      });
+
+      // Connect consecutive gap-class points with their own arc (isolated path)
+      if(pts.length >= 2){
+        pCtx.strokeStyle=col; pCtx.lineWidth=traceThickness*1.2;
+        pCtx.shadowColor=col; pCtx.shadowBlur=6; pCtx.globalAlpha=0.7;
+        pCtx.beginPath();
+        let penDown=false;
+        for(let k=0; k<pts.length-1; k++){
+          const i=pts[k], j=pts[k+1];
+          // Only connect if consecutive in PRIME index space (same gap chain)
+          // Allow connect if within 40 indices of each other
+          if(j-i <= 40){
+            const p0=precomputed[i], p1=precomputed[j];
+            const [rx1,ry1,rz1]=applyM(rotMat,p0[0],p0[1],p0[2]);
+            const [rx2,ry2,rz2]=applyM(rotMat,p1[0],p1[1],p1[2]);
+            if(rz1 < -0.6 && rz2 < -0.6) { penDown=false; continue; }
+            const [px1,py1]=proj(rx1,ry1,rz1);
+            const [px2,py2]=proj(rx2,ry2,rz2);
+            if(!penDown){ pCtx.moveTo(px1,py1); penDown=true; }
+            pCtx.lineTo(px2,py2);
+          } else { penDown=false; }
+        }
+        pCtx.stroke();
+      }
+      pCtx.globalAlpha=1; pCtx.shadowBlur=0;
+    });
+  }
+
+  // Moving dot
+  const cur=precomputed[Math.max(0,end-1)];
+  if(cur){
+    const [cx,cy,cz]=cur;
+    const [rx,ry,rz]=applyM(rotMat,cx,cy,cz);
+    const [px,py]=proj(rx,ry,rz);
+    pCtx.globalAlpha=Math.max(0.5, 0.5+(rz+1)*0.4);
+    pCtx.beginPath(); pCtx.arc(px,py,3.5,0,Math.PI*2);
+    pCtx.fillStyle='#fff'; pCtx.shadowColor='#fff'; pCtx.shadowBlur=14;
+    pCtx.fill(); pCtx.shadowBlur=0; pCtx.globalAlpha=1;
+  }
+
+  // Center glow
+  const [crx,cry,crz]=applyM(rotMat,0,0,0);
+  const [cpx,cpy]=proj(crx,cry,crz);
+  pCtx.beginPath(); pCtx.arc(cpx,cpy,3,0,Math.PI*2);
+  pCtx.fillStyle='#ffd700'; pCtx.shadowColor='#ffd700'; pCtx.shadowBlur=16;
+  pCtx.fill(); pCtx.shadowBlur=0;
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  RENDER CART — base curve + per-gap tick marks / isolated segments
+// ═══════════════════════════════════════════════════════════════
+function renderCart() {
+  const newEnd=Math.floor(drawProgress);
+  const hasGapSel = selectedGaps.size > 0;
+
+  if(newEnd===0 && lastCartProg>0){ makeCartBuf(); }
+
+  if(newEnd > lastCartProg){
+    const cbCtx=cBuf.getContext('2d');
+    const {l,r:pr,t:pt,b}=PAD, ph=cCv.height-pt-b;
+    const yMax=Math.ceil(A+1.2);
+
+    for(let i=lastCartProg; i<newEnd; i++){
+      const t0=(i/TOTAL_PTS)*thetaTotal, t1=((i+1)/TOTAL_PTS)*thetaTotal;
+      const r0=f(t0), r1=f(t1);
+      const [cx0,cy0]=cartXY(t0,r0), [cx1,cy1]=cartXY(t1,r1);
+
+      if(hasGapSel){
+        // Base: very dim
+        cbCtx.strokeStyle='rgba(40,60,40,0.18)'; cbCtx.lineWidth=traceThickness*0.4;
+        cbCtx.shadowBlur=0;
+        cbCtx.beginPath(); cbCtx.moveTo(cx0,cy0); cbCtx.lineTo(cx1,cy1); cbCtx.stroke();
+
+        // Per-gap ticks at each gap occurrence
+        const p1=precomputed[i+1];
+        const gap=p1?p1[4]:null;
+        const selCol=gap!==null?selectedGaps.get(gap):undefined;
+        if(selCol){
+          // Vertical tick from bottom of plot area at this θ position
+          const tickH=Math.min(ph, ph*(0.1 + 0.2));
+          cbCtx.strokeStyle=selCol; cbCtx.lineWidth=traceThickness*1.2;
+          cbCtx.shadowColor=selCol; cbCtx.shadowBlur=4;
+          cbCtx.globalAlpha=0.85;
+          cbCtx.beginPath(); cbCtx.moveTo(cx0,cy0-2); cbCtx.lineTo(cx1,cy1-2); cbCtx.stroke();
+          // Glow dot at the curve point
+          cbCtx.fillStyle=selCol; cbCtx.beginPath();
+          cbCtx.arc(cx0,cy0,traceThickness*0.8,0,Math.PI*2); cbCtx.fill();
+          cbCtx.shadowBlur=0; cbCtx.globalAlpha=1;
+        }
+      } else {
+        const hue=295+(i/TOTAL_PTS)*40;
+        cbCtx.strokeStyle=`hsl(${hue},100%,62%)`;
+        cbCtx.lineWidth=traceThickness;
+        cbCtx.shadowColor='#ff3db4'; cbCtx.shadowBlur=3;
+        cbCtx.beginPath(); cbCtx.moveTo(cx0,cy0); cbCtx.lineTo(cx1,cy1); cbCtx.stroke();
+        cbCtx.shadowBlur=0;
+      }
+    }
+    lastCartProg=newEnd;
+  }
+  cCtx.clearRect(0,0,cCv.width,cCv.height);
+  cCtx.drawImage(cBuf,0,0);
+}
+
+// When gap selection changes, we need to redraw the cart buffer from scratch
+function invalidateCartBuf(){
+  makeCartBuf();
+  lastCartProg = 0;
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  LIVE STATS
+// ═══════════════════════════════════════════════════════════════
+function updateLiveStats() {
+  const end = Math.floor(drawProgress);
+  const pct = TOTAL_PTS > 0 ? ((end / TOTAL_PTS) * 100).toFixed(1) : '0.0';
+  const t = (end / TOTAL_PTS) * thetaTotal;
+  const tPi = (t / Math.PI).toFixed(2);
+  const fv = end > 0 ? f(t).toFixed(4) : '—';
+  document.getElementById('stProg').textContent = pct + '%';
+  document.getElementById('stTheta').textContent = tPi + 'π';
+  document.getElementById('stFTheta').textContent = fv;
+  document.getElementById('stPts').textContent = end.toLocaleString();
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  ANIMATION LOOP
+// ═══════════════════════════════════════════════════════════════
+function loop() {
+  requestAnimationFrame(loop);
+  if(autoRotate) rotMat=mmul(mrotY(0.008), rotMat);
+  if(!paused){
+    drawProgress += speed;
+    if(drawProgress >= TOTAL_PTS){
+      if(looping){ drawProgress = 0; }
+      else {
+        drawProgress = TOTAL_PTS; paused = true;
+        const btn = document.getElementById('btnPlay');
+        btn.textContent = '▶ Play'; btn.classList.remove('on');
+      }
+    }
+  }
+  renderSphere();
+  renderCart();
+  updateLiveStats();
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  HARD RESET
+// ═══════════════════════════════════════════════════════════════
+function hardReset() {
+  drawProgress=0; lastCartProg=0;
+  precompute(); makeCartBuf(); updateFormula();
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  DRAG ROTATION
+// ═══════════════════════════════════════════════════════════════
+function onDragStart(ex,ey){ isDrag=true; lastMX=ex; lastMY=ey; }
+function onDragMove(ex,ey){
+  if(!isDrag) return;
+  const dx=ex-lastMX, dy=ey-lastMY;
+  lastMX=ex; lastMY=ey;
+  const s=0.012;
+  rotMat=mmul(mrotY(dx*s), rotMat);
+  rotMat=mmul(mrotX(dy*s), rotMat);
+}
+function onDragEnd(){ isDrag=false; }
+
+pCv.addEventListener('mousedown', e=>{ e.preventDefault(); onDragStart(e.clientX,e.clientY); });
+window.addEventListener('mousemove', e=>onDragMove(e.clientX,e.clientY));
+window.addEventListener('mouseup', onDragEnd);
+pCv.addEventListener('touchstart', e=>{ e.preventDefault(); const t=e.touches[0]; onDragStart(t.clientX,t.clientY); },{passive:false});
+pCv.addEventListener('touchmove',  e=>{ e.preventDefault(); const t=e.touches[0]; onDragMove(t.clientX,t.clientY); },{passive:false});
+pCv.addEventListener('touchend',   onDragEnd);
+
+// ═══════════════════════════════════════════════════════════════
+//  ROTATION BUTTONS
+// ═══════════════════════════════════════════════════════════════
+document.getElementById('btnAutoRot').addEventListener('click',function(){
+  autoRotate=!autoRotate;
+  this.classList.toggle('on',autoRotate);
+  this.textContent=autoRotate?'⟳ Rotating...':'⟳ Auto-Rotate';
+});
+document.getElementById('btnResetRot').addEventListener('click',()=>{
+  rotMat=[1,0,0, 0,1,0, 0,0,1];
+  autoRotate=false;
+  const b=document.getElementById('btnAutoRot');
+  b.classList.remove('on'); b.textContent='⟳ Auto-Rotate';
+});
+
+// ═══════════════════════════════════════════════════════════════
+//  SPEED & THICKNESS
+// ═══════════════════════════════════════════════════════════════
+function setSpeed(v){
+  speed=v;
+  document.getElementById('sSpeed').value=v;
+  document.getElementById('dSpeed').textContent=v.toFixed(2);
+  updateSpeedDesc(v);
+}
+function updateSpeedDesc(v){
+  const el=document.getElementById('speedDesc');
+  if(v<0.2) el.textContent='ultra slow';
+  else if(v<1) el.textContent='crawl';
+  else if(v<4) el.textContent='slow';
+  else if(v<12) el.textContent='normal';
+  else if(v<25) el.textContent='fast';
+  else el.textContent='maximum';
+}
+
+// Thickness slider
+document.getElementById('gdThick').addEventListener('input', function(){
+  traceThickness = parseFloat(this.value);
+  document.getElementById('gdThickVal').textContent = traceThickness.toFixed(2)+'px';
+  // Invalidate cart buf so it redraws with new thickness
+  invalidateCartBuf();
+});
+
+// ═══════════════════════════════════════════════════════════════
+//  LOOP TOGGLE
+// ═══════════════════════════════════════════════════════════════
+document.getElementById('cbLoop').addEventListener('change', function(){
+  looping = this.checked;
+  document.getElementById('loopState').textContent = looping ? 'on — loops forever' : 'off — stops at end';
+});
+
+// ═══════════════════════════════════════════════════════════════
+//  SLIDER BINDINGS
+// ═══════════════════════════════════════════════════════════════
+function bind(id,dId,setter,fmt,noReset){
+  document.getElementById(id).addEventListener('input',function(){
+    const v=parseFloat(this.value);
+    setter(v);
+    document.getElementById(dId).textContent=fmt?fmt(v):v;
+    if(!noReset) hardReset();
+  });
+}
+bind('sA','dA',v=>A=v);
+bind('sB','dB',v=>B=v);
+bind('sC','dC',v=>C=v);
+bind('sD','dD',v=>D=v);
+bind('sTheta','dTheta',v=>thetaTotal=v*Math.PI,v=>v+'π');
+bind('sTrail','dTrail',v=>trailFade=v,null,true);
+bind('sSpeed','dSpeed',v=>{speed=v;updateSpeedDesc(v);},v=>v.toFixed(2),true);
+
+document.getElementById('btnPlay').addEventListener('click',function(){
+  paused=!paused;
+  this.textContent=paused?'▶ Play':'⏸ Pause';
+  this.classList.toggle('on',!paused);
+});
+document.getElementById('btnReset').addEventListener('click',()=>{ hardReset(); });
+
+// ═══════════════════════════════════════════════════════════════
+//  4K SPHERE EXPORT
+// ═══════════════════════════════════════════════════════════════
+document.getElementById('btnExport4K').addEventListener('click', exportSphere4K);
+
+function exportSphere4K() {
+  const SIZE = 3840;
+  const cv = document.createElement('canvas');
+  cv.width = cv.height = SIZE;
+  const ctx = cv.getContext('2d');
+  ctx.fillStyle = '#060608'; ctx.fillRect(0,0,SIZE,SIZE);
+
+  ctx.lineWidth = 1.5;
+  for(let li=-2; li<=2; li++){
+    const lat=(li/3)*Math.PI/2, cosLat=Math.cos(lat), sinLat=Math.sin(lat);
+    ctx.beginPath(); let first=true;
+    for(let lo=0; lo<=Math.PI*2+0.05; lo+=0.04){
+      const x=cosLat*Math.cos(lo), y=sinLat, z=cosLat*Math.sin(lo);
+      const [rx,ry,rz]=applyM(rotMat,x,y,z);
+      const fov=2.8, sc=fov/(fov-rz), R=SIZE*0.37;
+      const px=SIZE/2+rx*R*sc, py=SIZE/2-ry*R*sc;
+      ctx.globalAlpha=Math.max(0.05, 0.06+(rz+1)*0.12); ctx.strokeStyle='#3a7040';
+      if(first){ctx.moveTo(px,py);first=false;}else ctx.lineTo(px,py);
+    } ctx.stroke();
+  }
+  for(let lo=0; lo<8; lo++){
+    const lon=(lo/8)*Math.PI*2, cosLon=Math.cos(lon), sinLon=Math.sin(lon);
+    ctx.beginPath(); let first=true;
+    for(let la=-Math.PI/2; la<=Math.PI/2+0.05; la+=0.04){
+      const x=Math.cos(la)*cosLon, y=Math.sin(la), z=Math.cos(la)*sinLon;
+      const [rx,ry,rz]=applyM(rotMat,x,y,z);
+      const fov=2.8, sc=fov/(fov-rz), R=SIZE*0.37;
+      const px=SIZE/2+rx*R*sc, py=SIZE/2-ry*R*sc;
+      ctx.globalAlpha=Math.max(0.05, 0.06+(rz+1)*0.12); ctx.strokeStyle='#3a7040';
+      if(first){ctx.moveTo(px,py);first=false;}else ctx.lineTo(px,py);
+    } ctx.stroke();
+  }
+  ctx.globalAlpha=1;
+
+  const end = Math.floor(drawProgress);
+  if(end >= 2){
+    const histFrac = 1 - ((trailFade-1)/39)*0.9;
+    const histLen = Math.max(2, Math.floor(end * histFrac));
+    const startIdx = Math.max(1, end - histLen);
+    for(let i=startIdx; i<end; i++){
+      const p0=precomputed[i-1], p1=precomputed[i];
+      if(!p0||!p1) continue;
+      const [rx1,ry1,rz1]=applyM(rotMat,p0[0],p0[1],p0[2]);
+      const [rx2,ry2,rz2]=applyM(rotMat,p1[0],p1[1],p1[2]);
+      const fov=2.8, R=SIZE*0.37;
+      const s1=fov/(fov-rz1), s2=fov/(fov-rz2);
+      const px1=SIZE/2+rx1*R*s1, py1=SIZE/2-ry1*R*s1;
+      const px2=SIZE/2+rx2*R*s2, py2=SIZE/2-ry2*R*s2;
+      const gap = p1[4];
+      const selCol = gap !== null ? selectedGaps.get(gap) : undefined;
+      if (selCol) {
+        ctx.strokeStyle = selCol; ctx.lineWidth = traceThickness*2.5;
+        ctx.shadowColor=selCol; ctx.shadowBlur=10;
+      } else {
+        const bi=Math.min(HUE_BANDS-1, Math.floor((i-startIdx)/histLen*HUE_BANDS));
+        const hue=295+(bi/HUE_BANDS)*40;
+        const avgZ=(rz1+rz2)*0.5, bright=48+avgZ*22;
+        ctx.strokeStyle=`hsl(${hue},100%,${bright}%)`;
+        ctx.lineWidth=traceThickness*2; ctx.shadowColor='#ff3db4'; ctx.shadowBlur=8;
+      }
+      ctx.globalAlpha=Math.max(0.2, 0.5);
+      ctx.beginPath(); ctx.moveTo(px1,py1); ctx.lineTo(px2,py2); ctx.stroke();
+    }
+    ctx.shadowBlur=0; ctx.globalAlpha=1;
+  }
+
+  ctx.globalAlpha=0.7; ctx.fillStyle='#ffd700';
+  ctx.font='bold 48px JetBrains Mono, monospace'; ctx.textAlign='left';
+  ctx.fillText(`f(θ) = ${A} + sin(${B}θ)·sin(${C}θ/${D})  |  θ∈[0,${Math.round(thetaTotal/Math.PI)}π]`, 60, SIZE-80);
+  ctx.globalAlpha=0.4; ctx.font='32px JetBrains Mono, monospace'; ctx.fillStyle='#ff3db4';
+  ctx.fillText('Polar vs Cartesian · Wessen Getachew · @7dview', 60, SIZE-36);
+  ctx.globalAlpha=1;
+
+  const link = document.createElement('a');
+  link.download = `polar_sphere_4K_A${A}_B${B}_C${C}_D${D}.png`;
+  link.href = cv.toDataURL('image/png'); link.click();
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  BUILD PRESETS
+// ═══════════════════════════════════════════════════════════════
+let activePresetBtn = null;
+
+function buildPresets(){
+  Object.entries(PRESET_GROUPS).forEach(([gid, list])=>{
+    const row = document.getElementById(gid);
+    if(!row) return;
+    list.forEach((p,i)=>{
+      const btn = document.createElement('button');
+      btn.className = 'preset-btn';
+      btn.textContent = p.name;
+      if(gid==='pgClassic'&&i===0){ btn.classList.add('active'); activePresetBtn=btn; }
+      btn.onclick = ()=> applyPreset(p, btn, gid==='pgGapWave');
+      row.appendChild(btn);
+    });
+  });
+}
+
+function applyPreset(p, btn, isGap){
+  A=p.A; B=p.B; C=p.C; D=p.D; thetaTotal=p.theta*Math.PI; trailFade=p.trail||6;
+  const sl=(id,v,fmt)=>{ document.getElementById(id).value=v; document.getElementById('d'+id.slice(1)).textContent=fmt?fmt(v):v; };
+  sl('sA',A); sl('sB',B); sl('sC',C); sl('sD',D);
+  sl('sTheta',p.theta,v=>v+'π');
+  sl('sTrail',trailFade);
+  if(activePresetBtn) activePresetBtn.classList.remove('active','gap-active');
+  if(btn){ btn.classList.add(isGap?'gap-active':'active'); activePresetBtn=btn; }
+  hardReset();
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  GAP DECOMPOSITION MODULE
+// ═══════════════════════════════════════════════════════════════
+document.getElementById('gapHeader').addEventListener('click',()=>{
+  const body = document.getElementById('gapBody');
+  const chev = document.getElementById('gapChevron');
+  const hdr  = document.getElementById('gapHeader');
+  body.classList.toggle('open');
+  chev.classList.toggle('open');
+  hdr.classList.toggle('open');
+});
+
+document.getElementById('gdN').addEventListener('input', function(){
+  document.getElementById('gdND').textContent = parseInt(this.value).toLocaleString();
+});
+document.getElementById('gdS').addEventListener('input', function(){
+  document.getElementById('gdSD').textContent = `s = ${parseFloat(this.value).toFixed(2)}`;
+});
+
+let gdData = null;
+let gdTab = 'contrib';
+let gdFilter = 'all';
+const gdCanvas = document.getElementById('gapCanvas');
+const gdCtx = gdCanvas.getContext('2d');
+let gdActiveWaveBtn = null;
+
+function gdResizeCanvas(){
+  const w = Math.min(window.innerWidth - 68, 524);
+  gdCanvas.width = Math.max(280, w);
+  if(gdData) gdDraw();
+}
+window.addEventListener('resize', gdResizeCanvas);
+gdResizeCanvas();
+
+function setGapFilter(btn, filter){
+  document.querySelectorAll('.gap-filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  gdFilter = filter;
+}
+
+// ── Sieves ─────────────────────────────────
+function simpleSieve(max){
+  const sieve = new Uint8Array(max+1).fill(1);
+  sieve[0]=sieve[1]=0;
+  for(let i=2;i*i<=max;i++) if(sieve[i]) for(let j=i*i;j<=max;j+=i) sieve[j]=0;
+  const primes=[];
+  for(let i=2;i<=max;i++) if(sieve[i]) primes.push(i);
+  return primes;
+}
+
+function segmentedSieve(max, progressCb){
+  const sqrtMax = Math.ceil(Math.sqrt(max));
+  const small = simpleSieve(sqrtMax);
+  const primes = [];
+  const SEG = 1<<20;
+  for(let lo=0; lo<=max; lo+=SEG){
+    const hi = Math.min(lo+SEG-1, max);
+    const seg = new Uint8Array(hi-lo+1).fill(1);
+    for(const p of small){
+      let start = Math.max(p*p, Math.ceil(lo/p)*p);
+      for(let j=start; j<=hi; j+=p) seg[j-lo]=0;
+    }
+    for(let i=(lo<2?2:lo); i<=hi; i++) if(seg[i-lo]) primes.push(i);
+    if(progressCb) progressCb(hi, max);
+  }
+  return primes;
+}
+
+// ── Core analysis ───────────────────────────
+function knownZeta(s){
+  const k = {2:Math.PI**2/6, 4:Math.PI**4/90, 6:Math.PI**6/945, 8:Math.PI**8/9450, 10:Math.PI**10/93555};
+  return k[Math.round(s*100)/100] || null;
+}
+
+function gdCompute(maxN, s, filter, progressCb){
+  const primes = maxN < 5e6 ? simpleSieve(maxN) : segmentedSieve(maxN, progressCb);
+
+  let target = knownZeta(s);
+  if(!target) target = primes.reduce((p, pr) => p * Math.pow(pr,s)/(Math.pow(pr,s)-1), 1);
+
+  const gapFamilies = {};
+  for(let i=0; i<primes.length-1; i++){
+    const g = primes[i+1]-primes[i];
+    if(!gapFamilies[g]) gapFamilies[g]=[];
+    gapFamilies[g].push(primes[i]);
+  }
+
+  let gaps = Object.keys(gapFamilies).map(Number).sort((a,b)=>a-b);
+
+  if(filter==='tiny')   gaps = gaps.filter(g=>g>=2&&g<=10);
+  if(filter==='small')  gaps = gaps.filter(g=>g>=2&&g<=30);
+  if(filter==='medium') gaps = gaps.filter(g=>g>=20&&g<=80);
+  if(filter==='large')  gaps = gaps.filter(g=>g>=50&&g<=200);
+
+  const gapProducts = {};
+  let totalLog = 0;
+  gaps.forEach(g=>{
+    const ps = gapFamilies[g];
+    if(!ps||!ps.length) return;
+    let prod=1, logProd=0;
+    ps.forEach(p=>{
+      const ps_s = Math.pow(p,s);
+      const fac = ps_s/(ps_s-1);
+      prod *= fac; logProd += Math.log(fac);
+    });
+    gapProducts[g] = { product:prod, logProduct:logProd, count:ps.length };
+    totalLog += logProd;
+  });
+
+  // Convergence steps
+  const conv = [];
+  let cum = 1, prevCum = 1;
+  gaps.forEach((g,idx)=>{
+    if(!gapProducts[g]) return;
+    prevCum = cum;
+    cum *= gapProducts[g].product;
+    const relErr = Math.abs(cum-target)/target;
+    const pi_est = s >= 1.99 && s <= 2.01 ? Math.sqrt(6*cum) : null;
+    const delta = cum - prevCum;
+    conv.push({ gap:g, value:cum, relErr, prevErr: idx>0?conv[idx-1]?.relErr??null:null,
+                pi_est, delta, logProduct:gapProducts[g].logProduct, step:idx+1 });
+  });
+
+  const c2 = gapFamilies[2]?.length||0;
+  const c4 = gapFamilies[4]?.length||0;
+  const c6 = gapFamilies[6]?.length||0;
+
+  let mostCommon = gaps[0], mcCount = 0;
+  gaps.forEach(g=>{ if((gapFamilies[g]?.length||0)>mcCount){ mcCount=gapFamilies[g].length; mostCommon=g; }});
+
+  const finalErr = Math.abs(cum-target)/target;
+  const pi_calc = (s >= 1.99 && s <= 2.01) ? Math.sqrt(6*cum) : null;
+
+  // Build gap→index map for color assignment
+  gapIndexMap = {};
+  gaps.forEach((g,i) => { gapIndexMap[g] = i; });
+
+  return { primes, gaps, gapFamilies, gapProducts, conv, target, totalLog,
+           finalProduct:cum, finalError:finalErr, s, maxN,
+           c2,c4,c6, mostCommon, mcCount, pi_calc };
+}
+
+// ── Run ─────────────────────────────────────
+function gdRun(){
+  const maxN = parseInt(document.getElementById('gdN').value);
+  const s = parseFloat(document.getElementById('gdS').value);
+  const filter = gdFilter;
+
+  if(maxN > 300000000){
+    document.getElementById('gdStatus').textContent = '⚠ Max N is 300,000,000 (browser limit).';
+    return;
+  }
+
+  document.getElementById('gdStatus').textContent = 'Sieving primes…';
+  document.getElementById('gdRunBtn').disabled = true;
+  document.getElementById('gdProgress').style.display = 'block';
+  document.getElementById('gdProgressFill').style.width = '0%';
+
+  setTimeout(()=>{
     try {
-        if (localStorage.getItem('bcpTheme') === 'dark') {
-            document.body.classList.add('dark');
-        }
-    } catch(e) {}
-})();
+      const progressCb = (cur, max)=>{
+        const pct = Math.min(99, (cur/max*100)).toFixed(0);
+        document.getElementById('gdProgressFill').style.width = pct+'%';
+        document.getElementById('gdStatus').textContent = `Sieving… ${pct}%  (${cur.toLocaleString()} / ${max.toLocaleString()})`;
+      };
 
-// Prime sieve
-function sievePrimes(max) {
-    if (max <= S.maxPrime) return;
-    var sieve = [];
-    for (var i = 0; i <= max; i++) sieve[i] = true;
-    sieve[0] = sieve[1] = false;
-    for (var i = 2; i * i <= max; i++) {
-        if (sieve[i]) {
-            for (var j = i * i; j <= max; j += i) sieve[j] = false;
-        }
+      gdData = gdCompute(maxN, s, filter, progressCb);
+
+      document.getElementById('gdProgressFill').style.width = '100%';
+      setTimeout(()=>document.getElementById('gdProgress').style.display='none', 400);
+
+      const errPct = (gdData.finalError*100).toFixed(8);
+      document.getElementById('gdStatus').textContent =
+        `✓ N=${maxN.toLocaleString()} · ${gdData.primes.length.toLocaleString()} primes · `+
+        `${gdData.gaps.length} gap families · `+
+        `ζ(${s.toFixed(2)}) target=${gdData.target.toFixed(10)} · `+
+        `computed=${gdData.finalProduct.toFixed(10)} · err=${errPct}%`;
+
+      updateGdStats();
+
+      ['gdExportPNG','gdExportCSV','gdExportTXT'].forEach(id=>document.getElementById(id).style.display='inline-block');
+      document.getElementById('gdTabs').style.display='flex';
+      document.getElementById('gdStatsGrid').style.display='grid';
+
+      // Build gap chip selectors (panel + main area)
+      buildGapChips();
+      // Rebuild top-level Gap Waves preset row with all computed families
+      buildAllGapWavePresets();
+
+      // Build stats table and convergence table
+      gdBuildTable();
+      gdBuildConvTable();
+      document.getElementById('gdTableSection').style.display='block';
+      document.getElementById('gdConvSection').style.display='block';
+
+
+      // Recompute sphere with gap data
+      precompute();
+      invalidateCartBuf();
+
+      gdResizeCanvas();
+      gdDraw();
+
+    } catch(e) {
+      document.getElementById('gdStatus').textContent = `Error: ${e.message}`;
+      console.error(e);
     }
-    S.primes = [];
-    for (var i = 2; i <= max; i++) {
-        if (sieve[i]) S.primes.push(i);
-    }
-    S.maxPrime = max;
+    document.getElementById('gdRunBtn').disabled = false;
+  }, 20);
 }
 
-// GCD
-function gcd(a, b) {
-    a = Math.abs(a);
-    b = Math.abs(b);
-    while (b) {
-        var t = b;
-        b = a % b;
-        a = t;
-    }
-    return a;
+function updateGdStats(){
+  if(!gdData) return;
+  const d = gdData;
+  const pi_str = d.pi_calc ? d.pi_calc.toFixed(10) : 'n/a (s≠2)';
+  const vals = [
+    d.primes.length.toLocaleString(), d.gaps.length,
+    Math.max(...d.gaps), d.target.toFixed(10), d.finalProduct.toFixed(10),
+    (d.finalError*100).toFixed(10)+'%', d.c2.toLocaleString(),
+    d.c4.toLocaleString(), d.c6.toLocaleString(),
+    `${d.mostCommon} (${d.mcCount.toLocaleString()}×)`,
+    d.c4>0 ? (d.c2/d.c4).toFixed(6) : 'n/a', pi_str,
+  ];
+  vals.forEach((v,i)=>{ const el=document.getElementById('gst'+i); if(el) el.textContent=v; });
 }
 
-function gcdArr(arr) {
-    if (!arr || arr.length === 0) return 1;
-    var result = arr[0];
-    for (var i = 1; i < arr.length; i++) {
-        result = gcd(result, arr[i]);
-    }
-    return result;
+function gdClear(){
+  gdData = null; selectedGaps.clear(); gapIndexMap = {};
+  gdCtx.clearRect(0,0,gdCanvas.width,gdCanvas.height);
+  document.getElementById('gdStatus').textContent='Run decomposition to analyze prime gap contributions to ζ(s).';
+  ['gdExportPNG','gdExportCSV','gdExportTXT'].forEach(id=>document.getElementById(id).style.display='none');
+  document.getElementById('gdTabs').style.display='none';
+  document.getElementById('gdStatsGrid').style.display='none';
+    document.getElementById('gdSelectorWrap').style.display='none';
+  document.getElementById('mainGapSelector').style.display='none';
+  document.getElementById('mainGapChips').innerHTML='';
+  document.getElementById('pgGapWave').innerHTML='';
+  document.getElementById('gdTableSection').style.display='none';
+  document.getElementById('gdConvSection').style.display='none';
+  document.getElementById('gdLegend').innerHTML='';
+  document.getElementById('gdChips').innerHTML='';
+  precompute(); invalidateCartBuf();
 }
 
-// Möbius function
-function mobius(n) {
-    if (n === 1) return 1;
-    sievePrimes(Math.ceil(Math.sqrt(n)) + 10);
-    var result = 1;
-    var temp = n;
-    for (var i = 0; i < S.primes.length; i++) {
-        var p = S.primes[i];
-        if (p * p > temp) break;
-        if (temp % p === 0) {
-            temp = temp / p;
-            result = -result;
-            if (temp % p === 0) return 0;
-        }
-    }
-    if (temp > 1) result = -result;
-    return result;
+function gdSwitchTab(btn, tab){
+  gdTab = tab;
+  document.querySelectorAll('.gap-tab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  if(gdData) gdDraw();
 }
 
-// k-free test
-function isKFree(n, k) {
-    if (n <= 0) return false;
-    sievePrimes(Math.ceil(Math.pow(n, 1/k)) + 10);
-    for (var i = 0; i < S.primes.length; i++) {
-        var p = S.primes[i];
-        var pk = Math.pow(p, k);
-        if (pk > n) break;
-        if (n % pk === 0) return false;
-    }
-    return true;
+// ═══════════════════════════════════════════════════════════════
+//  GAP CHIP SELECTOR (multi-select)
+// ═══════════════════════════════════════════════════════════════
+function buildGapChips(){
+  if(!gdData) return;
+
+  // Build chips for BOTH containers (panel + main area)
+  const containers = [
+    { row: document.getElementById('gdChips'), wrap: document.getElementById('gdSelectorWrap') },
+    { row: document.getElementById('mainGapChips'), wrap: document.getElementById('mainGapSelector') },
+  ];
+
+  containers.forEach(({row, wrap}) => {
+    row.innerHTML = '';
+    gdData.gaps.forEach((g, i) => {
+      const col = gapColor(g, i);
+      const chip = document.createElement('div');
+      chip.className = 'gap-chip';
+      chip.dataset.gap = g;
+      chip.innerHTML = `<span class="chip-dot" style="background:${col}"></span>g=${g}`;
+      chip.title = `Gap ${g}: ${(gdData.gapProducts[g]?.count||0).toLocaleString()} primes`;
+      chip.addEventListener('click', ()=> toggleGapChipAll(g, i, col));
+      row.appendChild(chip);
+    });
+    wrap.style.display = 'block';
+  });
 }
 
-// Zeta values
-function zeta(s) {
-    if (s === 2) return Math.PI * Math.PI / 6;
-    if (s === 3) return 1.2020569031595942;
-    if (s === 4) return Math.pow(Math.PI, 4) / 90;
-    if (s === 5) return 1.0369277551433699;
-    if (s === 6) return Math.pow(Math.PI, 6) / 945;
-    var sum = 0;
-    for (var n = 1; n < 10000; n++) sum += 1 / Math.pow(n, s);
-    return sum;
-}
-
-// Generate lattice points
-function generatePoints(R, k) {
-    var points = [];
-    var R2 = R * R;
-    
-    if (k === 2) {
-        for (var x = 1; x <= R; x++) {
-            var maxY = Math.floor(Math.sqrt(R2 - x * x));
-            for (var y = -maxY; y <= maxY; y++) {
-                points.push([x, y]);
-            }
-        }
-    } else if (k === 3) {
-        for (var x = 1; x <= R; x++) {
-            var rem1 = R2 - x * x;
-            if (rem1 < 0) continue;
-            var maxY = Math.floor(Math.sqrt(rem1));
-            for (var y = -maxY; y <= maxY; y++) {
-                var rem2 = rem1 - y * y;
-                if (rem2 < 0) continue;
-                var maxZ = Math.floor(Math.sqrt(rem2));
-                for (var z = -maxZ; z <= maxZ; z++) {
-                    points.push([x, y, z]);
-                }
-            }
-        }
+// Toggle all chips with matching gap value across both containers
+function toggleGapChipAll(g, idx, col){
+  const isSelected = selectedGaps.has(g);
+  if(isSelected){
+    selectedGaps.delete(g);
+  } else {
+    selectedGaps.set(g, col);
+  }
+  // Update ALL chips for this gap
+  document.querySelectorAll(`.gap-chip[data-gap="${g}"]`).forEach(chip => {
+    if(selectedGaps.has(g)){
+      chip.classList.add('selected');
+      chip.style.background = col;
+      chip.style.borderColor = col;
+      chip.style.color = '#000';
     } else {
-        // Generic recursive for k >= 4
-        function gen(cur, depth, rem) {
-            if (depth === k) {
-                points.push(cur.slice());
-                return;
-            }
-            var max = Math.floor(Math.sqrt(rem));
-            var start = (depth === 0) ? 1 : -max;
-            for (var v = start; v <= max; v++) {
-                var newRem = rem - v * v;
-                if (newRem >= 0) {
-                    cur.push(v);
-                    gen(cur, depth + 1, newRem);
-                    cur.pop();
-                }
-            }
-        }
-        gen([], 0, R2);
+      chip.classList.remove('selected');
+      chip.style.background = '';
+      chip.style.borderColor = '';
+      chip.style.color = '';
     }
-    
-    return points;
+  });
+  invalidateCartBuf();
 }
 
-// Classify a point
-function classify(p, structure, kfreeK) {
-    var survives = false;
-    var g = 1;
-    var absP = [];
-    for (var i = 0; i < p.length; i++) absP.push(Math.abs(p[i]));
-    
-    if (structure === 'coprime' || structure === 'coprime-tuple') {
-        g = gcdArr(absP);
-        survives = (g === 1);
-    } else if (structure === 'squarefree') {
-        var sum = 0;
-        for (var i = 0; i < p.length; i++) sum += p[i] * p[i];
-        var n = Math.round(Math.sqrt(sum));
-        survives = isKFree(n, 2);
-    } else if (structure === 'kfree') {
-        var sum = 0;
-        for (var i = 0; i < p.length; i++) sum += p[i] * p[i];
-        var n = Math.round(Math.sqrt(sum));
-        survives = isKFree(n, kfreeK);
-    } else {
-        g = gcdArr(absP);
-        survives = (g === 1);
+function toggleGapChip(g, idx, chip, col){
+  toggleGapChipAll(g, idx, col);
+}
+
+function gdClearSelection(){
+  selectedGaps.clear();
+  document.querySelectorAll('.gap-chip.selected').forEach(c=>{
+    c.classList.remove('selected');
+    c.style.background = '';
+    c.style.borderColor = '';
+    c.style.color = '';
+  });
+  invalidateCartBuf();
+  if(gdData) gdDraw();
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  ALL-GAPS STATS TABLE
+// ═══════════════════════════════════════════════════════════════
+function gdBuildTable(){
+  if(!gdData) return;
+  const {gaps, gapProducts, gapFamilies, totalLog, target, s} = gdData;
+  const dec = Math.max(2, Math.min(20, parseInt(document.getElementById('gdTableDec').value)||8));
+  const sortBy = document.getElementById('gdTableSort').value;
+  const topN = parseInt(document.getElementById('gdTableTop').value)||0;
+  const hlSel = document.getElementById('gdTableHighlight').checked;
+
+  let rows = gaps.filter(g=>gapProducts[g]).map((g,i)=>{
+    const gp = gapProducts[g];
+    const logShare = gp.logProduct / (totalLog||1) * 100;
+    let cum=1;
+    gaps.forEach(gg=>{ if(gg<=g && gapProducts[gg]) cum*=gapProducts[gg].product; });
+    return { g, count:gp.count, product:gp.product, logProduct:gp.logProduct,
+             logShare, cumulative:cum, relErr:Math.abs(cum-target)/target,
+             pctPrimes:gp.count/(gdData.primes.length||1)*100, i };
+  });
+
+  if(sortBy==='count_desc') rows.sort((a,b)=>b.count-a.count);
+  else if(sortBy==='logshare_desc') rows.sort((a,b)=>b.logShare-a.logShare);
+  else if(sortBy==='product_desc') rows.sort((a,b)=>b.product-a.product);
+  else if(sortBy==='cumulative') rows.sort((a,b)=>a.cumulative-b.cumulative);
+  else rows.sort((a,b)=>a.g-b.g);
+
+  if(topN>0) rows = rows.slice(0, topN);
+
+  const fmt = (v, d) => typeof v === 'number' ? v.toFixed(d) : v;
+  const fmtE = (v, d) => v < 1e-4 ? v.toExponential(d) : v.toFixed(d);
+
+  let html = `<table>
+    <thead><tr>
+      <th>Gap</th>
+      <th>Count</th>
+      <th>% of primes</th>
+      <th>Product</th>
+      <th>log(Product)</th>
+      <th>log-ζ share %</th>
+      <th>Cumulative</th>
+      <th>Rel. error</th>
+      <th>Abs. error</th>
+    </tr></thead><tbody>`;
+
+  rows.forEach(r=>{
+    const col = gapColor(r.g, r.i);
+    const isSel = hlSel && selectedGaps.has(r.g);
+    const selClass = isSel ? 'gap-row-selected' : '';
+    const abErr = Math.abs(r.cumulative - target);
+    html += `<tr class="${selClass}">
+      <td class="gap-id" style="color:${col}">${r.g}</td>
+      <td>${r.count.toLocaleString()}</td>
+      <td>${fmt(r.pctPrimes, dec)}%</td>
+      <td>${fmt(r.product, dec)}</td>
+      <td>${fmt(r.logProduct, dec)}</td>
+      <td>${fmt(r.logShare, dec)}%</td>
+      <td>${fmt(r.cumulative, dec)}</td>
+      <td>${fmtE(r.relErr, dec)}</td>
+      <td>${fmtE(abErr, dec)}</td>
+    </tr>`;
+  });
+  html += '</tbody></table>';
+  document.getElementById('gdTableWrap').innerHTML = html;
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  CONVERGENCE TO π²/6 TABLE (dropdown)
+// ═══════════════════════════════════════════════════════════════
+document.getElementById('convDropHeader').addEventListener('click', ()=>{
+  document.getElementById('convDropBody').classList.toggle('open');
+  document.getElementById('convDropChev').classList.toggle('open');
+});
+
+function gdBuildConvTable(){
+  if(!gdData) return;
+  const {conv, target, s, gaps, gapProducts, totalLog} = gdData;
+  const dec = Math.max(2, Math.min(20, parseInt(document.getElementById('convDec').value)||12));
+  const sortKey = document.getElementById('convSort').value;
+  const topN = parseInt(document.getElementById('convTop').value)||0;
+  const showPi = document.getElementById('convShowPi').checked;
+  const showLog = document.getElementById('convShowLog').checked;
+  const showDelta = document.getElementById('convShowDelta').checked;
+
+  const isZeta2 = s >= 1.99 && s <= 2.01;
+  const TARGET_PI2_6 = Math.PI**2/6;
+
+  // Build full row data: one row per gap step
+  let rows = conv.map((c, i)=>{
+    const gp = gapProducts[c.gap];
+    const logShare = gp ? gp.logProduct/(totalLog||1)*100 : 0;
+    const logErr = c.relErr > 0 ? Math.log10(c.relErr) : -Infinity;
+    const improving = i>0 ? c.relErr < conv[i-1].relErr : true;
+    return { ...c, logShare, logErr, improving, step:i+1 };
+  });
+
+  if(sortKey==='logshare_desc') rows = [...rows].sort((a,b)=>b.logShare-a.logShare);
+  else if(sortKey==='cumulative_asc') rows = [...rows].sort((a,b)=>a.value-b.value);
+  else if(sortKey==='relerr_asc') rows = [...rows].sort((a,b)=>a.relErr-b.relErr);
+  // else natural gap order
+
+  if(topN>0) rows = rows.slice(0, topN);
+
+  // Best row (minimum relative error)
+  const bestRelErr = Math.min(...rows.map(r=>r.relErr));
+
+  const fmt = (v, d) => typeof v === 'number' ? v.toFixed(d) : '—';
+  const fmtE = (v, d) => (v===null||v===undefined) ? '—' : v < 1e-4 ? v.toExponential(d) : v.toFixed(d);
+
+  let ths = `<th>Step</th><th>Gap</th><th>log-ζ %</th>
+    <th class="conv-cell-product">Cumulative product</th>
+    <th>Target ζ(${s.toFixed(2)})</th>
+    <th class="conv-cell-err">Rel. error</th>
+    <th>Abs. error</th>`;
+  if(showLog) ths += `<th class="conv-cell-logerr">log₁₀(err)</th>`;
+  if(showDelta) ths += `<th>Δ product</th>`;
+  if(showPi && isZeta2) ths += `<th class="conv-cell-pi">√(6·prod) ≈ π</th><th class="conv-cell-pi">|π est − π|</th>`;
+
+  let html = `<table><thead><tr>${ths}</tr></thead><tbody>`;
+
+  rows.forEach(r=>{
+    const isBest = r.relErr === bestRelErr;
+    const rowClass = isBest ? 'conv-row-best' : r.improving ? 'conv-row-improving' : 'conv-row-worsening';
+    const col = gapColor(r.gap, gapIndexMap[r.gap]||0);
+    const abErr = Math.abs(r.value - target);
+    const pi_est = (showPi && isZeta2 && r.value > 0) ? Math.sqrt(6*r.value) : null;
+    const pi_err = pi_est !== null ? Math.abs(pi_est - Math.PI) : null;
+
+    let tds = `
+      <td>${r.step}</td>
+      <td class="conv-cell-gap" style="color:${col}">g=${r.gap}</td>
+      <td>${fmt(r.logShare, dec)}%</td>
+      <td class="conv-cell-product">${fmt(r.value, dec)}</td>
+      <td>${fmt(target, dec)}</td>
+      <td class="conv-cell-err">${fmtE(r.relErr, dec)}</td>
+      <td>${fmtE(abErr, dec)}</td>`;
+    if(showLog) tds += `<td class="conv-cell-logerr">${isFinite(r.logErr)?fmt(r.logErr,dec):'—'}</td>`;
+    if(showDelta) tds += `<td>${fmtE(Math.abs(r.delta), dec)}</td>`;
+    if(showPi && isZeta2){
+      tds += `<td class="conv-cell-pi">${pi_est!==null?fmt(pi_est,dec):'—'}</td>`;
+      tds += `<td class="conv-cell-pi">${pi_err!==null?fmtE(pi_err,dec):'—'}</td>`;
     }
-    
-    var normSq = 0;
-    for (var i = 0; i < p.length; i++) normSq += p[i] * p[i];
-    
-    return {
-        point: p,
-        survives: survives,
-        gcd: g,
-        norm: Math.sqrt(normSq)
+
+    html += `<tr class="${rowClass}">${tds}</tr>`;
+  });
+  html += '</tbody></table>';
+  document.getElementById('gdConvTableWrap').innerHTML = html;
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  REFINED WAVE PRESETS
+// ═══════════════════════════════════════════════════════════════
+// Rebuild the top-level pgGapWave preset row with ALL computed gap families
+function buildAllGapWavePresets(){
+  if(!gdData) return;
+  const { gaps, gapProducts, totalLog, maxN } = gdData;
+  const row = document.getElementById('pgGapWave');
+  row.innerHTML = '';
+
+  // First show a label update
+  const lbl = row.previousElementSibling;
+  if(lbl) lbl.textContent = `Gap Waves · ${maxN.toLocaleString()} primes — all ${gaps.length} families`;
+
+  gaps.filter(g=>gapProducts[g]).forEach((g, i) => {
+    const gp = gapProducts[g];
+    const logShare = gp.logProduct / (totalLog||1);
+    const col = gapColor(g, i);
+
+    // Derive parameters from gap data
+    const Ap = parseFloat(Math.max(0.5, Math.min(3.5, 1.0 + logShare * 3)).toFixed(2));
+    const Bp = Math.max(1, Math.min(12, Math.floor(g/4)));
+    const Cp = Math.max(1, Math.min(12, g));
+    const Dp = Math.min(128, Math.max(4, g));
+    const theta = Math.min(300, Math.max(32, g * 12));
+    const trail = g <= 4 ? 7 : g <= 8 ? 6 : g <= 16 ? 5 : g <= 32 ? 4 : 3;
+
+    const btn = document.createElement('button');
+    btn.className = 'preset-btn';
+    btn.style.borderColor = col + '66';
+    btn.style.color = col;
+    btn.textContent = 'g=' + g;
+    btn.title = `Gap ${g}: ${gp.count.toLocaleString()} primes (${(logShare*100).toFixed(2)}% log-ζ)
+A=${Ap} B=${Bp} C=${Cp} D=${Dp} θ=${theta}π`;
+    btn.onclick = () => {
+      const preset = { name:'Gap '+g, A:Ap, B:Bp, C:Cp, D:Dp, theta, trail, gap:g };
+      if(activePresetBtn) activePresetBtn.classList.remove('active','gap-active');
+      btn.classList.add('gap-active'); activePresetBtn = btn;
+      A=Ap; B=Bp; C=Cp; D=Dp; thetaTotal=theta*Math.PI; trailFade=trail;
+      ['sA','sB','sC','sD'].forEach(id=>{
+        const map={sA:Ap,sB:Bp,sC:Cp,sD:Dp};
+        document.getElementById(id).value=map[id];
+        document.getElementById('d'+id[1]).textContent=map[id];
+      });
+      document.getElementById('sTheta').value=theta;
+      document.getElementById('dTheta').textContent=theta+'π';
+      document.getElementById('sTrail').value=trail;
+      document.getElementById('dTrail').textContent=trail;
+      hardReset();
     };
+    row.appendChild(btn);
+  });
 }
 
-// Main term
-function mainTerm(R, k, str, kfK) {
-    if (str === 'squarefree') return R / zeta(2);
-    if (str === 'kfree') return R / zeta(kfK);
-    return Math.pow(R, k) / zeta(k);
+function buildRefinedWavePresets(){ /* merged into buildAllGapWavePresets */ }
+
+// ═══════════════════════════════════════════════════════════════
+//  CHART DRAWING
+// ═══════════════════════════════════════════════════════════════
+function gdDraw(){
+  if(!gdData) return;
+  const w=gdCanvas.width, h=gdCanvas.height;
+  gdCtx.fillStyle='#060608'; gdCtx.fillRect(0,0,w,h);
+  if(gdTab==='contrib') gdDrawContrib(w,h);
+  else if(gdTab==='dist') gdDrawDist(w,h);
+  else if(gdTab==='conv') gdDrawConv(w,h);
+  else if(gdTab==='ratio') gdDrawRatio(w,h);
+  else if(gdTab==='pct') gdDrawPct(w,h);
 }
 
-// Error bound
-function errorBound(R, k, str, kfK) {
-    if (str === 'squarefree') return Math.pow(R, 0.5);
-    if (str === 'kfree') return Math.pow(R, 1 / kfK);
-    return Math.pow(R, k - 1);
+function gPad(){ return {l:60,r:14,t:28,b:42}; }
+function gdTitle(ctx, w, txt){
+  ctx.fillStyle='#ffd700'; ctx.textAlign='left';
+  ctx.font=`bold ${Math.max(9,w*.022)}px JetBrains Mono,monospace`;
+  ctx.fillText(txt, 60, 18);
 }
 
-// Safe division
-function safeDiv(a, b) {
-    if (b === 0) return 0;
-    return a / b;
+function gdDrawContrib(w, h){
+  const {gaps, gapProducts, totalLog, s} = gdData;
+  if(!gaps.length) return;
+  const p=gPad(), pw=w-p.l-p.r, ph=h-p.t-p.b;
+  const ctx=gdCtx;
+  const shares = gaps.map(g=>(gapProducts[g]?.logProduct||0)/totalLog*100);
+  const maxS = Math.max(...shares);
+  const barW = pw/gaps.length;
+
+  ctx.font=`${Math.max(7,w*.018)}px JetBrains Mono,monospace`;
+  gaps.forEach((g,i)=>{
+    const pct=shares[i], bh=pct/maxS*ph;
+    const x=p.l+i*barW, y=p.t+ph-bh;
+    const col=gapColor(g,i);
+    const isSel = selectedGaps.has(g);
+    ctx.fillStyle=col+(isSel?'bb':'33'); ctx.fillRect(x+1,y,barW-2,bh);
+    ctx.strokeStyle=col; ctx.lineWidth=isSel?2.5:1.2;
+    ctx.strokeRect(x+1,y,barW-2,bh);
+    if(barW>18){ ctx.fillStyle=col; ctx.textAlign='center'; ctx.fillText(''+g, x+barW/2, p.t+ph+16); }
+    if(barW>28&&pct>0.5){ ctx.fillStyle='#fff'; ctx.globalAlpha=0.8; ctx.fillText(pct.toFixed(1)+'%', x+barW/2, y-3); ctx.globalAlpha=1; }
+  });
+  [0,25,50,75,100].forEach(pct=>{
+    if(pct<=maxS*1.1){ const y=p.t+ph-pct/maxS*ph;
+      ctx.strokeStyle='#182018'; ctx.lineWidth=0.5;
+      ctx.beginPath(); ctx.moveTo(p.l,y); ctx.lineTo(w-p.r,y); ctx.stroke();
+      ctx.fillStyle='#3a7040'; ctx.textAlign='right'; ctx.textBaseline='middle';
+      ctx.fillText(pct+'%', p.l-4, y);
+    }
+  });
+  gdTitle(ctx, w, `log-ζ(${s.toFixed(2)}) contribution % by gap`);
+  gdBuildLegend(gaps.slice(0,16));
 }
 
-// Main compute
-function runCompute() {
-    var btn = document.getElementById('computeBtn');
-    btn.textContent = 'Computing...';
-    btn.disabled = true;
-    
-    setTimeout(function() {
-        try {
-            doCompute();
-        } catch(e) {
-            console.error('Compute error:', e);
-            document.getElementById('compTime').textContent = 'Error: ' + e.message;
-        }
-        btn.textContent = 'Compute Full Analysis';
-        btn.disabled = false;
-    }, 50);
+function gdDrawDist(w, h){
+  const {gaps, gapFamilies} = gdData;
+  if(!gaps.length) return;
+  const p=gPad(), pw=w-p.l-p.r, ph=h-p.t-p.b;
+  const ctx=gdCtx;
+  const counts=gaps.map(g=>gapFamilies[g]?.length||0);
+  const maxC=Math.max(...counts);
+  const barW=pw/gaps.length;
+  gaps.forEach((g,i)=>{
+    const c=counts[i], bh=c/maxC*ph;
+    const x=p.l+i*barW, y=p.t+ph-bh;
+    const col=gapColor(g,i);
+    const isSel=selectedGaps.has(g);
+    ctx.fillStyle=col+(isSel?'bb':'33'); ctx.fillRect(x+1,y,barW-2,bh);
+    ctx.strokeStyle=col; ctx.lineWidth=isSel?2.5:1.2; ctx.strokeRect(x+1,y,barW-2,bh);
+    if(barW>18){ ctx.fillStyle=col; ctx.textAlign='center';
+      ctx.font=`${Math.max(7,w*.018)}px JetBrains Mono,monospace`;
+      ctx.fillText(''+g, x+barW/2, p.t+ph+16); }
+  });
+  [0,.25,.5,.75,1].forEach(frac=>{ const y=p.t+ph-frac*ph, v=Math.round(frac*maxC);
+    ctx.strokeStyle='#182018'; ctx.lineWidth=0.5;
+    ctx.beginPath(); ctx.moveTo(p.l,y); ctx.lineTo(w-p.r,y); ctx.stroke();
+    ctx.fillStyle='#3a7040'; ctx.textAlign='right'; ctx.textBaseline='middle';
+    ctx.font=`${Math.max(7,w*.018)}px JetBrains Mono,monospace`;
+    ctx.fillText(v>=1e6?(v/1e6).toFixed(1)+'M':v>=1e3?(v/1e3).toFixed(0)+'k':v, p.l-4, y);
+  });
+  gdTitle(ctx, w, `Prime count per gap family`);
+  gdBuildLegend(gaps.slice(0,16));
 }
 
-function doCompute() {
-    var t0 = performance.now();
-    
-    // Read params
-    S.structure = document.getElementById('structureType').value;
-    S.dim = parseInt(document.getElementById('dimension').value) || 2;
-    S.radius = parseInt(document.getElementById('radius').value) || 50;
-    S.kfreeK = parseInt(document.getElementById('kfreeK').value) || 2;
-    S.step = parseInt(document.getElementById('errorStep').value) || 2;
-    
-    var k = S.dim;
-    var R = S.radius;
-    
-    // Limit for high dimensions
-    if (k >= 5 && R > 25) { R = 25; S.radius = R; document.getElementById('radius').value = R; }
-    else if (k >= 4 && R > 40) { R = 40; S.radius = R; document.getElementById('radius').value = R; }
-    
-    // Generate and classify
-    S.points = generatePoints(R, k);
-    S.classified = [];
-    for (var i = 0; i < S.points.length; i++) {
-        S.classified.push(classify(S.points[i], S.structure, S.kfreeK));
-    }
-    
-    // Separate surviving and removed
-    var surv = [];
-    var removed = [];
-    for (var i = 0; i < S.classified.length; i++) {
-        if (S.classified[i].survives) surv.push(S.classified[i]);
-        else removed.push(S.classified[i]);
-    }
-    
-    var pred = mainTerm(R, k, S.structure, S.kfreeK);
-    var err = surv.length - pred;
-    var bnd = errorBound(R, k, S.structure, S.kfreeK);
-    
-    // Update displays
-    updateConfig(k, R);
-    updateCounting(S.classified.length, surv.length, pred, err, bnd, k);
-    computeBoundary(surv, R);
-    computeRadial(R);
-    computeError(k, R);
-    computeMobius(k);
-    computeDim(Math.min(R, 20));
-    computeGcd(removed);
-    updateLists(surv, removed);
-    
-    var elapsed = performance.now() - t0;
-    document.getElementById('compTime').textContent = new Date().toLocaleString();
-    document.getElementById('compDur').textContent = elapsed.toFixed(0) + 'ms';
+function gdDrawConv(w, h){
+  const {conv, target, s} = gdData;
+  if(conv.length<2) return;
+  const p=gPad(), pw=w-p.l-p.r, ph=h-p.t-p.b;
+  const ctx=gdCtx;
+  const vals=conv.map(d=>d.value);
+  const minV=Math.min(target*0.8,...vals), maxV=Math.max(target*1.1,...vals);
+  const xS=pw/(conv.length-1), yS=ph/(maxV-minV);
+  ctx.font=`${Math.max(7,w*.018)}px JetBrains Mono,monospace`;
+  const ty=p.t+ph-(target-minV)*yS;
+  ctx.strokeStyle='#ffd70066'; ctx.lineWidth=1; ctx.setLineDash([6,4]);
+  ctx.beginPath(); ctx.moveTo(p.l,ty); ctx.lineTo(w-p.r,ty); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle='#ffd700'; ctx.textAlign='right';
+  ctx.fillText(`ζ(${s})=${target.toFixed(6)}`, w-p.r-2, ty-5);
+  ctx.strokeStyle='#ff3db4'; ctx.lineWidth=2;
+  ctx.shadowColor='#ff3db4'; ctx.shadowBlur=6;
+  ctx.beginPath();
+  conv.forEach((d,i)=>{ const x=p.l+i*xS, y=p.t+ph-(d.value-minV)*yS; i===0?ctx.moveTo(x,y):ctx.lineTo(x,y); });
+  ctx.stroke(); ctx.shadowBlur=0;
+  for(let i=0;i<=5;i++){ const frac=i/5, v=minV+frac*(maxV-minV), y=p.t+ph-frac*ph;
+    ctx.strokeStyle='#182018'; ctx.lineWidth=0.5;
+    ctx.beginPath(); ctx.moveTo(p.l,y); ctx.lineTo(w-p.r,y); ctx.stroke();
+    ctx.fillStyle='#3a7040'; ctx.textAlign='right'; ctx.textBaseline='middle';
+    ctx.fillText(v.toFixed(4), p.l-4, y);
+  }
+  ctx.fillStyle='#88cc88'; ctx.textAlign='center';
+  const step=Math.max(1,Math.floor(conv.length/8));
+  conv.forEach((d,i)=>{ if(i%step===0){ ctx.fillText('g'+d.gap,p.l+i*xS,p.t+ph+18); }});
+  gdTitle(ctx, w, `Cumulative Euler product → ζ(${s.toFixed(2)})`);
+  gdBuildLegend([]);
 }
 
-function updateConfig(k, R) {
-    var names = {
-        'coprime': 'Coprime Lattice',
-        'squarefree': 'Squarefree',
-        'kfree': S.kfreeK + '-Free',
-        'coprime-tuple': 'Coprime Tuples'
-    };
-    document.getElementById('dispStructure').textContent = names[S.structure] || S.structure;
-    document.getElementById('dispDim').textContent = k;
-    document.getElementById('dispRadius').textContent = R;
-    document.getElementById('dispExp').textContent = (k-1) + '/' + k;
-    document.getElementById('tblExpSpan').textContent = k - 1;
-    document.getElementById('errExpSpan').textContent = k - 1;
-    
-    // Update theme button text
-    var isDark = document.body.classList.contains('dark');
-    document.getElementById('themeBtn').textContent = isDark ? 'Light Mode' : 'Dark Mode';
-    
-    // Definition
-    var defs = {
-        'coprime': 'A point (a₁,...,a' + k + ') ∈ ℤ' + k + ' is coprime if gcd(a₁,...,a' + k + ') = 1.',
-        'squarefree': 'An integer n is squarefree if not divisible by p² for any prime p.',
-        'kfree': 'An integer n is ' + S.kfreeK + '-free if not divisible by p^' + S.kfreeK + ' for any prime p.',
-        'coprime-tuple': 'A ' + k + '-tuple is coprime if gcd of all components is 1.'
-    };
-    document.getElementById('defTitle').textContent = 'Definition (' + (names[S.structure] || S.structure) + ')';
-    document.getElementById('defContent').textContent = defs[S.structure] || '';
+function gdDrawRatio(w, h){
+  const {c2, c4, c6} = gdData;
+  const p=gPad(), pw=w-p.l-p.r, ph=h-p.t-p.b;
+  const ctx=gdCtx;
+  ctx.font=`${Math.max(8,w*.02)}px JetBrains Mono,monospace`;
+  const pairs=[
+    {lbl:'g₂/g₄\ntwin/cousin', val:c4>0?c2/c4:null, tgt:1.0, col:'#ffd700', note:'HL→1'},
+    {lbl:'g₂/g₆\ntwin/sexy',   val:c6>0?c2/c6:null, tgt:0.5, col:'#ff3db4', note:'HL→0.5'},
+    {lbl:'g₄/g₆\ncousin/sexy', val:c6>0?c4/c6:null, tgt:0.5, col:'#4ecdc4', note:'HL→0.5'},
+  ];
+  const bW=(pw/pairs.length)-14, maxV=3;
+  pairs.forEach((pair,i)=>{
+    const x=p.l+i*(pw/pairs.length)+7;
+    if(pair.val===null){ ctx.fillStyle='#555'; ctx.textAlign='center'; ctx.fillText('N/A',x+bW/2,p.t+ph/2); return; }
+    const bh=Math.min(pair.val/maxV,1)*ph, y=p.t+ph-bh;
+    ctx.fillStyle=pair.col+'33'; ctx.fillRect(x,y,bW,bh);
+    ctx.strokeStyle=pair.col; ctx.lineWidth=2; ctx.strokeRect(x,y,bW,bh);
+    const ty=p.t+ph-(pair.tgt/maxV)*ph;
+    ctx.strokeStyle=pair.col+'99'; ctx.lineWidth=1; ctx.setLineDash([4,3]);
+    ctx.beginPath(); ctx.moveTo(x-4,ty); ctx.lineTo(x+bW+4,ty); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle=pair.col; ctx.textAlign='center';
+    ctx.fillText(pair.val.toFixed(5),x+bW/2,y-6);
+    ctx.fillStyle=pair.col+'99'; ctx.fillText(pair.note,x+bW/2,ty-6);
+    ctx.fillStyle='#88cc88';
+    pair.lbl.split('\n').forEach((ln,li)=>ctx.fillText(ln,x+bW/2,p.t+ph+16+li*12));
+  });
+  [0,1,2,3].forEach(v=>{ if(v<=maxV){ const y=p.t+ph-(v/maxV)*ph;
+    ctx.strokeStyle='#182018'; ctx.lineWidth=0.5;
+    ctx.beginPath(); ctx.moveTo(p.l,y); ctx.lineTo(w-p.r,y); ctx.stroke();
+    ctx.fillStyle='#3a7040'; ctx.textAlign='right'; ctx.textBaseline='middle'; ctx.fillText(v, p.l-4, y);
+  }});
+  gdTitle(ctx, w, `Gap count ratios vs Hardy–Littlewood`);
+  gdBuildLegend([]);
 }
 
-function updateCounting(total, survCount, pred, err, bnd, k) {
-    document.getElementById('statTotal').textContent = total.toLocaleString();
-    document.getElementById('statSurv').textContent = survCount.toLocaleString();
-    document.getElementById('statRem').textContent = (total - survCount).toLocaleString();
-    document.getElementById('statDens').textContent = (safeDiv(survCount, total) * 100).toFixed(4) + '%';
-    
-    document.getElementById('tblPred').textContent = pred.toFixed(4);
-    document.getElementById('tblPredNote').textContent = 'ζ(' + k + ')=' + zeta(k).toFixed(8);
-    document.getElementById('tblActual').textContent = survCount.toLocaleString();
-    document.getElementById('tblError').textContent = err.toFixed(4);
-    document.getElementById('tblBound').textContent = bnd.toFixed(4);
-    document.getElementById('tblBoundNote').textContent = 'R^' + (k-1) + '=' + bnd.toFixed(4);
-    document.getElementById('tblRelErr').textContent = (safeDiv(Math.abs(err), pred) * 100).toFixed(6) + '%';
-    
-    var ratio = safeDiv(Math.abs(err), bnd);
-    document.getElementById('tblRatio').textContent = ratio.toFixed(6);
-    var note = document.getElementById('tblRatioNote');
-    if (ratio < 1) { note.textContent = 'Within bound'; note.className = 'good'; }
-    else if (ratio < 2) { note.textContent = 'Near bound'; note.className = 'warn'; }
-    else { note.textContent = 'Exceeds bound'; note.className = 'bad'; }
+function gdDrawPct(w, h){
+  const {gaps, gapProducts, totalLog, s} = gdData;
+  if(!gaps.length) return;
+  const p=gPad(), pw=w-p.l-p.r, ph=h-p.t-p.b;
+  const ctx=gdCtx;
+  const sorted=gaps.filter(g=>gapProducts[g])
+    .map((g,i)=>({g, share:gapProducts[g].logProduct/totalLog, i}))
+    .sort((a,b)=>b.share-a.share);
+  let y=p.t;
+  sorted.forEach(({g,share,i})=>{
+    const bh=share*ph, col=gapColor(g,i), isSel=selectedGaps.has(g);
+    ctx.fillStyle=col+(isSel?'cc':'66'); ctx.fillRect(p.l,y,pw*0.35,bh);
+    ctx.strokeStyle=col; ctx.lineWidth=isSel?2:1; ctx.strokeRect(p.l,y,pw*0.35,bh);
+    if(bh>10){
+      ctx.fillStyle='#fff'; ctx.globalAlpha=0.85; ctx.textAlign='left'; ctx.textBaseline='middle';
+      ctx.font=`${Math.max(7,w*.017)}px JetBrains Mono,monospace`;
+      ctx.fillText(`g=${g}  ${(share*100).toFixed(2)}%`, p.l+pw*0.35+8, y+bh/2);
+      ctx.globalAlpha=1;
+    }
+    y+=bh;
+  });
+  gdTitle(ctx, w, `% share of log-ζ(${s.toFixed(2)}) by gap class`);
+  gdBuildLegend(sorted.slice(0,12).map(({g})=>g));
 }
 
-function computeBoundary(surv, R) {
-    S.boundaryData = [];
-    var deltas = [1, 2, 3, 5, Math.floor(R*0.05), Math.floor(R*0.1), Math.floor(R*0.15), Math.floor(R*0.2)];
-    var unique = [];
-    var seen = {};
-    for (var i = 0; i < deltas.length; i++) {
-        var d = deltas[i];
-        if (d > 0 && d < R && !seen[d]) {
-            unique.push(d);
-            seen[d] = true;
-        }
-    }
-    unique.sort(function(a,b) { return a - b; });
-    
-    for (var i = 0; i < unique.length; i++) {
-        var delta = unique[i];
-        var thresh = R - delta;
-        var bndPts = 0, intPts = 0;
-        for (var j = 0; j < surv.length; j++) {
-            if (surv[j].norm >= thresh) bndPts++;
-            else intPts++;
-        }
-        
-        var bTotal = 0, iTotal = 0;
-        for (var j = 0; j < S.classified.length; j++) {
-            if (S.classified[j].norm >= thresh) bTotal++;
-            else iTotal++;
-        }
-        
-        S.boundaryData.push({
-            delta: delta,
-            range: '[' + thresh.toFixed(1) + ', ' + R + ']',
-            bndPts: bndPts,
-            intPts: intPts,
-            bndPct: safeDiv(bndPts, surv.length) * 100,
-            bndDens: safeDiv(bndPts, bTotal),
-            intDens: safeDiv(intPts, iTotal)
-        });
-    }
-    
-    var html = '';
-    for (var i = 0; i < S.boundaryData.length; i++) {
-        var d = S.boundaryData[i];
-        html += '<tr><td class="num">' + d.delta + '</td><td>' + d.range + '</td>';
-        html += '<td class="num">' + d.bndPts.toLocaleString() + '</td>';
-        html += '<td class="num">' + d.intPts.toLocaleString() + '</td>';
-        html += '<td class="num">' + d.bndPct.toFixed(2) + '%</td>';
-        html += '<td class="num">' + (d.bndDens*100).toFixed(4) + '%</td>';
-        html += '<td class="num">' + (d.intDens*100).toFixed(4) + '%</td></tr>';
-    }
-    document.getElementById('boundaryBody').innerHTML = html || '<tr><td colspan="7">No data</td></tr>';
+function gdBuildLegend(gapList){
+  const el=document.getElementById('gdLegend');
+  el.innerHTML=gapList.map((g,i)=>{
+    const col=gapColor(g,i);
+    const isSel=selectedGaps.has(g);
+    return `<div class="gap-leg" style="${isSel?'font-weight:700;':''}" onclick="toggleGapChipByVal(${g})" style="cursor:pointer">
+      <div class="gap-leg-sw" style="background:${col};${isSel?'outline:2px solid '+col:''}"></div>
+      gap ${g}${isSel?' ✓':''}
+    </div>`;
+  }).join('');
 }
 
-function computeRadial(R) {
-    var bins = 12;
-    var binW = R / bins;
-    S.densityData = [];
-    var totalDens = 0;
-    
-    for (var i = 0; i < bins; i++) {
-        var rMin = i * binW;
-        var rMax = (i + 1) * binW;
-        var total = 0, survCount = 0;
-        
-        for (var j = 0; j < S.classified.length; j++) {
-            var n = S.classified[j].norm;
-            if (n >= rMin && n < rMax) {
-                total++;
-                if (S.classified[j].survives) survCount++;
-            }
-        }
-        
-        var dens = safeDiv(survCount, total);
-        totalDens += dens;
-        S.densityData.push({ rMin: rMin, rMax: rMax, total: total, surv: survCount, dens: dens });
-    }
-    
-    var meanDens = totalDens / bins;
-    for (var i = 0; i < S.densityData.length; i++) {
-        S.densityData[i].dev = S.densityData[i].dens - meanDens;
-    }
-    
-    var html = '';
-    for (var i = 0; i < S.densityData.length; i++) {
-        var d = S.densityData[i];
-        var devClass = d.dev >= 0 ? 'good' : 'bad';
-        html += '<tr><td>[' + d.rMin.toFixed(1) + ', ' + d.rMax.toFixed(1) + ')</td>';
-        html += '<td class="num">' + d.total.toLocaleString() + '</td>';
-        html += '<td class="num">' + d.surv.toLocaleString() + '</td>';
-        html += '<td class="num">' + (d.dens*100).toFixed(4) + '%</td>';
-        html += '<td class="num ' + devClass + '">' + (d.dev*100).toFixed(4) + '%</td></tr>';
-    }
-    document.getElementById('radialBody').innerHTML = html || '<tr><td colspan="5">No data</td></tr>';
+function toggleGapChipByVal(g){
+  const chip = document.querySelector(`.gap-chip[data-gap="${g}"]`);
+  if(chip){ const i = gapIndexMap[g]||0; toggleGapChip(g, i, chip, gapColor(g,i)); gdDraw(); }
 }
 
-function computeError(k, R) {
-    S.errorData = [];
-    var step = Math.max(S.step, k >= 4 ? 4 : 2);
-    var maxR = k >= 5 ? Math.min(R, 25) : R;
-    
-    for (var r = 5; r <= maxR; r += step) {
-        var pts = generatePoints(r, k);
-        var survC = 0;
-        for (var i = 0; i < pts.length; i++) {
-            var c = classify(pts[i], S.structure, S.kfreeK);
-            if (c.survives) survC++;
-        }
-        var pred = mainTerm(r, k, S.structure, S.kfreeK);
-        var err = survC - pred;
-        var bnd = errorBound(r, k, S.structure, S.kfreeK);
-        S.errorData.push({
-            r: r,
-            actual: survC,
-            pred: pred,
-            err: err,
-            absErr: Math.abs(err),
-            bnd: bnd,
-            ratio: safeDiv(Math.abs(err), bnd)
-        });
-    }
-    
-    if (S.errorData.length === 0) {
-        document.getElementById('maxRatio').textContent = '—';
-        document.getElementById('avgRatio').textContent = '—';
-        document.getElementById('fittedC').textContent = '—';
-        document.getElementById('fitR2').textContent = '—';
-        document.getElementById('errorBody').innerHTML = '<tr><td colspan="7">No data</td></tr>';
-        return;
-    }
-    
-    var maxR = 0, sumR = 0;
-    for (var i = 0; i < S.errorData.length; i++) {
-        if (S.errorData[i].ratio > maxR) maxR = S.errorData[i].ratio;
-        sumR += S.errorData[i].ratio;
-    }
-    document.getElementById('maxRatio').textContent = maxR.toFixed(6);
-    document.getElementById('avgRatio').textContent = (sumR / S.errorData.length).toFixed(6);
-    
-    // Least squares fit
-    var sumXY = 0, sumX2 = 0;
-    for (var i = 0; i < S.errorData.length; i++) {
-        sumXY += S.errorData[i].absErr * S.errorData[i].bnd;
-        sumX2 += S.errorData[i].bnd * S.errorData[i].bnd;
-    }
-    var C = safeDiv(sumXY, sumX2);
-    document.getElementById('fittedC').textContent = C.toFixed(6);
-    
-    // R² calculation
-    var meanErr = 0;
-    for (var i = 0; i < S.errorData.length; i++) meanErr += S.errorData[i].absErr;
-    meanErr = meanErr / S.errorData.length;
-    
-    var ssTot = 0, ssRes = 0;
-    for (var i = 0; i < S.errorData.length; i++) {
-        ssTot += Math.pow(S.errorData[i].absErr - meanErr, 2);
-        ssRes += Math.pow(S.errorData[i].absErr - C * S.errorData[i].bnd, 2);
-    }
-    var r2 = 1 - safeDiv(ssRes, ssTot);
-    document.getElementById('fitR2').textContent = r2.toFixed(6);
-    
-    var html = '';
-    for (var i = 0; i < S.errorData.length; i++) {
-        var d = S.errorData[i];
-        html += '<tr><td class="num">' + d.r + '</td>';
-        html += '<td class="num">' + d.actual.toLocaleString() + '</td>';
-        html += '<td class="num">' + d.pred.toFixed(2) + '</td>';
-        html += '<td class="num">' + d.err.toFixed(2) + '</td>';
-        html += '<td class="num">' + d.absErr.toFixed(2) + '</td>';
-        html += '<td class="num">' + d.bnd.toFixed(2) + '</td>';
-        html += '<td class="num">' + d.ratio.toFixed(4) + '</td></tr>';
-    }
-    document.getElementById('errorBody').innerHTML = html;
+// ═══════════════════════════════════════════════════════════════
+//  EXPORTS
+// ═══════════════════════════════════════════════════════════════
+function gdExport4K(){
+  if(!gdData) return;
+  const SIZE_W=3840, SIZE_H=2160;
+  const cv=document.createElement('canvas');
+  cv.width=SIZE_W; cv.height=SIZE_H;
+  const ctx=cv.getContext('2d');
+  ctx.fillStyle='#060608'; ctx.fillRect(0,0,SIZE_W,SIZE_H);
+  const origW=gdCanvas.width, origH=gdCanvas.height;
+  gdCanvas.width=SIZE_W; gdCanvas.height=SIZE_H;
+  gdDraw();
+  ctx.drawImage(gdCanvas,0,0);
+  gdCanvas.width=origW; gdCanvas.height=origH; gdResizeCanvas();
+  ctx.fillStyle='rgba(6,6,8,0.75)'; ctx.fillRect(0,0,SIZE_W,110);
+  ctx.fillStyle='#ffd700'; ctx.font='bold 56px JetBrains Mono,monospace';
+  ctx.textAlign='left'; ctx.textBaseline='top';
+  ctx.fillText(`Gap Decomp · ζ(${gdData.s.toFixed(2)}) · N=${gdData.maxN.toLocaleString()}`, 60, 20);
+  ctx.fillStyle='#88cc88'; ctx.font='32px JetBrains Mono,monospace';
+  ctx.fillText(`${gdData.primes.length.toLocaleString()} primes · ${gdData.gaps.length} families · err=${(gdData.finalError*100).toFixed(8)}%`, 60, 78);
+  ctx.fillStyle='rgba(255,61,180,0.5)'; ctx.font='28px JetBrains Mono,monospace';
+  ctx.textAlign='right'; ctx.fillText('Wessen Getachew · @7dview', SIZE_W-60, 78);
+  const link=document.createElement('a');
+  link.download=`gap_decomp_4K_N${gdData.maxN}_s${gdData.s.toFixed(2)}_${gdTab}.png`;
+  link.href=cv.toDataURL('image/png'); link.click();
+  gdDraw();
 }
 
-function computeMobius(k) {
-    S.mobiusData = [];
-    var target = 1 / zeta(k);
-    var truncs = [10, 25, 50, 100, 250, 500, 1000, 2500, 5000];
-    
-    for (var i = 0; i < truncs.length; i++) {
-        var N = truncs[i];
-        var sum = 0;
-        for (var d = 1; d <= N; d++) {
-            sum += mobius(d) / Math.pow(d, k);
-        }
-        var err = sum - target;
-        S.mobiusData.push({
-            N: N,
-            sum: sum,
-            target: target,
-            err: err,
-            relErr: safeDiv(Math.abs(err), Math.abs(target)) * 100
-        });
-    }
-    
-    var html = '';
-    for (var i = 0; i < S.mobiusData.length; i++) {
-        var d = S.mobiusData[i];
-        html += '<tr><td class="num">' + d.N.toLocaleString() + '</td>';
-        html += '<td class="num">' + d.sum.toFixed(10) + '</td>';
-        html += '<td class="num">' + d.target.toFixed(10) + '</td>';
-        html += '<td class="num">' + d.err.toFixed(10) + '</td>';
-        html += '<td class="num">' + d.relErr.toFixed(6) + '%</td></tr>';
-    }
-    document.getElementById('mobiusBody').innerHTML = html || '<tr><td colspan="5">No data</td></tr>';
+function gdExportCSV(){
+  if(!gdData) return;
+  const d=gdData;
+  let csv='Gap,Count,PctPrimes,Product,LogProduct,LogShare(%),CumulativeProduct,RelativeError,AbsoluteError\n';
+  let cum=1;
+  d.gaps.forEach(g=>{
+    const gp=d.gapProducts[g]; if(!gp) return;
+    cum*=gp.product;
+    const logShare=(gp.logProduct/(d.totalLog||1)*100).toFixed(10);
+    const relErr=Math.abs(cum-d.target)/d.target;
+    const abErr=Math.abs(cum-d.target);
+    const pctPrimes=(gp.count/(d.primes.length||1)*100).toFixed(10);
+    csv+=`${g},${gp.count},${pctPrimes},${gp.product.toFixed(15)},${gp.logProduct.toFixed(15)},${logShare},${cum.toFixed(15)},${relErr.toFixed(15)},${abErr.toFixed(15)}\n`;
+  });
+  csvDownload(csv, `gap_decomp_N${d.maxN}_s${d.s.toFixed(2)}.csv`);
 }
 
-function computeDim(R) {
-    S.dimData = [];
-    var testR = Math.min(R, 18);
-    var maxK = testR <= 12 ? 5 : (testR <= 15 ? 4 : 3);
-    
-    for (var kk = 2; kk <= maxK; kk++) {
-        var pts = generatePoints(testR, kk);
-        var survC = 0;
-        for (var i = 0; i < pts.length; i++) {
-            var c = classify(pts[i], S.structure, S.kfreeK);
-            if (c.survives) survC++;
-        }
-        var pred = mainTerm(testR, kk, S.structure, S.kfreeK);
-        var err = survC - pred;
-        var bnd = errorBound(testR, kk, S.structure, S.kfreeK);
-        S.dimData.push({
-            k: kk,
-            exp: (kk-1)/kk,
-            total: pts.length,
-            surv: survC,
-            pred: pred,
-            err: err,
-            bnd: bnd,
-            ratio: safeDiv(Math.abs(err), bnd)
-        });
-    }
-    
-    var html = '';
-    for (var i = 0; i < S.dimData.length; i++) {
-        var d = S.dimData[i];
-        html += '<tr><td class="num">' + d.k + '</td>';
-        html += '<td class="num">' + d.exp.toFixed(4) + '</td>';
-        html += '<td class="num">' + d.total.toLocaleString() + '</td>';
-        html += '<td class="num">' + d.surv.toLocaleString() + '</td>';
-        html += '<td class="num">' + d.pred.toFixed(2) + '</td>';
-        html += '<td class="num">' + d.err.toFixed(2) + '</td>';
-        html += '<td class="num">' + d.bnd.toFixed(2) + '</td>';
-        html += '<td class="num">' + d.ratio.toFixed(4) + '</td></tr>';
-    }
-    document.getElementById('dimBody').innerHTML = html || '<tr><td colspan="8">No data</td></tr>';
+function gdExportTXT(){
+  if(!gdData) return;
+  const d=gdData, now=new Date().toISOString();
+  const pi_str=d.pi_calc?`Calculated π  = ${d.pi_calc.toFixed(15)}  (|err|=${Math.abs(d.pi_calc-Math.PI).toExponential(6)})`:'π: only valid at s=2';
+  let txt=`
+════════════════════════════════════════════════════════════
+  PRIME GAP DECOMPOSITION REPORT — ζ(s) Euler Analysis
+════════════════════════════════════════════════════════════
+Generated : ${now}  |  Author: Wessen Getachew · @7dview
+
+PARAMETERS
+  Max N         = ${d.maxN.toLocaleString()}
+  Exponent s    = ${d.s.toFixed(4)}
+  Gap filter    = ${gdFilter}
+
+PRIME STATISTICS
+  Total primes  = ${d.primes.length.toLocaleString()}
+  Max prime     = ${d.primes[d.primes.length-1].toLocaleString()}
+  Gap families  = ${d.gaps.length}
+  Largest gap   = ${Math.max(...d.gaps)}
+  Most common g = ${d.mostCommon} (${d.mcCount.toLocaleString()} times)
+
+TWIN / COUSIN / SEXY
+  Gap 2 (twin)  = ${d.c2.toLocaleString()}
+  Gap 4 (cousin)= ${d.c4.toLocaleString()}
+  Gap 6 (sexy)  = ${d.c6.toLocaleString()}
+  g2/g4 ratio   = ${d.c4>0?(d.c2/d.c4).toFixed(12):'N/A'}  [HL: 1.0]
+  g2/g6 ratio   = ${d.c6>0?(d.c2/d.c6).toFixed(12):'N/A'}  [HL: 0.5]
+  g4/g6 ratio   = ${d.c6>0?(d.c4/d.c6).toFixed(12):'N/A'}  [HL: 0.5]
+
+ZETA PRODUCT
+  Target ζ(${d.s.toFixed(2)}) = ${d.target.toFixed(15)}
+  Computed      = ${d.finalProduct.toFixed(15)}
+  Abs error     = ${Math.abs(d.finalProduct-d.target).toExponential(10)}
+  Rel error     = ${(d.finalError*100).toFixed(12)}%
+  ${pi_str}
+
+GAP CLASS TABLE
+${'Gap'.padEnd(8)}${'Count'.padEnd(14)}${'Pct%'.padEnd(12)}${'Product'.padEnd(22)}${'LogProd'.padEnd(22)}${'log-ζ%'.padEnd(16)}${'Cumulative'.padEnd(22)}RelErr%
+${'─'.repeat(120)}
+`;
+  let cum=1;
+  d.gaps.forEach(g=>{
+    const gp=d.gapProducts[g]; if(!gp) return;
+    cum*=gp.product;
+    const relErr=Math.abs(cum-d.target)/d.target*100;
+    const logShare=gp.logProduct/(d.totalLog||1)*100;
+    const pct=gp.count/(d.primes.length||1)*100;
+    txt+=`${(''+g).padEnd(8)}${gp.count.toString().padEnd(14)}${pct.toFixed(6).padEnd(12)}${gp.product.toFixed(12).padEnd(22)}${gp.logProduct.toFixed(12).padEnd(22)}${logShare.toFixed(6).padEnd(16)}${cum.toFixed(12).padEnd(22)}${relErr.toFixed(10)}\n`;
+  });
+  txt+=`\n${'═'.repeat(60)}\n`;
+  const blob=new Blob([txt],{type:'text/plain'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob); a.download=`gap_decomp_report_N${d.maxN}_s${d.s.toFixed(2)}.txt`;
+  a.click();
 }
 
-function computeGcd(removed) {
-    var gcdMap = {};
-    for (var i = 0; i < removed.length; i++) {
-        var g = removed[i].gcd;
-        gcdMap[g] = (gcdMap[g] || 0) + 1;
-    }
-    
-    S.gcdData = [];
-    for (var g in gcdMap) {
-        if (gcdMap.hasOwnProperty(g)) {
-            S.gcdData.push({
-                gcd: parseInt(g),
-                count: gcdMap[g],
-                pct: safeDiv(gcdMap[g], removed.length) * 100,
-                mu: mobius(parseInt(g))
-            });
-        }
-    }
-    S.gcdData.sort(function(a, b) { return b.count - a.count; });
-    
-    var html = '';
-    var limit = Math.min(S.gcdData.length, 20);
-    for (var i = 0; i < limit; i++) {
-        var d = S.gcdData[i];
-        html += '<tr><td class="num">' + d.gcd + '</td>';
-        html += '<td class="num">' + d.count.toLocaleString() + '</td>';
-        html += '<td class="num">' + d.pct.toFixed(2) + '%</td>';
-        html += '<td class="num">' + d.mu + '</td></tr>';
-    }
-    document.getElementById('gcdBody').innerHTML = html || '<tr><td colspan="4">No data</td></tr>';
-    document.getElementById('distinctGcd').textContent = S.gcdData.length;
-    document.getElementById('commonGcd').textContent = S.gcdData.length > 0 ? S.gcdData[0].gcd : '—';
+function csvDownload(csv, filename){
+  const blob=new Blob([csv],{type:'text/csv'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob); a.download=filename; a.click();
 }
 
-function updateLists(surv, removed) {
-    // Sort by norm
-    surv.sort(function(a, b) { return a.norm - b.norm; });
-    removed.sort(function(a, b) { return a.norm - b.norm; });
-    
-    var survText = '';
-    var limit = Math.min(surv.length, 50);
-    for (var i = 0; i < limit; i++) {
-        var p = surv[i];
-        survText += String(i+1).padStart(3) + '. (' + p.point.join(', ') + ')  |x|=' + p.norm.toFixed(4) + '\n';
-    }
-    document.getElementById('survList').textContent = survText || 'No points';
-    
-    var remText = '';
-    limit = Math.min(removed.length, 30);
-    for (var i = 0; i < limit; i++) {
-        var p = removed[i];
-        remText += String(i+1).padStart(3) + '. (' + p.point.join(', ') + ')  gcd=' + p.gcd + '  |x|=' + p.norm.toFixed(4) + '\n';
-    }
-    document.getElementById('remList').textContent = remText || 'No points';
+// ═══════════════════════════════════════════════════════════════
+//  HARMONICS MODULE
+// ═══════════════════════════════════════════════════════════════
+
+// Farey harmonic intervals: {ratio, name, p, q} where ratio=p/q
+const HARM_INTERVALS = [
+  { name:'1:1',   p:1,  q:1,  cents:0 },
+  { name:'16:15', p:16, q:15, cents:112 },
+  { name:'9:8',   p:9,  q:8,  cents:204 },
+  { name:'6:5',   p:6,  q:5,  cents:316 },
+  { name:'5:4',   p:5,  q:4,  cents:386 },
+  { name:'4:3',   p:4,  q:3,  cents:498 },
+  { name:'45:32', p:45, q:32, cents:590 },
+  { name:'3:2',   p:3,  q:2,  cents:702 },
+  { name:'8:5',   p:8,  q:5,  cents:814 },
+  { name:'5:3',   p:5,  q:3,  cents:884 },
+  { name:'9:5',   p:9,  q:5,  cents:1018 },
+  { name:'15:8',  p:15, q:8,  cents:1088 },
+  { name:'2:1',   p:2,  q:1,  cents:1200 },
+  { name:'5:2',   p:5,  q:2,  cents:1586 },
+  { name:'3:1',   p:3,  q:1,  cents:1902 },
+  { name:'4:1',   p:4,  q:1,  cents:2400 },
+];
+
+function harmConsonanceColor(p, q){
+  const tenney = p * q;
+  if(p===1&&q===1) return '#22c55e';
+  if(tenney<=4) return '#60a5fa';
+  if(tenney<=16) return '#ffd700';
+  if(tenney<=64) return '#f97316';
+  return '#a855f7';
 }
 
-// CSV Export
-function exportCSV(type) {
-    var csv = '';
-    var fn = '';
-    var k = S.dim;
-    
-    if (type === 'points') {
-        csv = 'idx';
-        for (var i = 0; i < k; i++) csv += ',x' + (i+1);
-        csv += ',survives,gcd,norm\n';
-        for (var i = 0; i < S.classified.length; i++) {
-            var p = S.classified[i];
-            csv += i + ',' + p.point.join(',') + ',' + (p.survives?1:0) + ',' + p.gcd + ',' + p.norm.toFixed(6) + '\n';
-        }
-        fn = 'all-points';
-    } else if (type === 'surviving') {
-        csv = 'idx';
-        for (var i = 0; i < k; i++) csv += ',x' + (i+1);
-        csv += ',norm\n';
-        var idx = 0;
-        for (var i = 0; i < S.classified.length; i++) {
-            if (S.classified[i].survives) {
-                var p = S.classified[i];
-                csv += idx + ',' + p.point.join(',') + ',' + p.norm.toFixed(6) + '\n';
-                idx++;
-            }
-        }
-        fn = 'surviving';
-    } else if (type === 'error') {
-        csv = 'R,actual,predicted,error,abs_error,bound,ratio\n';
-        for (var i = 0; i < S.errorData.length; i++) {
-            var d = S.errorData[i];
-            csv += d.r + ',' + d.actual + ',' + d.pred.toFixed(6) + ',' + d.err.toFixed(6) + ',' + d.absErr.toFixed(6) + ',' + d.bnd.toFixed(6) + ',' + d.ratio.toFixed(6) + '\n';
-        }
-        fn = 'error-series';
-    } else if (type === 'boundary') {
-        csv = 'delta,boundary_pts,interior_pts,boundary_pct,boundary_density,interior_density\n';
-        for (var i = 0; i < S.boundaryData.length; i++) {
-            var d = S.boundaryData[i];
-            csv += d.delta + ',' + d.bndPts + ',' + d.intPts + ',' + d.bndPct.toFixed(4) + ',' + d.bndDens.toFixed(6) + ',' + d.intDens.toFixed(6) + '\n';
-        }
-        fn = 'boundary';
-    } else if (type === 'density') {
-        csv = 'r_min,r_max,total,surviving,density,deviation\n';
-        for (var i = 0; i < S.densityData.length; i++) {
-            var d = S.densityData[i];
-            csv += d.rMin.toFixed(2) + ',' + d.rMax.toFixed(2) + ',' + d.total + ',' + d.surv + ',' + d.dens.toFixed(6) + ',' + d.dev.toFixed(6) + '\n';
-        }
-        fn = 'density';
-    } else if (type === 'mobius') {
-        csv = 'N,partial_sum,target,error,rel_error_pct\n';
-        for (var i = 0; i < S.mobiusData.length; i++) {
-            var d = S.mobiusData[i];
-            csv += d.N + ',' + d.sum.toFixed(10) + ',' + d.target.toFixed(10) + ',' + d.err.toFixed(10) + ',' + d.relErr.toFixed(6) + '\n';
-        }
-        fn = 'mobius';
-    } else if (type === 'dim') {
-        csv = 'k,exponent,total,surviving,predicted,error,bound,ratio\n';
-        for (var i = 0; i < S.dimData.length; i++) {
-            var d = S.dimData[i];
-            csv += d.k + ',' + d.exp.toFixed(4) + ',' + d.total + ',' + d.surv + ',' + d.pred.toFixed(4) + ',' + d.err.toFixed(4) + ',' + d.bnd.toFixed(4) + ',' + d.ratio.toFixed(4) + '\n';
-        }
-        fn = 'dimensional';
-    } else if (type === 'gcd') {
-        csv = 'gcd,count,percentage,mobius\n';
-        for (var i = 0; i < S.gcdData.length; i++) {
-            var d = S.gcdData[i];
-            csv += d.gcd + ',' + d.count + ',' + d.pct.toFixed(4) + ',' + d.mu + '\n';
-        }
-        fn = 'gcd';
-    } else if (type === 'summary') {
-        var survC = 0;
-        for (var i = 0; i < S.classified.length; i++) {
-            if (S.classified[i].survives) survC++;
-        }
-        var pred = mainTerm(S.radius, k, S.structure, S.kfreeK);
-        csv = 'parameter,value\n';
-        csv += 'structure,' + S.structure + '\n';
-        csv += 'dimension,' + k + '\n';
-        csv += 'radius,' + S.radius + '\n';
-        csv += 'total_points,' + S.classified.length + '\n';
-        csv += 'surviving,' + survC + '\n';
-        csv += 'predicted,' + pred.toFixed(6) + '\n';
-        csv += 'error,' + (survC - pred).toFixed(6) + '\n';
-        csv += 'error_bound,' + errorBound(S.radius, k, S.structure, S.kfreeK).toFixed(6) + '\n';
-        csv += 'critical_exponent,' + ((k-1)/k).toFixed(6) + '\n';
-        csv += 'zeta_k,' + zeta(k).toFixed(10) + '\n';
-        fn = 'summary';
-    }
-    
-    var blob = new Blob([csv], {type: 'text/csv'});
-    var link = document.createElement('a');
-    link.download = 'bcp-' + fn + '-' + Date.now() + '.csv';
-    link.href = URL.createObjectURL(blob);
-    link.click();
+let harmSelectedIntervals = new Set(); // indices into HARM_INTERVALS
+let harmColorMode = false;
+let harmArnoldK = 0;
+let harmBaseArnold = 0; // store original to reset
+
+let audioCtx = null;
+let harmOscillators = [];
+
+function harmGetCtx(){
+  if(!audioCtx) audioCtx = new(window.AudioContext||window.webkitAudioContext)();
+  if(audioCtx.state==='suspended') audioCtx.resume();
+  return audioCtx;
 }
 
-// Run on load
-window.onload = function() {
-    var isDark = document.body.classList.contains('dark');
-    document.getElementById('themeBtn').textContent = isDark ? 'Light Mode' : 'Dark Mode';
-    runCompute();
-};
+function harmStop(){
+  harmOscillators.forEach(o=>{ try{o.stop();}catch(e){} });
+  harmOscillators=[];
+  ['harmPlayBtn','harmChordBtn','harmArpBtn'].forEach(id=>document.getElementById(id)?.classList.remove('on'));
+}
+
+function harmGetBaseHz(){ return parseFloat(document.getElementById('harmBaseHz').value)||220; }
+function harmGetVol(){ return parseFloat(document.getElementById('harmVol').value)||0.35; }
+function harmGetWave(){ return document.getElementById('harmWave').value||'sine'; }
+
+function harmPlayFreq(hz, duration=1.5){
+  const ctx=harmGetCtx();
+  const osc=ctx.createOscillator();
+  const gain=ctx.createGain();
+  osc.connect(gain); gain.connect(ctx.destination);
+  osc.type=harmGetWave(); osc.frequency.value=hz;
+  const vol=harmGetVol();
+  gain.gain.setValueAtTime(vol, ctx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime+duration);
+  osc.start(); osc.stop(ctx.currentTime+duration);
+  harmOscillators.push(osc);
+  return osc;
+}
+
+function harmPlay(){
+  harmStop();
+  const base=harmGetBaseHz();
+  const sel=[...harmSelectedIntervals];
+  if(!sel.length){ harmPlayFreq(base); return; }
+  const iv=HARM_INTERVALS[sel[sel.length-1]];
+  harmPlayFreq(base * iv.p / iv.q);
+  document.getElementById('harmPlayBtn').classList.add('on');
+}
+
+function harmChord(){
+  harmStop();
+  const base=harmGetBaseHz();
+  const sel=[...harmSelectedIntervals];
+  if(!sel.length) sel.push(0);
+  sel.forEach(idx=>{
+    const iv=HARM_INTERVALS[idx];
+    harmPlayFreq(base*iv.p/iv.q, 2.0);
+  });
+  document.getElementById('harmChordBtn').classList.add('on');
+}
+
+function harmArp(){
+  harmStop();
+  const base=harmGetBaseHz();
+  const sel=[...harmSelectedIntervals];
+  if(!sel.length) sel.push(0);
+  const ctx=harmGetCtx();
+  sel.forEach((idx,i)=>{
+    const iv=HARM_INTERVALS[idx];
+    const hz=base*iv.p/iv.q;
+    const osc=ctx.createOscillator();
+    const gain=ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.type=harmGetWave(); osc.frequency.value=hz;
+    const t=ctx.currentTime+i*0.35;
+    gain.gain.setValueAtTime(0, t);
+    gain.gain.linearRampToValueAtTime(harmGetVol(), t+0.05);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t+0.6);
+    osc.start(t); osc.stop(t+0.65);
+    harmOscillators.push(osc);
+  });
+  document.getElementById('harmArpBtn').classList.add('on');
+}
+
+function noteFromHz(hz){
+  const notes=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+  const n=Math.round(12*Math.log2(hz/440))+69;
+  if(n<0||n>127) return '—';
+  return notes[n%12]+(Math.floor(n/12)-1);
+}
+
+function buildHarmIntervalGrid(){
+  const grid=document.getElementById('harmIntervalGrid');
+  grid.innerHTML='';
+  HARM_INTERVALS.forEach((iv,i)=>{
+    const col=harmConsonanceColor(iv.p,iv.q);
+    const btn=document.createElement('button');
+    btn.className='harm-interval-btn';
+    btn.style.borderColor=col+'55';
+    btn.style.color=col+'aa';
+    btn.innerHTML=iv.name;
+    btn.title=`${iv.name} · ${iv.cents}¢ · Tenney height: ${iv.p*iv.q}`;
+    btn.onclick=()=>toggleHarmInterval(i,btn,iv,col);
+    grid.appendChild(btn);
+  });
+}
+
+function toggleHarmInterval(i, btn, iv, col){
+  if(harmSelectedIntervals.has(i)){
+    harmSelectedIntervals.delete(i);
+    btn.classList.remove('active');
+    btn.style.background='';
+    btn.style.color=col+'aa';
+  } else {
+    harmSelectedIntervals.add(i);
+    btn.classList.add('active');
+    btn.style.background=col;
+    btn.style.color='#000';
+  }
+  updateHarmDisplay();
+  if(harmColorMode) precompute(); // recolor sphere
+}
+
+function updateHarmDisplay(){
+  const sel=[...harmSelectedIntervals];
+  if(!sel.length){
+    document.getElementById('harmFreqDisplay').textContent='— Hz';
+    document.getElementById('harmNoteDisplay').textContent='— · —';
+    return;
+  }
+  const last=HARM_INTERVALS[sel[sel.length-1]];
+  const base=harmGetBaseHz();
+  const hz=base*last.p/last.q;
+  document.getElementById('harmFreqDisplay').textContent=hz.toFixed(2)+' Hz';
+  document.getElementById('harmNoteDisplay').textContent=last.name+' · '+noteFromHz(hz);
+}
+
+// Arnold tongue warp: perturb the sphere rendering with K·sin(2π·ratio)
+function applyArnoldWarp(){
+  harmArnoldK=parseFloat(document.getElementById('harmArnold').value)||0;
+  precompute(); // rebuilds precomputed with warp applied
+}
+function resetArnold(){
+  harmArnoldK=0;
+  document.getElementById('harmArnold').value=0;
+  document.getElementById('harmArnoldVal').textContent='0.00';
+  precompute();
+}
+
+// Harmonic color mode: sphere hue based on consonance of selected intervals
+// The trail hue cycles through the consonance colors of selected intervals
+function harmColorForProgress(frac){
+  const sel=[...harmSelectedIntervals];
+  if(!sel.length) return null;
+  // Cycle through selected intervals by position on curve
+  const idx=Math.floor(frac*sel.length)%sel.length;
+  const iv=HARM_INTERVALS[sel[idx]];
+  return harmConsonanceColor(iv.p,iv.q);
+}
+
+// Hook into precompute to apply Arnold warp if K>0
+const _origPrecompute = precompute;
+// We'll re-override toSphere to apply warp
+const _origToSphere = toSphere;
+
+function toSphereWarped(t, r){
+  let lon = t;
+  if(harmArnoldK > 0){
+    // Arnold circle map perturbation: lon += K·sin(2π·lon/(2π))
+    lon = t + harmArnoldK * Math.sin(t);
+  }
+  const polar = (t / thetaTotal) * Math.PI;
+  const rn = r / (A + 1.2);
+  const x = rn * Math.sin(polar) * Math.cos(lon);
+  const y = rn * Math.cos(polar);
+  const z = rn * Math.sin(polar) * Math.sin(lon);
+  return [x, y, z];
+}
+
+// Patch toSphere globally
+// (call toSphereWarped from precompute instead of toSphere)
+
+// Harmonic color panel toggle
+document.getElementById('harmHeader').addEventListener('click',()=>{
+  const body=document.getElementById('harmBody');
+  const chev=document.getElementById('harmChevron');
+  const hdr=document.getElementById('harmHeader');
+  body.classList.toggle('open');
+  chev.classList.toggle('open');
+  hdr.classList.toggle('open');
+});
+
+document.getElementById('harmColorMode').addEventListener('change',function(){
+  harmColorMode=this.checked;
+  document.getElementById('harmModeState').textContent=harmColorMode
+    ?'on — sphere colored by harmonic consonance'
+    :'off — sphere uses default colors';
+  precompute();
+});
+
+document.getElementById('harmBaseHz').addEventListener('input',function(){
+  document.getElementById('harmBaseHzVal').textContent=this.value+' Hz';
+  updateHarmDisplay();
+});
+document.getElementById('harmVol').addEventListener('input',function(){
+  document.getElementById('harmVolVal').textContent=Math.round(this.value*100)+'%';
+});
+document.getElementById('harmArnold').addEventListener('input',function(){
+  document.getElementById('harmArnoldVal').textContent=parseFloat(this.value).toFixed(2);
+});
+
+buildHarmIntervalGrid();
+
+// ═══════════════════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════════════════
+buildPresets();
+hardReset();
+loop();
 </script>
-
 </body>
-    </html>
+</html>
