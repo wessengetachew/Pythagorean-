@@ -503,8 +503,6 @@ button.ctrl.gold-ctrl:hover, button.ctrl.gold-ctrl.on { background:var(--gold); 
   <div class="presets" id="pgGeo"></div>
   <div class="pg-label">Ethereal</div>
   <div class="presets" id="pgEth"></div>
-  <div class="pg-label gold">Gap Waves <span style="font-size:.5rem;opacity:.5">— run decomposition below to refine</span></div>
-  <div class="presets" id="pgGapWave"></div>
 </div>
 
 <!-- Sphere + formula + cart -->
@@ -523,14 +521,6 @@ button.ctrl.gold-ctrl:hover, button.ctrl.gold-ctrl.on { background:var(--gold); 
   <canvas id="cartCanvas"></canvas>
 
   <!-- Multi-gap selector — main sphere area, shown after compute -->
-  <div id="mainGapSelector" style="display:none;width:100%;max-width:540px;margin-bottom:4px;">
-    <div style="font-size:.53rem;text-transform:uppercase;letter-spacing:.16em;color:rgba(255,215,0,.55);margin-bottom:6px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-      <span>🎨 Highlight gap classes on sphere &amp; cart</span>
-      <span style="opacity:.5;font-size:.48rem">— click multiple to overlay in color</span>
-      <button class="gap-filter-btn" onclick="gdClearSelection()" style="margin-left:auto;font-size:.52rem">✕ Clear all</button>
-    </div>
-    <div class="gap-chips" id="mainGapChips"></div>
-  </div>
 
   <!-- Live stats always visible -->
   <div class="live-stats" id="liveStats">
@@ -884,7 +874,6 @@ const PRESET_GROUPS = {
     { name:'Solstice',   A:2.8, B:3,  C:3,  D:64,  theta:64,  trail:5  },
     { name:'Eclipse',    A:1.9, B:2,  C:6,  D:12,  theta:24,  trail:3  },
   ],
-  pgGapWave: [], // populated dynamically from decomposition data
 };
 
 // ═══════════════════════════════════════════════════════════════
@@ -1155,20 +1144,43 @@ function renderSphere() {
   const hasGapSel = selectedGaps.size > 0;
   const dimBase = hasGapSel;
 
-  // ── Base continuous curve ──
+  // ── Base continuous curve with Catmull-Rom smoothing ──
+  // Sub-divide each segment to preserve smoothness at high speed
+  const N_SUB = Math.max(1, Math.min(8, Math.ceil(speed / 4)));
   const bands = [];
   for(let b=0; b<HUE_BANDS; b++) bands.push({segs:[], bright:0, n:0});
+
+  // Catmull-Rom interpolation in 3D sphere-space (before projection)
+  function crPoint(p0, p1, p2, p3, t) {
+    // p0..p3 are [x,y,z,...] arrays; t in [0,1]
+    const t2=t*t, t3=t2*t;
+    return [
+      0.5*((-p0[0]+3*p1[0]-3*p2[0]+p3[0])*t3+(2*p0[0]-5*p1[0]+4*p2[0]-p3[0])*t2+(-p0[0]+p2[0])*t+2*p1[0]),
+      0.5*((-p0[1]+3*p1[1]-3*p2[1]+p3[1])*t3+(2*p0[1]-5*p1[1]+4*p2[1]-p3[1])*t2+(-p0[1]+p2[1])*t+2*p1[1]),
+      0.5*((-p0[2]+3*p1[2]-3*p2[2]+p3[2])*t3+(2*p0[2]-5*p1[2]+4*p2[2]-p3[2])*t2+(-p0[2]+p2[2])*t+2*p1[2]),
+    ];
+  }
+
   for(let i=startIdx; i<end; i++){
-    const p0=precomputed[i-1], p1=precomputed[i];
-    if(!p0||!p1) continue;
-    const [rx1,ry1,rz1]=applyM(rotMat,p0[0],p0[1],p0[2]);
-    const [rx2,ry2,rz2]=applyM(rotMat,p1[0],p1[1],p1[2]);
-    const [px1,py1]=proj(rx1,ry1,rz1);
-    const [px2,py2]=proj(rx2,ry2,rz2);
-    const depth=(rz1+rz2)*0.5;
+    const p0=precomputed[Math.max(0,i-1)];
+    const p1=precomputed[i];
+    const p2=precomputed[Math.min(TOTAL_PTS-1,i+1)];
+    const p3=precomputed[Math.min(TOTAL_PTS-1,i+2)];
+    if(!p0||!p1||!p2||!p3) continue;
     const bi=Math.min(HUE_BANDS-1, Math.floor((i-startIdx)/histLen*HUE_BANDS));
-    bands[bi].segs.push(px1,py1,px2,py2);
-    bands[bi].bright+=depth; bands[bi].n++;
+    // Walk N_SUB sub-intervals
+    for(let s=0; s<N_SUB; s++){
+      const ta=s/N_SUB, tb=(s+1)/N_SUB;
+      const [ax,ay,az]=crPoint(p0,p1,p2,p3,ta);
+      const [bx,by,bz]=crPoint(p0,p1,p2,p3,tb);
+      const [rxa,rya,rza]=applyM(rotMat,ax,ay,az);
+      const [rxb,ryb,rzb]=applyM(rotMat,bx,by,bz);
+      const [pxa,pya]=proj(rxa,rya,rza);
+      const [pxb,pyb]=proj(rxb,ryb,rzb);
+      const depth=(rza+rzb)*0.5;
+      bands[bi].segs.push(pxa,pya,pxb,pyb);
+      bands[bi].bright+=depth; bands[bi].n++;
+    }
   }
 
   if(dimBase){
@@ -1199,52 +1211,58 @@ function renderSphere() {
     pCtx.globalAlpha=1; pCtx.shadowBlur=0;
   }
 
-  // ── Per-gap ISOLATED paths: each selected gap draws its own independent orbit ──
+  // ── Per-gap smooth Catmull-Rom arcs on sphere ──
   if(hasGapSel){
     selectedGaps.forEach((col, gv) => {
-      // Collect all point indices in [startIdx,end) where gap == gv
       const pts = [];
       for(let i=startIdx; i<end; i++){
         if(precomputed[i] && precomputed[i][4]===gv) pts.push(i);
       }
       if(!pts.length) return;
 
-      // Draw each gap-class point as a glowing dot on its sphere position
-      pCtx.shadowColor=col; pCtx.shadowBlur=8; pCtx.globalAlpha=0.85;
+      // Glowing dots at each occurrence
+      pCtx.shadowColor=col; pCtx.shadowBlur=10; pCtx.globalAlpha=0.9;
       pCtx.fillStyle=col;
       pts.forEach(i=>{
         const p=precomputed[i];
         const [rx,ry,rz]=applyM(rotMat,p[0],p[1],p[2]);
-        if(rz < -0.5) return; // hide far side
+        if(rz < -0.5) return;
         const [px,py]=proj(rx,ry,rz);
-        const r=Math.max(1.5, traceThickness*0.9);
-        pCtx.beginPath(); pCtx.arc(px,py,r,0,Math.PI*2); pCtx.fill();
+        pCtx.beginPath(); pCtx.arc(px,py,Math.max(2,traceThickness),0,Math.PI*2); pCtx.fill();
       });
+      pCtx.shadowBlur=0; pCtx.globalAlpha=1;
 
-      // Connect consecutive gap-class points with their own arc (isolated path)
+      // Catmull-Rom smooth arc connecting occurrences
       if(pts.length >= 2){
-        pCtx.strokeStyle=col; pCtx.lineWidth=traceThickness*1.2;
-        pCtx.shadowColor=col; pCtx.shadowBlur=6; pCtx.globalAlpha=0.7;
+        pCtx.strokeStyle=col; pCtx.lineWidth=traceThickness*1.3;
+        pCtx.shadowColor=col; pCtx.shadowBlur=7; pCtx.globalAlpha=0.75;
         pCtx.beginPath();
         let penDown=false;
+        const GAP_THRESH=60; // max index gap to connect
         for(let k=0; k<pts.length-1; k++){
           const i=pts[k], j=pts[k+1];
-          // Only connect if consecutive in PRIME index space (same gap chain)
-          // Allow connect if within 40 indices of each other
-          if(j-i <= 40){
-            const p0=precomputed[i], p1=precomputed[j];
-            const [rx1,ry1,rz1]=applyM(rotMat,p0[0],p0[1],p0[2]);
-            const [rx2,ry2,rz2]=applyM(rotMat,p1[0],p1[1],p1[2]);
-            if(rz1 < -0.6 && rz2 < -0.6) { penDown=false; continue; }
-            const [px1,py1]=proj(rx1,ry1,rz1);
-            const [px2,py2]=proj(rx2,ry2,rz2);
-            if(!penDown){ pCtx.moveTo(px1,py1); penDown=true; }
-            pCtx.lineTo(px2,py2);
-          } else { penDown=false; }
+          if(j-i > GAP_THRESH){ penDown=false; continue; }
+          // Use 4 control points for Catmull-Rom
+          const pi0=precomputed[Math.max(0,k>0?pts[k-1]:i)];
+          const pi1=precomputed[i];
+          const pi2=precomputed[j];
+          const pi3=precomputed[Math.min(TOTAL_PTS-1,k+2<pts.length?pts[k+2]:j)];
+          const CR_STEPS=8;
+          for(let s=0; s<=CR_STEPS; s++){
+            const t=s/CR_STEPS;
+            const t2=t*t, t3=t2*t;
+            const x=0.5*((-pi0[0]+3*pi1[0]-3*pi2[0]+pi3[0])*t3+(2*pi0[0]-5*pi1[0]+4*pi2[0]-pi3[0])*t2+(-pi0[0]+pi2[0])*t+2*pi1[0]);
+            const y=0.5*((-pi0[1]+3*pi1[1]-3*pi2[1]+pi3[1])*t3+(2*pi0[1]-5*pi1[1]+4*pi2[1]-pi3[1])*t2+(-pi0[1]+pi2[1])*t+2*pi1[1]);
+            const z=0.5*((-pi0[2]+3*pi1[2]-3*pi2[2]+pi3[2])*t3+(2*pi0[2]-5*pi1[2]+4*pi2[2]-pi3[2])*t2+(-pi0[2]+pi2[2])*t+2*pi1[2]);
+            const [rx,ry,rz]=applyM(rotMat,x,y,z);
+            if(rz<-0.6){ penDown=false; continue; }
+            const [px,py]=proj(rx,ry,rz);
+            if(!penDown){ pCtx.moveTo(px,py); penDown=true; } else pCtx.lineTo(px,py);
+          }
         }
         pCtx.stroke();
+        pCtx.globalAlpha=1; pCtx.shadowBlur=0;
       }
-      pCtx.globalAlpha=1; pCtx.shadowBlur=0;
     });
   }
 
@@ -1269,65 +1287,164 @@ function renderSphere() {
 }
 
 // ═══════════════════════════════════════════════════════════════
-//  RENDER CART — base curve + per-gap tick marks / isolated segments
+//  RENDER CART — smooth base + FFT-style per-gap stacked lanes
 // ═══════════════════════════════════════════════════════════════
+
+// FFT canvas: drawn on top of main cart, shows gap waveform lanes
+let fftCanvas = null;
+
+function ensureFftCanvas(){
+  if(!fftCanvas || fftCanvas.width !== cCv.width || fftCanvas.height !== cCv.height){
+    fftCanvas = document.createElement('canvas');
+    fftCanvas.width = cCv.width; fftCanvas.height = cCv.height;
+  }
+}
+
+// Build FFT lane display: for each selected gap, show a local density
+// waveform in a horizontal lane. Lane height = cartCanvas.height / nGaps.
+// X axis = θ (same as cart), Y axis = local occurrence density in that lane.
+function drawFftLanes(end){
+  if(!selectedGaps.size || !precomputed.length) return;
+  ensureFftCanvas();
+  const ctx = fftCanvas.getContext('2d');
+  const w=fftCanvas.width, h=fftCanvas.height;
+  ctx.clearRect(0,0,w,h);
+
+  const {l,r:pr,t:pt,b}=PAD;
+  const pw=w-l-pr, ph=h-pt-b;
+  const gapList=[...selectedGaps.entries()]; // [[gv,col],...]
+  const nGaps=gapList.length;
+  const laneH=Math.floor(ph/nGaps);
+  const BINS=Math.min(pw, 256); // FFT-style resolution bins
+
+  // For each gap, count occurrences per θ-bin up to current progress
+  const maxIdx=Math.min(end, TOTAL_PTS-1);
+
+  gapList.forEach(([gv,col],li)=>{
+    const laneTop=pt + li*laneH;
+    const laneMid=laneTop+laneH/2;
+    const laneAmp=laneH*0.42;
+
+    // Count density in each bin
+    const bins=new Float32Array(BINS).fill(0);
+    for(let i=1; i<=maxIdx; i++){
+      if(precomputed[i]&&precomputed[i][4]===gv){
+        const binIdx=Math.floor((i/maxIdx)*BINS);
+        if(binIdx<BINS) bins[binIdx]++;
+      }
+    }
+
+    // Smooth bins with 3-tap gaussian
+    const smooth=new Float32Array(BINS);
+    for(let b=0;b<BINS;b++){
+      smooth[b]=(bins[Math.max(0,b-1)]*0.25+bins[b]*0.5+bins[Math.min(BINS-1,b+1)]*0.25);
+    }
+    const maxBin=Math.max(1,...smooth);
+
+    // Draw lane background
+    ctx.fillStyle=`${col}0d`;
+    ctx.fillRect(l,laneTop,pw,laneH);
+    // Lane label
+    ctx.fillStyle=col+'aa';
+    ctx.font=`${Math.max(8,w*0.018)}px JetBrains Mono,monospace`;
+    ctx.textAlign='left'; ctx.textBaseline='middle';
+    ctx.fillText(`g=${gv}`,l+4,laneMid);
+    // Baseline
+    ctx.strokeStyle=col+'22'; ctx.lineWidth=0.5;
+    ctx.beginPath(); ctx.moveTo(l,laneMid); ctx.lineTo(l+pw,laneMid); ctx.stroke();
+
+    // Draw FFT-style waveform using Catmull-Rom smooth path
+    ctx.strokeStyle=col; ctx.lineWidth=traceThickness;
+    ctx.shadowColor=col; ctx.shadowBlur=6; ctx.globalAlpha=0.9;
+    ctx.beginPath();
+    let first=true;
+    for(let b=0;b<BINS;b++){
+      const x=l+(b/BINS)*pw;
+      const amp=(smooth[b]/maxBin)*laneAmp;
+      const y=laneMid-amp;
+      if(first){ ctx.moveTo(x,y); first=false; } else ctx.lineTo(x,y);
+    }
+    ctx.stroke();
+
+    // Mirror (filled area below baseline = symmetric FFT look)
+    ctx.globalAlpha=0.35;
+    ctx.fillStyle=col;
+    ctx.beginPath();
+    ctx.moveTo(l,laneMid);
+    for(let b=0;b<BINS;b++){
+      const x=l+(b/BINS)*pw;
+      const amp=(smooth[b]/maxBin)*laneAmp;
+      ctx.lineTo(x,laneMid-amp);
+    }
+    for(let b=BINS-1;b>=0;b--){
+      const x=l+(b/BINS)*pw;
+      const amp=(smooth[b]/maxBin)*laneAmp;
+      ctx.lineTo(x,laneMid+amp);
+    }
+    ctx.closePath(); ctx.fill();
+    ctx.globalAlpha=1; ctx.shadowBlur=0;
+
+    // Vertical cursor at drawProgress
+    if(end<TOTAL_PTS){
+      const cx2=l+(end/TOTAL_PTS)*pw;
+      ctx.strokeStyle=col; ctx.lineWidth=1; ctx.globalAlpha=0.6;
+      ctx.setLineDash([3,3]);
+      ctx.beginPath(); ctx.moveTo(cx2,laneTop); ctx.lineTo(cx2,laneTop+laneH); ctx.stroke();
+      ctx.setLineDash([]); ctx.globalAlpha=1;
+    }
+
+    // Lane separator
+    ctx.strokeStyle='rgba(255,255,255,0.04)'; ctx.lineWidth=0.5;
+    ctx.beginPath(); ctx.moveTo(l,laneTop+laneH); ctx.lineTo(l+pw,laneTop+laneH); ctx.stroke();
+  });
+}
+
 function renderCart() {
   const newEnd=Math.floor(drawProgress);
   const hasGapSel = selectedGaps.size > 0;
 
   if(newEnd===0 && lastCartProg>0){ makeCartBuf(); }
 
+  // Draw base f(θ) curve with sub-step smoothing
   if(newEnd > lastCartProg){
     const cbCtx=cBuf.getContext('2d');
-    const {l,r:pr,t:pt,b}=PAD, ph=cCv.height-pt-b;
-    const yMax=Math.ceil(A+1.2);
+    const C_SUB=Math.max(1,Math.min(8,Math.ceil(speed/4)));
 
     for(let i=lastCartProg; i<newEnd; i++){
-      const t0=(i/TOTAL_PTS)*thetaTotal, t1=((i+1)/TOTAL_PTS)*thetaTotal;
-      const r0=f(t0), r1=f(t1);
-      const [cx0,cy0]=cartXY(t0,r0), [cx1,cy1]=cartXY(t1,r1);
-
-      if(hasGapSel){
-        // Base: very dim
-        cbCtx.strokeStyle='rgba(40,60,40,0.18)'; cbCtx.lineWidth=traceThickness*0.4;
-        cbCtx.shadowBlur=0;
-        cbCtx.beginPath(); cbCtx.moveTo(cx0,cy0); cbCtx.lineTo(cx1,cy1); cbCtx.stroke();
-
-        // Per-gap ticks at each gap occurrence
-        const p1=precomputed[i+1];
-        const gap=p1?p1[4]:null;
-        const selCol=gap!==null?selectedGaps.get(gap):undefined;
-        if(selCol){
-          // Vertical tick from bottom of plot area at this θ position
-          const tickH=Math.min(ph, ph*(0.1 + 0.2));
-          cbCtx.strokeStyle=selCol; cbCtx.lineWidth=traceThickness*1.2;
-          cbCtx.shadowColor=selCol; cbCtx.shadowBlur=4;
-          cbCtx.globalAlpha=0.85;
-          cbCtx.beginPath(); cbCtx.moveTo(cx0,cy0-2); cbCtx.lineTo(cx1,cy1-2); cbCtx.stroke();
-          // Glow dot at the curve point
-          cbCtx.fillStyle=selCol; cbCtx.beginPath();
-          cbCtx.arc(cx0,cy0,traceThickness*0.8,0,Math.PI*2); cbCtx.fill();
-          cbCtx.shadowBlur=0; cbCtx.globalAlpha=1;
+      for(let s=0; s<C_SUB; s++){
+        const ta=((i+s/C_SUB)/TOTAL_PTS)*thetaTotal;
+        const tb=((i+(s+1)/C_SUB)/TOTAL_PTS)*thetaTotal;
+        const ra=f(ta), rb=f(tb);
+        const [cxa,cya]=cartXY(ta,ra);
+        const [cxb,cyb]=cartXY(tb,rb);
+        const fracA=(i+s/C_SUB)/TOTAL_PTS;
+        const hue=295+fracA*40;
+        // Dim if gaps selected so FFT lanes read clearly
+        if(hasGapSel){
+          cbCtx.strokeStyle='rgba(40,60,40,0.12)'; cbCtx.lineWidth=traceThickness*0.35;
+        } else {
+          cbCtx.strokeStyle=`hsl(${hue},100%,62%)`; cbCtx.lineWidth=traceThickness;
+          cbCtx.shadowColor='#ff3db4'; cbCtx.shadowBlur=3;
         }
-      } else {
-        const hue=295+(i/TOTAL_PTS)*40;
-        cbCtx.strokeStyle=`hsl(${hue},100%,62%)`;
-        cbCtx.lineWidth=traceThickness;
-        cbCtx.shadowColor='#ff3db4'; cbCtx.shadowBlur=3;
-        cbCtx.beginPath(); cbCtx.moveTo(cx0,cy0); cbCtx.lineTo(cx1,cy1); cbCtx.stroke();
+        cbCtx.beginPath(); cbCtx.moveTo(cxa,cya); cbCtx.lineTo(cxb,cyb); cbCtx.stroke();
         cbCtx.shadowBlur=0;
       }
     }
     lastCartProg=newEnd;
   }
+
   cCtx.clearRect(0,0,cCv.width,cCv.height);
   cCtx.drawImage(cBuf,0,0);
+
+  // Overlay FFT gap lanes (always redrawn since they show full history up to cursor)
+  if(hasGapSel){ drawFftLanes(newEnd); cCtx.drawImage(fftCanvas,0,0); }
 }
 
 // When gap selection changes, we need to redraw the cart buffer from scratch
 function invalidateCartBuf(){
   makeCartBuf();
   lastCartProg = 0;
+  fftCanvas = null; // force FFT redraw
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -1772,8 +1889,6 @@ function gdRun(){
 
       // Build gap chip selectors (panel + main area)
       buildGapChips();
-      // Rebuild top-level Gap Waves preset row with all computed families
-      buildAllGapWavePresets();
 
       // Build stats table and convergence table
       gdBuildTable();
@@ -1820,9 +1935,6 @@ function gdClear(){
   document.getElementById('gdTabs').style.display='none';
   document.getElementById('gdStatsGrid').style.display='none';
     document.getElementById('gdSelectorWrap').style.display='none';
-  document.getElementById('mainGapSelector').style.display='none';
-  document.getElementById('mainGapChips').innerHTML='';
-  document.getElementById('pgGapWave').innerHTML='';
   document.getElementById('gdTableSection').style.display='none';
   document.getElementById('gdConvSection').style.display='none';
   document.getElementById('gdLegend').innerHTML='';
@@ -1843,26 +1955,21 @@ function gdSwitchTab(btn, tab){
 function buildGapChips(){
   if(!gdData) return;
 
-  // Build chips for BOTH containers (panel + main area)
-  const containers = [
-    { row: document.getElementById('gdChips'), wrap: document.getElementById('gdSelectorWrap') },
-    { row: document.getElementById('mainGapChips'), wrap: document.getElementById('mainGapSelector') },
-  ];
-
-  containers.forEach(({row, wrap}) => {
-    row.innerHTML = '';
-    gdData.gaps.forEach((g, i) => {
-      const col = gapColor(g, i);
-      const chip = document.createElement('div');
-      chip.className = 'gap-chip';
-      chip.dataset.gap = g;
-      chip.innerHTML = `<span class="chip-dot" style="background:${col}"></span>g=${g}`;
-      chip.title = `Gap ${g}: ${(gdData.gapProducts[g]?.count||0).toLocaleString()} primes`;
-      chip.addEventListener('click', ()=> toggleGapChipAll(g, i, col));
-      row.appendChild(chip);
-    });
-    wrap.style.display = 'block';
+  // Build chips in the panel selector only
+  const row = document.getElementById('gdChips');
+  const wrap = document.getElementById('gdSelectorWrap');
+  row.innerHTML = '';
+  gdData.gaps.forEach((g, i) => {
+    const col = gapColor(g, i);
+    const chip = document.createElement('div');
+    chip.className = 'gap-chip';
+    chip.dataset.gap = g;
+    chip.innerHTML = `<span class="chip-dot" style="background:${col}"></span>g=${g}`;
+    chip.title = `Gap ${g}: ${(gdData.gapProducts[g]?.count||0).toLocaleString()} primes`;
+    chip.addEventListener('click', ()=> toggleGapChipAll(g, i, col));
+    row.appendChild(chip);
   });
+  wrap.style.display = 'block';
 }
 
 // Toggle all chips with matching gap value across both containers
@@ -2058,58 +2165,8 @@ function gdBuildConvTable(){
 // ═══════════════════════════════════════════════════════════════
 //  REFINED WAVE PRESETS
 // ═══════════════════════════════════════════════════════════════
-// Rebuild the top-level pgGapWave preset row with ALL computed gap families
-function buildAllGapWavePresets(){
-  if(!gdData) return;
-  const { gaps, gapProducts, totalLog, maxN } = gdData;
-  const row = document.getElementById('pgGapWave');
-  row.innerHTML = '';
 
-  // First show a label update
-  const lbl = row.previousElementSibling;
-  if(lbl) lbl.textContent = `Gap Waves · ${maxN.toLocaleString()} primes — all ${gaps.length} families`;
-
-  gaps.filter(g=>gapProducts[g]).forEach((g, i) => {
-    const gp = gapProducts[g];
-    const logShare = gp.logProduct / (totalLog||1);
-    const col = gapColor(g, i);
-
-    // Derive parameters from gap data
-    const Ap = parseFloat(Math.max(0.5, Math.min(3.5, 1.0 + logShare * 3)).toFixed(2));
-    const Bp = Math.max(1, Math.min(12, Math.floor(g/4)));
-    const Cp = Math.max(1, Math.min(12, g));
-    const Dp = Math.min(128, Math.max(4, g));
-    const theta = Math.min(300, Math.max(32, g * 12));
-    const trail = g <= 4 ? 7 : g <= 8 ? 6 : g <= 16 ? 5 : g <= 32 ? 4 : 3;
-
-    const btn = document.createElement('button');
-    btn.className = 'preset-btn';
-    btn.style.borderColor = col + '66';
-    btn.style.color = col;
-    btn.textContent = 'g=' + g;
-    btn.title = `Gap ${g}: ${gp.count.toLocaleString()} primes (${(logShare*100).toFixed(2)}% log-ζ)
-A=${Ap} B=${Bp} C=${Cp} D=${Dp} θ=${theta}π`;
-    btn.onclick = () => {
-      const preset = { name:'Gap '+g, A:Ap, B:Bp, C:Cp, D:Dp, theta, trail, gap:g };
-      if(activePresetBtn) activePresetBtn.classList.remove('active','gap-active');
-      btn.classList.add('gap-active'); activePresetBtn = btn;
-      A=Ap; B=Bp; C=Cp; D=Dp; thetaTotal=theta*Math.PI; trailFade=trail;
-      ['sA','sB','sC','sD'].forEach(id=>{
-        const map={sA:Ap,sB:Bp,sC:Cp,sD:Dp};
-        document.getElementById(id).value=map[id];
-        document.getElementById('d'+id[1]).textContent=map[id];
-      });
-      document.getElementById('sTheta').value=theta;
-      document.getElementById('dTheta').textContent=theta+'π';
-      document.getElementById('sTrail').value=trail;
-      document.getElementById('dTrail').textContent=trail;
-      hardReset();
-    };
-    row.appendChild(btn);
-  });
-}
-
-function buildRefinedWavePresets(){ /* merged into buildAllGapWavePresets */ }
+function buildRefinedWavePresets(){}
 
 // ═══════════════════════════════════════════════════════════════
 //  CHART DRAWING
