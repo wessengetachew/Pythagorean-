@@ -24,21 +24,194 @@ body {
   color: #d8f0d8;
   font-family: 'JetBrains Mono', monospace;
   min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 28px 16px 80px;
   overflow-x: hidden;
 }
 
-h1 {
+/* ═══════════════════════════════════════════
+   DESKTOP LAYOUT — 3-column dashboard
+   ═══════════════════════════════════════════ */
+.page-shell {
+  display: grid;
+  grid-template-columns: 300px 1fr 320px;
+  grid-template-rows: auto 1fr;
+  grid-template-areas:
+    "topbar topbar topbar"
+    "left   center right";
+  min-height: 100vh;
+  max-width: 1920px;
+  margin: 0 auto;
+}
+
+/* Top bar */
+.topbar {
+  grid-area: topbar;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 14px 28px;
+  border-bottom: 1px solid rgba(255,61,180,0.12);
+  background: rgba(6,6,8,0.95);
+  backdrop-filter: blur(12px);
+  position: sticky; top: 0; z-index: 100;
+  flex-wrap: wrap;
+}
+.topbar-title {
   font-family: 'IM Fell English', serif;
-  font-size: clamp(1.7rem, 5.5vw, 3rem);
+  font-size: clamp(1rem, 2vw, 1.5rem);
   color: var(--pink);
-  text-shadow: 0 0 28px rgba(255,61,180,.65), 0 0 70px rgba(255,61,180,.25);
-  letter-spacing: .05em;
-  margin-bottom: 18px;
+  text-shadow: 0 0 20px rgba(255,61,180,.5);
+  white-space: nowrap;
+}
+.topbar-author {
+  font-size: .58rem; text-transform: uppercase; letter-spacing: .2em;
+  color: rgba(255,215,0,.45); white-space: nowrap;
+}
+.topbar-formula {
+  flex: 1;
   text-align: center;
+  border: 1px solid rgba(255,215,0,.25);
+  border-radius: 6px;
+  padding: 6px 16px;
+  background: rgba(255,215,0,.04);
+  font-size: clamp(.7rem, 1.4vw, .95rem);
+  color: #fff;
+  white-space: nowrap;
+  box-shadow: 0 0 14px rgba(255,215,0,.1);
+  min-width: 0;
+}
+.topbar-formula em { color: var(--gold); font-style: normal; }
+.topbar-actions { display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
+.topbar-kb {
+  font-size: .5rem; color: rgba(255,61,180,.35);
+  letter-spacing: .1em; white-space: nowrap;
+}
+
+/* Left sidebar */
+.col-left {
+  grid-area: left;
+  border-right: 1px solid rgba(255,61,180,.1);
+  overflow-y: auto;
+  padding: 16px 14px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+  background: rgba(6,6,8,.6);
+}
+
+/* Center — main visualization */
+.col-center {
+  grid-area: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px 24px 40px;
+  gap: 16px;
+  overflow-y: auto;
+  min-width: 0;
+}
+
+/* Right sidebar */
+.col-right {
+  grid-area: right;
+  border-left: 1px solid rgba(255,61,180,.1);
+  overflow-y: auto;
+  padding: 16px 14px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+  background: rgba(6,6,8,.6);
+}
+
+/* Sidebar section headers */
+.sidebar-section {
+  font-size: .5rem; text-transform: uppercase; letter-spacing: .22em;
+  color: rgba(255,61,180,.35); padding: 0 2px; margin-top: 4px;
+}
+.sidebar-section.gold { color: rgba(255,215,0,.35); }
+
+/* Remove old max-width constraints from panels inside sidebars */
+.col-left .panel,
+.col-left .harm-panel,
+.col-left .smith-panel,
+.col-left .coord-panel,
+.col-right .panel,
+.col-right .gap-panel,
+.col-right .harm-panel {
+  max-width: none;
+  width: 100%;
+  margin-top: 0;
+}
+
+/* Center canvas sizing */
+.col-center .sphere-wrap {
+  width: 100%;
+  max-width: min(100%, 680px);
+}
+.col-center #polarCanvas {
+  width: 100% !important;
+  height: auto !important;
+}
+.col-center #cartCanvas {
+  width: 100% !important;
+  height: auto !important;
+}
+.col-center .live-stats {
+  max-width: none;
+  width: 100%;
+}
+
+/* Preset dropdown in topbar context */
+.topbar .preset-drop-wrap {
+  max-width: 260px;
+  margin: 0;
+  flex-shrink: 0;
+}
+.topbar .preset-drop-header {
+  padding: 7px 12px;
+}
+
+/* Intro block in left col */
+.col-left .intro {
+  max-width: none;
+  width: 100%;
+  margin-bottom: 0;
+  border-left: 2px solid rgba(255,61,180,.2);
+  padding-left: 12px;
+}
+.col-left .intro h1 { display: none; } /* title is in topbar */
+
+/* Stats in center */
+.col-center .live-stats {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+/* ═══════════════════════════════════════════
+   MOBILE — single column
+   ═══════════════════════════════════════════ */
+@media (max-width: 900px) {
+  .page-shell {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "topbar"
+      "center"
+      "left"
+      "right";
+  }
+  .col-left, .col-right {
+    border: none;
+    border-top: 1px solid rgba(255,61,180,.1);
+    padding: 14px 12px 28px;
+  }
+  .col-center { padding: 14px 12px 20px; }
+  .topbar { padding: 10px 14px; gap: 10px; }
+  .topbar-formula { display: none; }
+  .col-center .live-stats { grid-template-columns: repeat(2,1fr); }
+}
+
+@media (max-width: 1200px) and (min-width: 901px) {
+  .page-shell {
+    grid-template-columns: 260px 1fr 280px;
+  }
 }
 
 /* ── Presets ─────────────────────── */
@@ -62,8 +235,8 @@ h1 {
 
 /* ── Sphere canvas ───────────────── */
 .sphere-wrap {
-  width:100%; max-width:540px;
-  display:flex; flex-direction:column; align-items:center; gap:13px;
+  width:100%;
+  display:flex; flex-direction:column; align-items:center; gap:10px;
 }
 #polarCanvas {
   display:block; border-radius:50%;
@@ -83,11 +256,10 @@ h1 {
 
 /* ── Live Stats Bar ──────────────── */
 .live-stats {
-  width:100%; max-width:540px;
+  width:100%;
   background:rgba(255,215,0,.04); border:1px solid var(--gold-border);
   border-radius:8px; padding:8px 14px;
   display:grid; grid-template-columns:repeat(4,1fr); gap:6px 10px;
-  margin-top:4px;
 }
 .stat-cell { display:flex; flex-direction:column; gap:2px; }
 .stat-lbl { font-size:.5rem; text-transform:uppercase; letter-spacing:.12em; color:rgba(255,215,0,.45); }
@@ -101,7 +273,7 @@ h1 {
 .rot-hint { font-size:.62rem; color:rgba(255,61,180,.5); letter-spacing:.08em; }
 
 /* ── Panels ──────────────────────── */
-.panels { display:flex; flex-direction:column; gap:11px; max-width:560px; width:100%; margin-top:18px; }
+.panels { display:flex; flex-direction:column; gap:11px; width:100%; }
 .panel { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:16px 18px; }
 .panel.gold-panel { border-color:var(--gold-border); }
 .panel-title {
@@ -164,7 +336,7 @@ button.ctrl.gold-ctrl:hover, button.ctrl.gold-ctrl.on { background:var(--gold); 
 
 /* ── Gap Decomposition Panel ─────── */
 .gap-panel {
-  max-width:560px; width:100%; margin-top:0;
+  width:100%; margin-top:0;
   background:var(--surface); border:1px solid var(--gold-border);
   border-radius:12px; overflow:hidden;
 }
@@ -572,346 +744,311 @@ button.ctrl.gold-ctrl:hover, button.ctrl.gold-ctrl.on { background:var(--gold); 
 }
 
 
-.intro {
-  max-width:560px; width:100%; margin-bottom:22px;
-  border-left:2px solid rgba(255,61,180,.25);
-  padding-left:18px;
-}
-.intro-subtitle {
-  font-size:.6rem; text-transform:uppercase; letter-spacing:.22em;
-  color:rgba(255,215,0,.5); margin-bottom:10px;
-}
 .intro-body {
-  font-size:.72rem; line-height:1.75; color:rgba(216,240,216,.55);
+  font-size:.63rem; line-height:1.7; color:rgba(216,240,216,.5);
   font-family:'JetBrains Mono',monospace;
 }
-.intro-body p { margin-bottom:.6em; }
+.intro-body p { margin-bottom:.5em; }
 .intro-body p:last-child { margin-bottom:0; }
 
-/* ── Preset dropdown ────────────────── */
-.preset-drop-wrap {
-  max-width:560px; width:100%; margin-bottom:14px;
+/* ── Side cards & labels ──────── */
+.sidebar-label {
+  font-size:.48rem; text-transform:uppercase; letter-spacing:.24em;
+  color:rgba(255,61,180,.4); padding:0 2px; margin-top:6px;
 }
+.sidebar-label.gold { color:rgba(255,215,0,.4); }
+.sidebar-label:first-child { margin-top:0; }
+
+.side-card {
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:10px; padding:13px 14px; width:100%;
+}
+.side-card.gap-card { border-color:var(--gold-border); padding:0; overflow:hidden; }
+.side-card.gap-card .gap-panel { border:none; border-radius:0; }
+.intro-card { border-color:rgba(255,61,180,.12); }
+
+/* Topbar brand */
+.topbar-brand { display:flex; flex-direction:column; gap:2px; flex-shrink:0; }
+
+/* Center canvas sizing */
+.col-center .sphere-wrap {
+  width:100%; max-width:640px;
+  display:flex; flex-direction:column; align-items:center; gap:10px;
+}
+.col-center #polarCanvas { width:100% !important; height:auto !important; }
+.col-center #cartCanvas  { width:100% !important; height:auto !important; max-width:640px; border-radius:4px; }
+.col-center .live-stats  { max-width:640px; width:100%; grid-template-columns:repeat(4,1fr); }
+
+/* ── Preset dropdown ────────────────── */
+.preset-drop-wrap { width:100%; margin-bottom:0; }
 .preset-drop-header {
   display:flex; align-items:center; justify-content:space-between;
-  padding:11px 16px; cursor:pointer; user-select:none;
+  padding:9px 12px; cursor:pointer; user-select:none;
   background:rgba(255,61,180,.04); border:1px solid rgba(255,61,180,.18);
-  border-radius:10px; transition:border-color .2s;
+  border-radius:8px; transition:border-color .2s;
 }
-.preset-drop-header.open {
-  border-radius:10px 10px 0 0; border-color:rgba(255,61,180,.32);
-}
-.preset-drop-title {
-  font-size:.58rem; text-transform:uppercase; letter-spacing:.2em; color:var(--pink);
-}
-.preset-active-name {
-  font-size:.58rem; color:rgba(255,215,0,.7); letter-spacing:.06em;
-}
-.preset-drop-chevron { font-size:.75rem; color:var(--pink); transition:transform .22s; }
+.preset-drop-header.open { border-radius:8px 8px 0 0; border-color:rgba(255,61,180,.32); }
+.preset-drop-title { font-size:.56rem; text-transform:uppercase; letter-spacing:.2em; color:var(--pink); }
+.preset-active-name { font-size:.56rem; color:rgba(255,215,0,.7); letter-spacing:.06em; }
+.preset-drop-chevron { font-size:.7rem; color:var(--pink); transition:transform .22s; }
 .preset-drop-chevron.open { transform:rotate(180deg); }
 .preset-drop-body {
-  display:none; padding:14px 16px 16px;
+  display:none; padding:12px 12px 14px;
   background:rgba(255,61,180,.02); border:1px solid rgba(255,61,180,.18);
-  border-top:none; border-radius:0 0 10px 10px;
+  border-top:none; border-radius:0 0 8px 8px;
 }
 .preset-drop-body.open { display:block; }
 
 </style>
 </head>
 <body>
+<div class="page-shell">
 
-<!-- Introduction -->
-<div class="intro">
-  <div class="intro-subtitle">Wessen Getachew</div>
-  <h1 style="font-size:clamp(1.4rem,4.5vw,2.4rem);margin-bottom:12px">Polar vs Cartesian</h1>
-  <div class="intro-body">
-    <p>f(θ) = A + sin(Bθ)·sin(Cθ/D) drawn in polar and Cartesian at the same time — the polar trace wraps onto a rotatable 3D sphere, the Cartesian version runs below it. A, B, C, D change the shape. θ range and trail length change how much of the curve stays visible.</p>
-    <p>The gap decomposition sieves primes up to N, groups them by the gap between consecutive primes, and shows how each gap family contributes to ζ(s). Select any gap — it gets its own color on the sphere and its own waveform lane on the Cartesian canvas.</p>
-    <p>The harmonics panel plays Farey-sequence intervals in sync with the animation. All 16 intervals are on by default and color the sphere by consonance. The Smith Chart overlay maps the curve through the Cayley transform Γ = (z−1)/(z+1) onto the unit disk. Four coordinate modes — polar, log-cylinder, log-spiral, Poincaré disk — reshape how the curve sits in space.</p>
-  </div>
-</div>
-
-<!-- Preset dropdown -->
-<div class="preset-drop-wrap">
-  <div class="preset-drop-header" id="presetDropHeader">
-    <div class="preset-drop-title">Presets</div>
-    <span class="preset-active-name" id="presetActiveName">Original</span>
-    <span class="preset-drop-chevron" id="presetDropChev">▼</span>
-  </div>
-  <div class="preset-drop-body" id="presetDropBody">
-    <div class="pg-label">Classics</div>
-    <div class="presets" id="pgClassic"></div>
-    <div class="pg-label">Complex</div>
-    <div class="presets" id="pgComplex"></div>
-    <div class="pg-label">Organic</div>
-    <div class="presets" id="pgOrganic"></div>
-    <div class="pg-label">Geometric</div>
-    <div class="presets" id="pgGeo"></div>
-    <div class="pg-label">Ethereal</div>
-    <div class="presets" id="pgEth"></div>
-  </div>
-</div>
-
-<!-- Sphere + formula + cart -->
-<div class="sphere-wrap">
-  <canvas id="polarCanvas"></canvas>
-
-  <div class="rot-controls">
-    <span class="rot-hint">⟳ drag to rotate · shift+drag to pan</span>
-    <button class="ctrl" id="btnAutoRot">⟳ Auto-Rotate</button>
-    <button class="ctrl" id="btnResetRot" style="font-size:.63rem;padding:6px 11px">↺ Reset View</button>
-  </div>
-
-  <!-- Zoom bar -->
-  <div class="zoom-bar">
-    <button class="zoom-btn" id="btnZoomOut" title="Zoom Out (scroll down)">−</button>
-    <span class="zoom-level-lbl" id="zoomLbl">1.0×</span>
-    <button class="zoom-btn" id="btnZoomIn" title="Zoom In (scroll up)">+</button>
-    <button class="zoom-reset-btn" id="btnZoomReset">Reset Zoom</button>
-  </div>
-  <div class="kb-hint">Space=Play · R=Rotate · S=Screenshot · ↑↓=Zoom · ←→=Spin</div>
-
-  <div class="formula-box">
-    f(θ) = <em id="fA">1.9</em> + sin(<em id="fB">3</em>θ) · sin(<em id="fC">3</em>θ / <em id="fD">32</em>)
-  </div>
-  <canvas id="cartCanvas"></canvas>
-
-  <!-- Multi-gap selector — main sphere area, shown after compute -->
-
-  <!-- Live stats always visible -->
-  <div class="live-stats" id="liveStats">
-    <div class="stat-cell"><div class="stat-lbl">Progress</div><div class="stat-val" id="stProg">0%</div></div>
-    <div class="stat-cell"><div class="stat-lbl">θ current</div><div class="stat-val" id="stTheta">0</div></div>
-    <div class="stat-cell"><div class="stat-lbl">f(θ) current</div><div class="stat-val" id="stFTheta">—</div></div>
-    <div class="stat-cell"><div class="stat-lbl">f(θ) min</div><div class="stat-val" id="stFMin">—</div></div>
-    <div class="stat-cell"><div class="stat-lbl">f(θ) max</div><div class="stat-val" id="stFMax">—</div></div>
-    <div class="stat-cell"><div class="stat-lbl">f(θ) mean</div><div class="stat-val" id="stFMean">—</div></div>
-    <div class="stat-cell"><div class="stat-lbl">Pts drawn</div><div class="stat-val" id="stPts">0</div></div>
-    <div class="stat-cell"><div class="stat-lbl">θ total (×π)</div><div class="stat-val" id="stThetaMax">64</div></div>
-  </div>
-</div>
-
-<!-- Panels -->
-<div class="panels">
-
-  <!-- Formula -->
-  <div class="panel">
-    <div class="panel-title">Formula Parameters</div>
-    <div class="grid-2">
-      <div class="cg"><label>A — offset</label><input type="range" id="sA" min="0.1" max="4" step="0.05" value="1.9"><div class="vd" id="dA">1.9</div></div>
-      <div class="cg"><label>B — outer freq</label><input type="range" id="sB" min="1" max="12" step="0.5" value="3"><div class="vd" id="dB">3</div></div>
-      <div class="cg"><label>C — inner freq</label><input type="range" id="sC" min="1" max="12" step="0.5" value="3"><div class="vd" id="dC">3</div></div>
-      <div class="cg"><label>D — modulation</label><input type="range" id="sD" min="4" max="128" step="1" value="32"><div class="vd" id="dD">32</div></div>
-      <div class="cg"><label>θ range (× π)</label><input type="range" id="sTheta" min="2" max="300" step="1" value="64"><div class="vd" id="dTheta">64π</div></div>
-      <div class="cg"><label>Trail / History</label><input type="range" id="sTrail" min="1" max="40" step="1" value="6"><div class="vd" id="dTrail">6</div></div>
+  <!-- ══ TOP BAR ══════════════════════════════════════════════════ -->
+  <header class="topbar">
+    <div class="topbar-brand">
+      <div class="topbar-title">Polar vs Cartesian</div>
+      <div class="topbar-author">Wessen Getachew</div>
     </div>
-  </div>
 
-  <!-- Playback -->
-  <div class="panel">
-    <div class="panel-title">Playback &amp; Speed</div>
-    <div class="pb-row">
-      <div class="cg">
+    <div class="topbar-formula">
+      f(θ) = <em id="fA">1.9</em> + sin(<em id="fB">3</em>θ) · sin(<em id="fC">3</em>θ / <em id="fD">32</em>)
+    </div>
+
+    <div class="topbar-actions">
+      <button class="ctrl" id="btnPlay">▶ Play</button>
+      <button class="ctrl" id="btnReset">↺ Reset</button>
+      <button class="ctrl gold-ctrl" id="btnExport4K" title="Export 4K PNG">⬇ 4K</button>
+      <button class="ctrl" id="btnAutoRot">⟳ Rotate</button>
+    </div>
+  </header>
+
+  <!-- ══ LEFT SIDEBAR — Controls ═══════════════════════════════════ -->
+  <aside class="col-left">
+
+    <!-- About -->
+    <div class="sidebar-label">About</div>
+    <div class="side-card intro-card">
+      <div class="intro-body">
+        <p>f(θ) = A + sin(Bθ)·sin(Cθ/D) drawn polar and Cartesian simultaneously. Polar trace wraps onto a 3D sphere; Cartesian runs in the center panel.</p>
+        <p>Gap decomposition sieves primes up to N, groups by consecutive gap, shows each family's contribution to ζ(s) — select any gap to highlight it across both views.</p>
+        <p>Harmonics play Farey intervals in sync with the animation, coloring the sphere by consonance. Smith Chart maps the curve through Γ = (z−1)/(z+1) onto the unit disk.</p>
+      </div>
+    </div>
+
+    <!-- Presets -->
+    <div class="sidebar-label">Presets</div>
+    <div class="side-card">
+      <div class="preset-drop-wrap" style="max-width:none;margin:0">
+        <div class="preset-drop-header" id="presetDropHeader">
+          <div class="preset-drop-title">Select Preset</div>
+          <span class="preset-active-name" id="presetActiveName">Original</span>
+          <span class="preset-drop-chevron" id="presetDropChev">▼</span>
+        </div>
+        <div class="preset-drop-body" id="presetDropBody">
+          <div class="pg-label">Classics</div><div class="presets" id="pgClassic"></div>
+          <div class="pg-label">Complex</div><div class="presets" id="pgComplex"></div>
+          <div class="pg-label">Organic</div><div class="presets" id="pgOrganic"></div>
+          <div class="pg-label">Geometric</div><div class="presets" id="pgGeo"></div>
+          <div class="pg-label">Ethereal</div><div class="presets" id="pgEth"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Formula Parameters -->
+    <div class="sidebar-label">Formula Parameters</div>
+    <div class="side-card">
+      <div class="grid-2">
+        <div class="cg"><label>A — offset</label><input type="range" id="sA" min="0.1" max="4" step="0.05" value="1.9"><div class="vd" id="dA">1.9</div></div>
+        <div class="cg"><label>B — outer freq</label><input type="range" id="sB" min="1" max="12" step="0.5" value="3"><div class="vd" id="dB">3</div></div>
+        <div class="cg"><label>C — inner freq</label><input type="range" id="sC" min="1" max="12" step="0.5" value="3"><div class="vd" id="dC">3</div></div>
+        <div class="cg"><label>D — modulation</label><input type="range" id="sD" min="4" max="128" step="1" value="32"><div class="vd" id="dD">32</div></div>
+        <div class="cg"><label>θ range (× π)</label><input type="range" id="sTheta" min="2" max="300" step="1" value="64"><div class="vd" id="dTheta">64π</div></div>
+        <div class="cg"><label>Trail / History</label><input type="range" id="sTrail" min="1" max="40" step="1" value="6"><div class="vd" id="dTrail">6</div></div>
+      </div>
+    </div>
+
+    <!-- Playback -->
+    <div class="sidebar-label">Playback</div>
+    <div class="side-card">
+      <div class="cg" style="margin-bottom:10px">
         <label>Draw speed</label>
         <input type="range" id="sSpeed" min="0.05" max="40" step="0.05" value="8">
-        <div class="vd" id="dSpeed">8.0</div>
-        <div class="speed-sub" id="speedDesc">normal</div>
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div class="speed-sub" id="speedDesc">normal</div>
+          <div class="vd" id="dSpeed">8.0</div>
+        </div>
       </div>
-      <div class="btn-row">
-        <button class="ctrl" id="btnPlay">▶ Play</button>
-        <button class="ctrl" id="btnReset">↺ Reset</button>
-        <button class="ctrl gold-ctrl" id="btnExport4K" title="Export 4K PNG of sphere">⬇ 4K</button>
+      <div class="loop-row">
+        <input type="checkbox" class="loop-check" id="cbLoop">
+        <span class="loop-lbl">Loop</span>
+        <span class="loop-state" id="loopState">off — stops at end</span>
       </div>
-    </div>
-    <div class="loop-row">
-      <input type="checkbox" class="loop-check" id="cbLoop">
-      <span class="loop-lbl">Loop</span>
-      <span class="loop-state" id="loopState">off — stops at end</span>
-    </div>
-    <div class="qrow">
-      <span class="qlabel">Quick:</span>
-      <button class="ctrl" style="font-size:.6rem;padding:4px 9px" onclick="setSpeed(0.1)">Ultra Slow</button>
-      <button class="ctrl" style="font-size:.6rem;padding:4px 9px" onclick="setSpeed(0.5)">Crawl</button>
-      <button class="ctrl" style="font-size:.6rem;padding:4px 9px" onclick="setSpeed(2)">Slow</button>
-      <button class="ctrl" style="font-size:.6rem;padding:4px 9px" onclick="setSpeed(8)">Normal</button>
-      <button class="ctrl" style="font-size:.6rem;padding:4px 9px" onclick="setSpeed(20)">Fast</button>
-      <button class="ctrl" style="font-size:.6rem;padding:4px 9px" onclick="setSpeed(40)">Max</button>
-    </div>
-  </div>
-
-</div>
-
-
-<!-- ══ Harmonics Panel ══════════════════════════════════════════ -->
-<div class="harm-panel panels" style="margin-top:11px" id="harmPanel">
-  <div class="harm-header" id="harmHeader">
-    <div class="harm-header-title">♪ Harmonic Analysis · Farey Intervals</div>
-    <span class="harm-chevron" id="harmChevron">▼</span>
-  </div>
-  <div class="harm-body" id="harmBody">
-
-    <!-- Harmonic sphere coloring mode -->
-    <div class="harm-mode-row">
-      <input type="checkbox" class="harm-toggle" id="harmColorMode">
-      <span class="harm-lbl">Harmonic Color Mode</span>
-      <span class="harm-state" id="harmModeState">off — sphere uses default colors</span>
-    </div>
-
-    <!-- Farey interval presets -->
-    <div class="harm-section-title">Farey Harmonic Intervals</div>
-    <div class="harm-interval-grid" id="harmIntervalGrid"></div>
-
-    <!-- Consonance color key -->
-    <div class="harm-consonance-key">
-      <div class="harm-cons-pill"><div class="harm-cons-dot" style="background:#22c55e"></div><span style="color:#22c55e;font-size:.52rem">Unison (1:1)</span></div>
-      <div class="harm-cons-pill"><div class="harm-cons-dot" style="background:#60a5fa"></div><span style="color:#60a5fa;font-size:.52rem">Consonant q≤4</span></div>
-      <div class="harm-cons-pill"><div class="harm-cons-dot" style="background:#ffd700"></div><span style="color:#ffd700;font-size:.52rem">Moderate q≤16</span></div>
-      <div class="harm-cons-pill"><div class="harm-cons-dot" style="background:#f97316"></div><span style="color:#f97316;font-size:.52rem">Complex q≤64</span></div>
-      <div class="harm-cons-pill"><div class="harm-cons-dot" style="background:#a855f7"></div><span style="color:#a855f7;font-size:.52rem">Dissonant q>64</span></div>
-    </div>
-
-    <!-- Selected interval info -->
-    <div class="harm-audio-row">
-      <div class="harm-freq-display" id="harmFreqDisplay">— Hz</div>
-      <div class="harm-note-display" id="harmNoteDisplay">— · —</div>
-    </div>
-
-    <!-- Audio controls -->
-    <div class="harm-section-title">Audio</div>
-    <div class="harm-btn-row">
-      <button class="harm-btn" id="harmPlayBtn" onclick="harmPlay()">▶ Play</button>
-      <button class="harm-btn" id="harmChordBtn" onclick="harmChord()">♪ Chord</button>
-      <button class="harm-btn" id="harmArpBtn" onclick="harmArp()">∿ Arpeggio</button>
-      <button class="harm-btn" onclick="harmStop()">■ Stop</button>
-    </div>
-    <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
-      <div class="cg" style="flex:1;min-width:120px">
-        <label style="font-size:.58rem;color:#88bb88">Base Hz</label>
-        <input type="range" id="harmBaseHz" min="110" max="880" step="1" value="220" style="background:rgba(96,165,250,.2)">
-        <div class="vd" id="harmBaseHzVal" style="color:#60a5fa">220 Hz</div>
-      </div>
-      <div class="cg" style="flex:1;min-width:100px">
-        <label style="font-size:.58rem;color:#88bb88">Volume</label>
-        <input type="range" id="harmVol" min="0" max="5" step="0.05" value="0.35" style="background:rgba(96,165,250,.2)">
-        <div class="vd" id="harmVolVal" style="color:#60a5fa">35%</div>
-      </div>
-      <div class="cg" style="flex:1;min-width:100px">
-        <label style="font-size:.58rem;color:#88bb88">Waveform</label>
-        <select id="harmWave" style="font-family:'JetBrains Mono',monospace;font-size:.62rem;background:#0a0c0a;border:1px solid rgba(96,165,250,.25);color:#60a5fa;padding:4px 6px;border-radius:4px;width:100%">
-          <option value="sine">Sine</option>
-          <option value="triangle">Triangle</option>
-          <option value="square">Square</option>
-          <option value="sawtooth">Sawtooth</option>
-        </select>
+      <div class="qrow" style="margin-top:10px">
+        <span class="qlabel">Quick:</span>
+        <button class="ctrl" style="font-size:.58rem;padding:3px 7px" onclick="setSpeed(0.1)">×0.1</button>
+        <button class="ctrl" style="font-size:.58rem;padding:3px 7px" onclick="setSpeed(2)">Slow</button>
+        <button class="ctrl" style="font-size:.58rem;padding:3px 7px" onclick="setSpeed(8)">Normal</button>
+        <button class="ctrl" style="font-size:.58rem;padding:3px 7px" onclick="setSpeed(20)">Fast</button>
+        <button class="ctrl" style="font-size:.58rem;padding:3px 7px" onclick="setSpeed(40)">Max</button>
       </div>
     </div>
 
-    <!-- Arnold Tongue K parameter -->
-    <div class="harm-section-title">Arnold Tongue · Sphere Warp</div>
-    <div class="arnold-row">
-      <label style="font-size:.58rem;color:#88bb88;flex-shrink:0">K coupling</label>
-      <input type="range" id="harmArnold" min="0" max="2" step="0.01" value="0" style="flex:1;background:rgba(232,121,249,.2)">
-      <span class="arnold-val" id="harmArnoldVal">0.00</span>
-      <button class="harm-btn" style="font-size:.55rem;padding:4px 8px" onclick="applyArnoldWarp()">Apply</button>
-      <button class="harm-btn" style="font-size:.55rem;padding:4px 8px" onclick="resetArnold()">Reset</button>
-    </div>
-    <div style="font-size:.52rem;color:rgba(96,165,250,.4);margin-top:-4px">
-      Warp sphere with K·sin(2π·f(θ)) perturbation from Arnold circle map
-    </div>
-
-  </div>
-</div>
-
-<!-- ══ Smith Chart Transform (Cayley Map) Panel ═════════════════ -->
-<div class="smith-panel panels" style="margin-top:11px" id="smithPanel">
-  <div class="smith-header" id="smithHeader">
-    <div class="smith-header-title">◎ Smith Chart Transform · Cayley Map</div>
-    <span class="smith-chevron" id="smithChevron">▼</span>
-  </div>
-  <div class="smith-body" id="smithBody">
-
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
-      <input type="checkbox" class="harm-toggle" id="smithEnable">
-      <span class="harm-lbl">Enable Smith Chart Overlay</span>
-      <span class="harm-state" id="smithState">off</span>
-    </div>
-
-    <div class="grid-2">
+    <!-- Coordinate Mode -->
+    <div class="sidebar-label">Coordinate Mode</div>
+    <div class="side-card" id="coordPanel">
+      <div class="coord-mode-grid" id="coordModeGrid">
+        <button class="coord-mode-btn active" data-mode="polar">⊙ Polar</button>
+        <button class="coord-mode-btn" data-mode="logcylinder">⌇ Log-Cyl</button>
+        <button class="coord-mode-btn" data-mode="logspiral">🌀 Spiral</button>
+        <button class="coord-mode-btn" data-mode="poincare">⬤ Poincaré</button>
+      </div>
+      <div style="font-size:.58rem;color:rgba(163,230,53,.5);line-height:1.6;margin:8px 0" id="coordModeDesc">Polar/spherical — default.</div>
       <div class="cg">
-        <label style="color:#88bb88">Global Phase Shift α</label>
-        <input type="range" id="smithAlpha" min="0" max="360" step="1" value="0" style="background:rgba(96,165,250,.2)">
-        <div class="vd" id="smithAlphaVal" style="color:#60a5fa">0°</div>
-      </div>
-      <div class="cg">
-        <label style="color:#88bb88">Overlay Opacity</label>
-        <input type="range" id="smithOpacity" min="0.05" max="1" step="0.05" value="0.4" style="background:rgba(96,165,250,.2)">
-        <div class="vd" id="smithOpacityVal" style="color:#60a5fa">40%</div>
+        <label style="color:#88cc88">Blend</label>
+        <input type="range" id="coordBlend" min="0" max="1" step="0.01" value="1" style="background:rgba(163,230,53,.2)">
+        <div style="font-size:.65rem;color:#a3e635;text-align:right" id="coordBlendVal">100%</div>
       </div>
     </div>
 
-    <div style="margin-top:10px;margin-bottom:8px">
-      <label style="color:#88bb88;font-size:.58rem;text-transform:uppercase;letter-spacing:.1em">Radius Scaling Mode</label>
-      <select id="smithRadiusMode" style="font-family:'JetBrains Mono',monospace;font-size:.62rem;background:#0a0c0a;border:1px solid rgba(96,165,250,.25);color:#60a5fa;padding:4px 6px;border-radius:4px;width:100%;margin-top:6px">
+    <!-- Smith Chart -->
+    <div class="sidebar-label">Smith Chart · Cayley Map</div>
+    <div class="side-card" id="smithPanel">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+        <input type="checkbox" class="harm-toggle" id="smithEnable">
+        <span class="harm-lbl">Enable Overlay</span>
+        <span class="harm-state" id="smithState">off</span>
+      </div>
+      <div class="grid-2">
+        <div class="cg">
+          <label style="color:#88bb88">Phase Shift α</label>
+          <input type="range" id="smithAlpha" min="0" max="360" step="1" value="0" style="background:rgba(96,165,250,.2)">
+          <div class="vd" id="smithAlphaVal" style="color:#60a5fa">0°</div>
+        </div>
+        <div class="cg">
+          <label style="color:#88bb88">Opacity</label>
+          <input type="range" id="smithOpacity" min="0.05" max="1" step="0.05" value="0.4" style="background:rgba(96,165,250,.2)">
+          <div class="vd" id="smithOpacityVal" style="color:#60a5fa">40%</div>
+        </div>
+      </div>
+      <select id="smithRadiusMode" style="font-family:'JetBrains Mono',monospace;font-size:.6rem;background:#0a0c0a;border:1px solid rgba(96,165,250,.25);color:#60a5fa;padding:4px 6px;border-radius:4px;width:100%;margin:8px 0">
         <option value="unit">Unit Radius (R=1)</option>
         <option value="index" selected>Scaled by Index</option>
         <option value="modulus">By Modulus Value</option>
       </select>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <label style="display:flex;align-items:center;gap:5px;font-size:.58rem;color:#88cc88;cursor:pointer"><input type="checkbox" id="smithShowGrid" checked> Grid</label>
+        <label style="display:flex;align-items:center;gap:5px;font-size:.58rem;color:#88cc88;cursor:pointer"><input type="checkbox" id="smithShowR" checked> R-Circles</label>
+        <label style="display:flex;align-items:center;gap:5px;font-size:.58rem;color:#88cc88;cursor:pointer"><input type="checkbox" id="smithShowX" checked> X-Arcs</label>
+      </div>
+      <div style="font-size:.55rem;color:rgba(96,165,250,.45);margin-top:8px;line-height:1.6">Γ = (z−1)/(z+1) · conformal map to unit disk</div>
     </div>
 
-    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:8px">
-      <label style="display:flex;align-items:center;gap:6px;font-size:.6rem;color:#88cc88;cursor:pointer">
-        <input type="checkbox" id="smithShowGrid" checked style="width:13px;height:13px"> Show Smith Grid
-      </label>
-      <label style="display:flex;align-items:center;gap:6px;font-size:.6rem;color:#88cc88;cursor:pointer">
-        <input type="checkbox" id="smithShowR" checked style="width:13px;height:13px"> Constant-R Circles
-      </label>
-      <label style="display:flex;align-items:center;gap:6px;font-size:.6rem;color:#88cc88;cursor:pointer">
-        <input type="checkbox" id="smithShowX" checked style="width:13px;height:13px"> Constant-X Arcs
-      </label>
+  </aside>
+
+  <!-- ══ CENTER — Visualization ═════════════════════════════════ -->
+  <main class="col-center">
+
+    <!-- Sphere canvas -->
+    <div class="sphere-wrap">
+      <canvas id="polarCanvas"></canvas>
+
+      <div class="rot-controls">
+        <span class="rot-hint">drag to rotate · shift+drag to pan</span>
+        <button class="ctrl" id="btnResetRot" style="font-size:.6rem;padding:5px 10px">↺ Reset View</button>
+      </div>
+
+      <div class="zoom-bar">
+        <button class="zoom-btn" id="btnZoomOut">−</button>
+        <span class="zoom-level-lbl" id="zoomLbl">1.0×</span>
+        <button class="zoom-btn" id="btnZoomIn">+</button>
+        <button class="zoom-reset-btn" id="btnZoomReset">Reset Zoom</button>
+      </div>
+      <div class="kb-hint">Space=Play · R=Rotate · S=Screenshot · ↑↓=Zoom · ←→=Spin</div>
     </div>
 
-    <div class="smith-info">
-      <strong>Γ = (z − 1)/(z + 1)</strong> · Cayley/Smith Transform<br>
-      · Maps z = R·e^(iθ) → unit disk<br>
-      · θ = 2π·t/θ_total + α (phase offset)<br>
-      · R=1 → pure imaginary axis · R&gt;1 → Smith arcs<br>
-      · Conformal mapping preserves angles<br><br>
-      <strong>Re(Γ)</strong> = (AC + B²)/(C² + B²) &nbsp; <strong>Im(Γ)</strong> = B(C−A)/(C²+B²)<br>
-      A = R·cos(θ)−1, B = R·sin(θ), C = R·cos(θ)+1
+    <!-- Cartesian canvas -->
+    <canvas id="cartCanvas"></canvas>
+
+    <!-- Live stats bar -->
+    <div class="live-stats" id="liveStats">
+      <div class="stat-cell"><div class="stat-lbl">Progress</div><div class="stat-val" id="stProg">0%</div></div>
+      <div class="stat-cell"><div class="stat-lbl">θ current</div><div class="stat-val" id="stTheta">0</div></div>
+      <div class="stat-cell"><div class="stat-lbl">f(θ) now</div><div class="stat-val" id="stFTheta">—</div></div>
+      <div class="stat-cell"><div class="stat-lbl">f(θ) min</div><div class="stat-val" id="stFMin">—</div></div>
+      <div class="stat-cell"><div class="stat-lbl">f(θ) max</div><div class="stat-val" id="stFMax">—</div></div>
+      <div class="stat-cell"><div class="stat-lbl">f(θ) mean</div><div class="stat-val" id="stFMean">—</div></div>
+      <div class="stat-cell"><div class="stat-lbl">Pts drawn</div><div class="stat-val" id="stPts">0</div></div>
+      <div class="stat-cell"><div class="stat-lbl">θ total</div><div class="stat-val" id="stThetaMax">64π</div></div>
     </div>
 
-  </div>
-</div>
+  </main>
 
-<!-- ══ Coordinate System Mode Panel ════════════════════════════ -->
-<div class="coord-panel panels" style="margin-top:11px" id="coordPanel">
-  <div class="coord-header" id="coordHeader">
-    <div class="coord-header-title">⌖ Coordinate System Mode</div>
-    <span class="coord-chevron" id="coordChevron">▼</span>
-  </div>
-  <div class="coord-body" id="coordBody">
+  <!-- ══ RIGHT SIDEBAR — Analysis ══════════════════════════════= -->
+  <aside class="col-right">
 
-    <div class="coord-mode-grid" id="coordModeGrid">
-      <button class="coord-mode-btn active" data-mode="polar">⊙ Polar (default)</button>
-      <button class="coord-mode-btn" data-mode="logcylinder">⌇ Log-Cylinder</button>
-      <button class="coord-mode-btn" data-mode="logspiral">🌀 Log Spiral</button>
-      <button class="coord-mode-btn" data-mode="poincare">⬤ Poincaré Disk</button>
-    </div>
-
-    <div style="font-size:.6rem;color:rgba(163,230,53,.5);line-height:1.75;background:rgba(163,230,53,.04);border:1px solid rgba(163,230,53,.1);border-radius:6px;padding:10px 12px">
-      <span id="coordModeDesc">Traditional polar/spherical coordinates — default view mapping f(θ) onto the sphere surface.</span>
-    </div>
-
-    <div style="margin-top:10px">
-      <div class="cg">
-        <label style="color:#88cc88">Mode Blend (0=original · 1=full transform)</label>
-        <input type="range" id="coordBlend" min="0" max="1" step="0.01" value="1" style="background:rgba(163,230,53,.2)">
-        <div style="font-size:.7rem;color:#a3e635;text-align:right" id="coordBlendVal">100%</div>
+    <!-- Harmonics -->
+    <div class="sidebar-label">Harmonics · Farey Intervals</div>
+    <div class="side-card" id="harmPanel">
+      <div class="harm-mode-row" style="margin-top:0;padding-top:0;border-top:none;margin-bottom:10px">
+        <input type="checkbox" class="harm-toggle" id="harmColorMode">
+        <span class="harm-lbl">Color Mode</span>
+        <span class="harm-state" id="harmModeState">off</span>
+      </div>
+      <div class="harm-section-title">Farey Intervals</div>
+      <div class="harm-interval-grid" id="harmIntervalGrid"></div>
+      <div class="harm-consonance-key" style="margin-top:6px">
+        <div class="harm-cons-pill"><div class="harm-cons-dot" style="background:#22c55e"></div><span style="color:#22c55e;font-size:.5rem">1:1</span></div>
+        <div class="harm-cons-pill"><div class="harm-cons-dot" style="background:#60a5fa"></div><span style="color:#60a5fa;font-size:.5rem">q≤4</span></div>
+        <div class="harm-cons-pill"><div class="harm-cons-dot" style="background:#ffd700"></div><span style="color:#ffd700;font-size:.5rem">q≤16</span></div>
+        <div class="harm-cons-pill"><div class="harm-cons-dot" style="background:#f97316"></div><span style="color:#f97316;font-size:.5rem">q≤64</span></div>
+        <div class="harm-cons-pill"><div class="harm-cons-dot" style="background:#a855f7"></div><span style="color:#a855f7;font-size:.5rem">q>64</span></div>
+      </div>
+      <div class="harm-audio-row" style="margin-top:8px">
+        <div class="harm-freq-display" id="harmFreqDisplay">— Hz</div>
+        <div class="harm-note-display" id="harmNoteDisplay">— · —</div>
+      </div>
+      <div class="harm-section-title">Audio</div>
+      <div class="harm-btn-row">
+        <button class="harm-btn" id="harmPlayBtn" onclick="harmPlay()">▶ Play</button>
+        <button class="harm-btn" id="harmChordBtn" onclick="harmChord()">♪ Chord</button>
+        <button class="harm-btn" id="harmArpBtn" onclick="harmArp()">∿ Arp</button>
+        <button class="harm-btn" onclick="harmStop()">■ Stop</button>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:6px">
+        <div class="cg" style="flex:1">
+          <label style="font-size:.55rem;color:#88bb88">Base Hz</label>
+          <input type="range" id="harmBaseHz" min="110" max="880" step="1" value="220" style="background:rgba(96,165,250,.2)">
+          <div class="vd" id="harmBaseHzVal" style="color:#60a5fa;font-size:.62rem">220 Hz</div>
+        </div>
+        <div class="cg" style="flex:1">
+          <label style="font-size:.55rem;color:#88bb88">Volume</label>
+          <input type="range" id="harmVol" min="0" max="5" step="0.05" value="0.35" style="background:rgba(96,165,250,.2)">
+          <div class="vd" id="harmVolVal" style="color:#60a5fa;font-size:.62rem">35%</div>
+        </div>
+        <div class="cg" style="flex:1">
+          <label style="font-size:.55rem;color:#88bb88">Wave</label>
+          <select id="harmWave" style="font-family:'JetBrains Mono',monospace;font-size:.58rem;background:#0a0c0a;border:1px solid rgba(96,165,250,.25);color:#60a5fa;padding:3px 4px;border-radius:4px;width:100%">
+            <option value="sine">Sine</option>
+            <option value="triangle">Triangle</option>
+            <option value="square">Square</option>
+            <option value="sawtooth">Saw</option>
+          </select>
+        </div>
+      </div>
+      <div class="harm-section-title">Arnold Tongue · Warp</div>
+      <div class="arnold-row">
+        <label style="font-size:.55rem;color:#88bb88;flex-shrink:0">K</label>
+        <input type="range" id="harmArnold" min="0" max="2" step="0.01" value="0" style="flex:1;background:rgba(232,121,249,.2)">
+        <span class="arnold-val" id="harmArnoldVal">0.00</span>
+        <button class="harm-btn" style="font-size:.52rem;padding:3px 7px" onclick="applyArnoldWarp()">Apply</button>
+        <button class="harm-btn" style="font-size:.52rem;padding:3px 7px" onclick="resetArnold()">Reset</button>
       </div>
     </div>
 
-  </div>
-</div>
+    <!-- Gap Decomposition -->
+    <div class="sidebar-label gold">Gap Decomposition · ζ(s)</div>
+    <div class="side-card gap-card" id="gapPanelWrap">
 
 <!-- ══ Gap Decomposition Panel ══════════════════════════════════════ -->
 <div class="gap-panel panels" style="margin-top:11px">
@@ -1065,8 +1202,13 @@ button.ctrl.gold-ctrl:hover, button.ctrl.gold-ctrl.on { background:var(--gold); 
       </div>
     </div>
 
-  </div>
-</div>
+  </div><!-- /.gap-body -->
+</div><!-- /.gap-panel -->
+
+    </div><!-- /.side-card.gap-card -->
+  </aside><!-- /.col-right -->
+
+</div><!-- /.page-shell -->
 
 <script>
 // ═══════════════════════════════════════════════════════════════
@@ -1849,81 +1991,208 @@ document.getElementById('btnReset').addEventListener('click',()=>{ harmSyncStop(
 document.getElementById('btnExport4K').addEventListener('click', exportSphere4K);
 
 function exportSphere4K() {
-  const SIZE = 3840;
+  // ── Composite 4K export: sphere + formula + cart canvas + stats bar ──
+  // Target output: 3840 × 2160 (16:9)
+  const W = 3840, H = 2160;
   const cv = document.createElement('canvas');
-  cv.width = cv.height = SIZE;
+  cv.width = W; cv.height = H;
   const ctx = cv.getContext('2d');
-  ctx.fillStyle = '#060608'; ctx.fillRect(0,0,SIZE,SIZE);
 
-  ctx.lineWidth = 1.5;
+  // Background
+  ctx.fillStyle = '#060608';
+  ctx.fillRect(0, 0, W, H);
+
+  // ── Layout constants (scaled to 4K) ──
+  const SCALE   = W / pCv.width;       // how much bigger 4K is vs live canvas
+  const PADDING = 80;                   // outer padding px at 4K
+  const SPHERE_W = Math.round(W * 0.54);
+  const SPHERE_H = SPHERE_W;           // sphere is square
+  const RIGHT_X  = SPHERE_W + PADDING * 2;
+  const RIGHT_W  = W - RIGHT_X - PADDING;
+
+  // ══ LEFT COLUMN: sphere (scaled up from live canvas) ══
+  // Draw sphere at 4K res using the same geometry
+  const sphereOff = document.createElement('canvas');
+  sphereOff.width = sphereOff.height = SPHERE_W;
+  const sc = sphereOff.getContext('2d');
+  sc.fillStyle = '#060608';
+  sc.fillRect(0, 0, SPHERE_W, SPHERE_W);
+
+  // Wireframe grid scaled to SPHERE_W
+  const sphereR4K = SPHERE_W * 0.37;
+  function proj4K(rx, ry, rz){
+    const fov=2.8, scale=fov/(fov-rz);
+    return [SPHERE_W/2 + rx*sphereR4K*scale*zoomLevel + panX*SCALE*0.5,
+            SPHERE_W/2 - ry*sphereR4K*scale*zoomLevel + panY*SCALE*0.5];
+  }
+  sc.lineWidth = 1.2;
   for(let li=-2; li<=2; li++){
     const lat=(li/3)*Math.PI/2, cosLat=Math.cos(lat), sinLat=Math.sin(lat);
-    ctx.beginPath(); let first=true;
+    sc.beginPath(); let first=true;
     for(let lo=0; lo<=Math.PI*2+0.05; lo+=0.04){
       const x=cosLat*Math.cos(lo), y=sinLat, z=cosLat*Math.sin(lo);
       const [rx,ry,rz]=applyM(rotMat,x,y,z);
-      const fov=2.8, sc=fov/(fov-rz), R=SIZE*0.37;
-      const px=SIZE/2+rx*R*sc, py=SIZE/2-ry*R*sc;
-      ctx.globalAlpha=Math.max(0.05, 0.06+(rz+1)*0.12); ctx.strokeStyle='#3a7040';
-      if(first){ctx.moveTo(px,py);first=false;}else ctx.lineTo(px,py);
-    } ctx.stroke();
+      const [px,py]=proj4K(rx,ry,rz);
+      sc.globalAlpha=Math.max(0.05,0.06+(rz+1)*0.12); sc.strokeStyle='#3a7040';
+      if(first){sc.moveTo(px,py);first=false;}else sc.lineTo(px,py);
+    } sc.stroke();
   }
   for(let lo=0; lo<8; lo++){
     const lon=(lo/8)*Math.PI*2, cosLon=Math.cos(lon), sinLon=Math.sin(lon);
-    ctx.beginPath(); let first=true;
+    sc.beginPath(); let first=true;
     for(let la=-Math.PI/2; la<=Math.PI/2+0.05; la+=0.04){
       const x=Math.cos(la)*cosLon, y=Math.sin(la), z=Math.cos(la)*sinLon;
       const [rx,ry,rz]=applyM(rotMat,x,y,z);
-      const fov=2.8, sc=fov/(fov-rz), R=SIZE*0.37;
-      const px=SIZE/2+rx*R*sc, py=SIZE/2-ry*R*sc;
-      ctx.globalAlpha=Math.max(0.05, 0.06+(rz+1)*0.12); ctx.strokeStyle='#3a7040';
-      if(first){ctx.moveTo(px,py);first=false;}else ctx.lineTo(px,py);
-    } ctx.stroke();
+      const [px,py]=proj4K(rx,ry,rz);
+      sc.globalAlpha=Math.max(0.05,0.06+(rz+1)*0.12); sc.strokeStyle='#3a7040';
+      if(first){sc.moveTo(px,py);first=false;}else sc.lineTo(px,py);
+    } sc.stroke();
   }
-  ctx.globalAlpha=1;
+  sc.globalAlpha=1;
 
-  const end = Math.floor(drawProgress);
-  if(end >= 2){
-    const histFrac = 1 - ((trailFade-1)/39)*0.9;
-    const histLen = Math.max(2, Math.floor(end * histFrac));
-    const startIdx = Math.max(1, end - histLen);
-    for(let i=startIdx; i<end; i++){
-      const p0=precomputed[i-1], p1=precomputed[i];
+  // Curve trace on sphere
+  const end=Math.floor(drawProgress);
+  if(end>=2){
+    const histFrac=1-((trailFade-1)/39)*0.9;
+    const histLen=Math.max(2,Math.floor(end*histFrac));
+    const startIdx=Math.max(1,end-histLen);
+    sc.lineWidth=traceThickness*2.2;
+    for(let i=startIdx;i<end;i++){
+      const p0=precomputed[i-1],p1=precomputed[i];
       if(!p0||!p1) continue;
       const [rx1,ry1,rz1]=applyM(rotMat,p0[0],p0[1],p0[2]);
       const [rx2,ry2,rz2]=applyM(rotMat,p1[0],p1[1],p1[2]);
-      const fov=2.8, R=SIZE*0.37;
-      const s1=fov/(fov-rz1), s2=fov/(fov-rz2);
-      const px1=SIZE/2+rx1*R*s1, py1=SIZE/2-ry1*R*s1;
-      const px2=SIZE/2+rx2*R*s2, py2=SIZE/2-ry2*R*s2;
-      const gap = p1[4];
-      const selCol = gap !== null ? selectedGaps.get(gap) : undefined;
-      if (selCol) {
-        ctx.strokeStyle = selCol; ctx.lineWidth = traceThickness*2.5;
-        ctx.shadowColor=selCol; ctx.shadowBlur=10;
+      const [px1,py1]=proj4K(rx1,ry1,rz1);
+      const [px2,py2]=proj4K(rx2,ry2,rz2);
+      const gap=p1[4];
+      const selCol=gap!==null?selectedGaps.get(gap):undefined;
+      const frac=i/TOTAL_PTS;
+      if(selCol){
+        sc.strokeStyle=selCol; sc.shadowColor=selCol; sc.shadowBlur=14;
+      } else if(harmColorMode){
+        const hc=harmColorForProgress(frac);
+        sc.strokeStyle=hc||`hsl(${295+frac*40},100%,55%)`;
+        sc.shadowColor=sc.strokeStyle; sc.shadowBlur=6;
       } else {
-        const bi=Math.min(HUE_BANDS-1, Math.floor((i-startIdx)/histLen*HUE_BANDS));
+        const bi=Math.min(HUE_BANDS-1,Math.floor((i-startIdx)/histLen*HUE_BANDS));
         const hue=295+(bi/HUE_BANDS)*40;
         const avgZ=(rz1+rz2)*0.5, bright=48+avgZ*22;
-        ctx.strokeStyle=`hsl(${hue},100%,${bright}%)`;
-        ctx.lineWidth=traceThickness*2; ctx.shadowColor='#ff3db4'; ctx.shadowBlur=8;
+        sc.strokeStyle=`hsl(${hue},100%,${bright}%)`;
+        sc.shadowColor='#ff3db4'; sc.shadowBlur=8;
       }
-      ctx.globalAlpha=Math.max(0.2, 0.5);
-      ctx.beginPath(); ctx.moveTo(px1,py1); ctx.lineTo(px2,py2); ctx.stroke();
+      sc.globalAlpha=Math.max(0.2,0.5);
+      sc.beginPath(); sc.moveTo(px1,py1); sc.lineTo(px2,py2); sc.stroke();
     }
-    ctx.shadowBlur=0; ctx.globalAlpha=1;
+    sc.shadowBlur=0; sc.globalAlpha=1;
+
+    // Center glow
+    const [crx,cry,crz]=applyM(rotMat,0,0,0);
+    const [cpx,cpy]=proj4K(crx,cry,crz);
+    sc.beginPath(); sc.arc(cpx,cpy,5,0,Math.PI*2);
+    sc.fillStyle='#ffd700'; sc.shadowColor='#ffd700'; sc.shadowBlur=20;
+    sc.fill(); sc.shadowBlur=0;
   }
 
-  ctx.globalAlpha=0.7; ctx.fillStyle='#ffd700';
-  ctx.font='bold 48px JetBrains Mono, monospace'; ctx.textAlign='left';
-  ctx.fillText(`f(θ) = ${A} + sin(${B}θ)·sin(${C}θ/${D})  |  θ∈[0,${Math.round(thetaTotal/Math.PI)}π]`, 60, SIZE-80);
-  ctx.globalAlpha=0.4; ctx.font='32px JetBrains Mono, monospace'; ctx.fillStyle='#ff3db4';
-  ctx.fillText('Polar vs Cartesian · Wessen Getachew · @7dview', 60, SIZE-36);
-  ctx.globalAlpha=1;
+  // Blit sphere onto main 4K canvas (vertically centered in left col)
+  const SPHERE_TOP = Math.round((H - SPHERE_H) / 2);
+  ctx.drawImage(sphereOff, PADDING, SPHERE_TOP, SPHERE_W, SPHERE_H);
 
+  // ══ RIGHT COLUMN ══
+  const COL_Y = PADDING;
+  let ry = COL_Y;
+
+  // ── Formula box ──
+  const FORMULA_H = 160;
+  // Box
+  ctx.save();
+  ctx.fillStyle='rgba(255,215,0,0.05)';
+  ctx.strokeStyle='#ffd700'; ctx.lineWidth=3;
+  ctx.shadowColor='rgba(255,215,0,0.35)'; ctx.shadowBlur=28;
+  ctx.beginPath(); ctx.roundRect(RIGHT_X, ry, RIGHT_W, FORMULA_H, 16);
+  ctx.fill(); ctx.stroke(); ctx.restore();
+
+  // Draw formula with gold numbers, white text
+  ctx.textBaseline='middle';
+  ctx.font=`bold 54px 'JetBrains Mono', monospace`;
+  const FY = ry + FORMULA_H / 2;
+  // Measure total width so we can centre it
+  const parts = [
+    { text:'f(θ) = ',      color:'#d8f0d8' },
+    { text:`${A}`,         color:'#ffd700' },
+    { text:' + sin(',      color:'#d8f0d8' },
+    { text:`${B}`,         color:'#ffd700' },
+    { text:'θ) · sin(',    color:'#d8f0d8' },
+    { text:`${C}`,         color:'#ffd700' },
+    { text:'θ / ',         color:'#d8f0d8' },
+    { text:`${D}`,         color:'#ffd700' },
+    { text:')',             color:'#d8f0d8' },
+  ];
+  const totalW = parts.reduce((s,p)=>s+ctx.measureText(p.text).width,0);
+  let fx = RIGHT_X + (RIGHT_W - totalW) / 2;
+  ctx.textAlign='left';
+  parts.forEach(p=>{ ctx.fillStyle=p.color; ctx.fillText(p.text,fx,FY); fx+=ctx.measureText(p.text).width; });
+  ry += FORMULA_H + 48;
+
+  // ── Cartesian canvas (scaled up) ──
+  const CART_H = Math.round(RIGHT_W * (cCv.height / cCv.width));
+  ctx.save();
+  ctx.shadowColor='rgba(255,61,180,0.15)'; ctx.shadowBlur=30;
+  ctx.drawImage(cCv, RIGHT_X, ry, RIGHT_W, CART_H);
+  ctx.restore();
+  // Border around cart
+  ctx.strokeStyle='rgba(255,61,180,0.25)'; ctx.lineWidth=2;
+  ctx.strokeRect(RIGHT_X, ry, RIGHT_W, CART_H);
+  ry += CART_H + 48;
+
+  // ── Live stats bar ──
+  const STATS = [
+    { lbl:'PROGRESS',      val: `${((drawProgress/TOTAL_PTS)*100).toFixed(1)}%` },
+    { lbl:'θ CURRENT',     val: `${((drawProgress/TOTAL_PTS)*thetaTotal/Math.PI).toFixed(2)}π` },
+    { lbl:'F(θ) CURRENT',  val: end>0 ? f((drawProgress/TOTAL_PTS)*thetaTotal).toFixed(4) : '—' },
+    { lbl:'F(θ) MIN',      val: fMin.toFixed(4) },
+    { lbl:'F(θ) MAX',      val: fMax.toFixed(4) },
+    { lbl:'F(θ) MEAN',     val: (fSum/TOTAL_PTS).toFixed(4) },
+    { lbl:'PTS DRAWN',     val: Math.floor(drawProgress).toLocaleString() },
+    { lbl:'θ TOTAL (×Π)',  val: Math.round(thetaTotal/Math.PI).toString() },
+  ];
+  const STATS_H = 220;
+  const cellW   = RIGHT_W / 4;
+  const cellH   = STATS_H / 2;
+
+  ctx.fillStyle='rgba(255,215,0,0.04)';
+  ctx.strokeStyle='rgba(255,215,0,0.18)'; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.roundRect(RIGHT_X, ry, RIGHT_W, STATS_H, 12); ctx.fill(); ctx.stroke();
+
+  STATS.forEach((s,i)=>{
+    const col=i%4, row=Math.floor(i/4);
+    const cx=RIGHT_X+col*cellW, cy=ry+row*cellH;
+    ctx.textAlign='left'; ctx.textBaseline='top';
+    ctx.fillStyle='rgba(255,215,0,0.45)';
+    ctx.font=`500 22px 'JetBrains Mono', monospace`;
+    ctx.fillText(s.lbl, cx+18, cy+18);
+    ctx.fillStyle='#ffd700';
+    ctx.font=`bold 40px 'JetBrains Mono', monospace`;
+    ctx.fillText(s.val, cx+18, cy+52);
+  });
+  ry += STATS_H + 48;
+
+  // ── Watermark ──
+  ctx.textAlign='left'; ctx.textBaseline='bottom';
+  ctx.fillStyle='rgba(255,61,180,0.35)';
+  ctx.font=`500 28px 'JetBrains Mono', monospace`;
+  ctx.fillText('Polar vs Cartesian · Wessen Getachew · @7dview', PADDING, H - PADDING);
+
+  // ── θ range label top-right ──
+  ctx.textAlign='right'; ctx.textBaseline='top';
+  ctx.fillStyle='rgba(255,215,0,0.4)';
+  ctx.font=`500 26px 'JetBrains Mono', monospace`;
+  ctx.fillText(`θ ∈ [0, ${Math.round(thetaTotal/Math.PI)}π]`, W - PADDING, PADDING);
+
+  // ── Download ──
   const link = document.createElement('a');
-  link.download = `polar_sphere_4K_A${A}_B${B}_C${C}_D${D}.png`;
-  link.href = cv.toDataURL('image/png'); link.click();
+  link.download = `polar_cart_4K_A${A}_B${B}_C${C}_D${D}.png`;
+  link.href = cv.toDataURL('image/png');
+  link.click();
 }
 
 // ═══════════════════════════════════════════════════════════════
