@@ -7,7 +7,10 @@
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@300;400;700&family=DM+Sans:wght@300;400;500&display=swap');
 
-
+/* ═══════════════════════════════════════════
+   3BLUE1BROWN-INSPIRED DESIGN SYSTEM
+   Mathematical clarity · Educational depth
+   ═══════════════════════════════════════════ */
 :root {
   /* Core palette */
   --bg:        #0e1119;
@@ -1103,6 +1106,23 @@ select {
         <button class="zoom-btn" id="btnZoomIn">+</button>
         <button class="zoom-reset-btn" id="btnZoomReset">Reset Zoom</button>
       </div>
+      
+      <!-- Manual Rotation Controls -->
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px;margin-bottom:8px;">
+        <div>
+          <label style="font-size:.48rem;color:var(--text-dim);display:block;margin-bottom:3px;font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.1em;">X°</label>
+          <input type="number" class="rotation-input" id="rotX" value="90" min="-180" max="180" step="1" style="width:100%;padding:6px 8px;background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:.75rem;">
+        </div>
+        <div>
+          <label style="font-size:.48rem;color:var(--text-dim);display:block;margin-bottom:3px;font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.1em;">Y°</label>
+          <input type="number" class="rotation-input" id="rotY" value="0" min="-180" max="180" step="1" style="width:100%;padding:6px 8px;background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:.75rem;">
+        </div>
+        <div>
+          <label style="font-size:.48rem;color:var(--text-dim);display:block;margin-bottom:3px;font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.1em;">Z°</label>
+          <input type="number" class="rotation-input" id="rotZ" value="0" min="-180" max="180" step="1" style="width:100%;padding:6px 8px;background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:.75rem;">
+        </div>
+      </div>
+      
       <div class="kb-hint">Space=Play · R=Rotate · S=Screenshot · ↑↓=Zoom · ←→=Spin</div>
     </div>
 
@@ -1486,6 +1506,60 @@ let rotMat = [1,0,0, 0,1,0, 0,0,1];
 let autoRotate = false;
 let isDrag=false, lastMX=0, lastMY=0;
 
+// Manual rotation angles (in degrees)
+let manualRotX = 90;
+let manualRotY = 0;
+let manualRotZ = 0;
+
+// Function to build rotation matrix from manual angles
+function updateManualRotation() {
+  const rx = manualRotX * Math.PI / 180;
+  const ry = manualRotY * Math.PI / 180;
+  const rz = manualRotZ * Math.PI / 180;
+  // Apply rotations in order: Z, Y, X
+  rotMat = mmul(mrotX(rx), mmul(mrotY(ry), mrotZ(rz)));
+}
+
+// Function to extract Euler angles from rotation matrix (XYZ order)
+function extractEulerAngles() {
+  // Extract angles from rotation matrix
+  // Assuming rotation order: Z, Y, X
+  const sy = Math.sqrt(rotMat[0] * rotMat[0] + rotMat[3] * rotMat[3]);
+  
+  let x, y, z;
+  
+  if (sy > 1e-6) {
+    x = Math.atan2(rotMat[7], rotMat[8]);
+    y = Math.atan2(-rotMat[6], sy);
+    z = Math.atan2(rotMat[3], rotMat[0]);
+  } else {
+    x = Math.atan2(-rotMat[5], rotMat[4]);
+    y = Math.atan2(-rotMat[6], sy);
+    z = 0;
+  }
+  
+  return {
+    x: x * 180 / Math.PI,
+    y: y * 180 / Math.PI,
+    z: z * 180 / Math.PI
+  };
+}
+
+// Function to update input fields from rotation matrix
+function updateRotationInputs() {
+  const angles = extractEulerAngles();
+  manualRotX = angles.x;
+  manualRotY = angles.y;
+  manualRotZ = angles.z;
+  
+  document.getElementById('rotX').value = Math.round(angles.x);
+  document.getElementById('rotY').value = Math.round(angles.y);
+  document.getElementById('rotZ').value = Math.round(angles.z);
+}
+
+// Initialize rotation matrix with default angles
+updateManualRotation();
+
 const PAD = {l:38,r:14,t:12,b:26};
 
 // ═══════════════════════════════════════════════════════════════
@@ -1525,6 +1599,7 @@ function mmul(a, b) {
 }
 function mrotX(a) { const c=Math.cos(a),s=Math.sin(a); return [1,0,0, 0,c,-s, 0,s,c]; }
 function mrotY(a) { const c=Math.cos(a),s=Math.sin(a); return [c,0,s, 0,1,0, -s,0,c]; }
+function mrotZ(a) { const c=Math.cos(a),s=Math.sin(a); return [c,-s,0, s,c,0, 0,0,1]; }
 function applyM(m, x, y, z) {
   return [m[0]*x+m[1]*y+m[2]*z, m[3]*x+m[4]*y+m[5]*z, m[6]*x+m[7]*y+m[8]*z];
 }
@@ -2041,7 +2116,11 @@ function updateLiveStats() {
 // ═══════════════════════════════════════════════════════════════
 function loop() {
   requestAnimationFrame(loop);
-  if(autoRotate) rotMat=mmul(mrotY(0.008), rotMat);
+  if(autoRotate) {
+    rotMat=mmul(mrotY(0.008), rotMat);
+    // Update inputs during auto-rotate (throttled)
+    if(Math.random() < 0.1) updateRotationInputs(); // Only update 10% of frames for performance
+  }
   if(!paused){
     drawProgress += speed;
     if(drawProgress >= TOTAL_PTS){
@@ -2077,7 +2156,16 @@ function hardReset() {
 // ═══════════════════════════════════════════════════════════════
 //  DRAG ROTATION
 // ═══════════════════════════════════════════════════════════════
-function onDragStart(ex,ey){ isDrag=true; lastMX=ex; lastMY=ey; }
+function onDragStart(ex,ey){ 
+  isDrag=true; 
+  lastMX=ex; 
+  lastMY=ey; 
+  // Disable auto-rotate when dragging
+  autoRotate = false;
+  const b = document.getElementById('btnAutoRot');
+  b.classList.remove('on'); 
+  b.textContent = '⟳ Auto-Rotate';
+}
 function onDragMove(ex,ey){
   if(!isDrag) return;
   const dx=ex-lastMX, dy=ey-lastMY;
@@ -2085,8 +2173,14 @@ function onDragMove(ex,ey){
   const s=0.012;
   rotMat=mmul(mrotY(dx*s), rotMat);
   rotMat=mmul(mrotX(dy*s), rotMat);
+  // Update input fields to reflect the new rotation
+  updateRotationInputs();
 }
-function onDragEnd(){ isDrag=false; }
+function onDragEnd(){ 
+  isDrag=false; 
+  // Final update of input fields
+  updateRotationInputs();
+}
 
 pCv.addEventListener('mousedown', e=>{ e.preventDefault(); onDragStart(e.clientX,e.clientY); });
 window.addEventListener('mousemove', e=>onDragMove(e.clientX,e.clientY));
@@ -2104,10 +2198,41 @@ document.getElementById('btnAutoRot').addEventListener('click',function(){
   this.textContent=autoRotate?'⟳ Rotating...':'⟳ Auto-Rotate';
 });
 document.getElementById('btnResetRot').addEventListener('click',()=>{
-  rotMat=[1,0,0, 0,1,0, 0,0,1];
+  manualRotX = 90;
+  manualRotY = 0;
+  manualRotZ = 0;
+  document.getElementById('rotX').value = 90;
+  document.getElementById('rotY').value = 0;
+  document.getElementById('rotZ').value = 0;
+  updateManualRotation();
   autoRotate=false;
   const b=document.getElementById('btnAutoRot');
   b.classList.remove('on'); b.textContent='⟳ Auto-Rotate';
+});
+
+// Manual rotation input handlers
+document.getElementById('rotX').addEventListener('input', function() {
+  manualRotX = parseFloat(this.value) || 0;
+  updateManualRotation();
+  autoRotate = false;
+  const b = document.getElementById('btnAutoRot');
+  b.classList.remove('on'); b.textContent = '⟳ Auto-Rotate';
+});
+
+document.getElementById('rotY').addEventListener('input', function() {
+  manualRotY = parseFloat(this.value) || 0;
+  updateManualRotation();
+  autoRotate = false;
+  const b = document.getElementById('btnAutoRot');
+  b.classList.remove('on'); b.textContent = '⟳ Auto-Rotate';
+});
+
+document.getElementById('rotZ').addEventListener('input', function() {
+  manualRotZ = parseFloat(this.value) || 0;
+  updateManualRotation();
+  autoRotate = false;
+  const b = document.getElementById('btnAutoRot');
+  b.classList.remove('on'); b.textContent = '⟳ Auto-Rotate';
 });
 
 // ═══════════════════════════════════════════════════════════════
@@ -3965,15 +4090,11 @@ buildHarmIntervalGrid();
 let introPlayed = false;
 let userHasInteracted = false;
 
-// Call this on any meaningful user interaction to switch to loop mode
+// Track user interaction (loop stays off — user controls it manually)
 function onUserInteraction(){
   if(userHasInteracted) return;
   userHasInteracted = true;
-  // Enable loop mode
-  looping = true;
-  const cbLoop = document.getElementById('cbLoop');
-  if(cbLoop){ cbLoop.checked = true; }
-  document.getElementById('loopState').textContent = 'on — loops forever';
+  // Loop stays as-is; user toggles it themselves
 }
 
 // Patch preset buttons, play btn, gap chips, etc. to trigger interaction
@@ -4186,10 +4307,10 @@ function startIntro(){
   // Set a welcoming speed (not too fast, not too slow)
   setSpeed(12);
 
-  // Auto-rotate for visual drama
-  autoRotate = true;
+  // Auto-rotate OFF by default
+  autoRotate = false;
   const rotBtn = document.getElementById('btnAutoRot');
-  if(rotBtn){ rotBtn.classList.add('on'); rotBtn.textContent = '⟳ Rotating…'; }
+  if(rotBtn){ rotBtn.classList.remove('on'); rotBtn.textContent = '⟳ Auto-Rotate'; }
 
   // Start playback immediately — gap decomposition runs only when user clicks Compute
   introPlayed = true;
