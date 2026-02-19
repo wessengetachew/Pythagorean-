@@ -1,2 +1,2 @@
-# Pythagorean-
-https://wessengetachew.github.io/Zeta-/
+
+https://wessengetachew.github.io/Zeta/
