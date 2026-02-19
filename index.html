@@ -936,6 +936,7 @@ select {
       <button class="ctrl" id="btnPlay">▶ Play</button>
       <button class="ctrl" id="btnReset">↺ Reset</button>
       <button class="ctrl gold-ctrl" id="btnExport4K" title="Export 4K PNG">⬇ 4K</button>
+      <button class="ctrl gold-ctrl" id="btnExportMulti" title="Export Multiple Angles">⬇ Multi</button>
       <button class="ctrl" id="btnAutoRot">⟳ Rotate</button>
     </div>
   </header>
@@ -953,37 +954,6 @@ select {
       </div>
     </div>
 
-    <!-- Presets -->
-    <div class="sidebar-label">Presets</div>
-    <div class="side-card">
-      <div class="preset-drop-wrap" style="max-width:none;margin:0">
-        <div class="preset-drop-header" id="presetDropHeader">
-          <div class="preset-drop-title">Select Preset</div>
-          <span class="preset-active-name" id="presetActiveName">Original</span>
-          <span class="preset-drop-chevron" id="presetDropChev">▼</span>
-        </div>
-        <div class="preset-drop-body" id="presetDropBody">
-          <div class="pg-label">Classics</div><div class="presets" id="pgClassic"></div>
-          <div class="pg-label">Complex</div><div class="presets" id="pgComplex"></div>
-          <div class="pg-label">Organic</div><div class="presets" id="pgOrganic"></div>
-          <div class="pg-label">Geometric</div><div class="presets" id="pgGeo"></div>
-          <div class="pg-label">Ethereal</div><div class="presets" id="pgEth"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Formula Parameters -->
-    <div class="sidebar-label">Formula Parameters</div>
-    <div class="side-card">
-      <div class="grid-2">
-        <div class="cg"><label>A — offset</label><input type="range" id="sA" min="0.1" max="4" step="0.05" value="1.9"><div class="vd" id="dA">1.9</div></div>
-        <div class="cg"><label>B — outer freq</label><input type="range" id="sB" min="1" max="12" step="0.5" value="3"><div class="vd" id="dB">3</div></div>
-        <div class="cg"><label>C — inner freq</label><input type="range" id="sC" min="1" max="12" step="0.5" value="3"><div class="vd" id="dC">3</div></div>
-        <div class="cg"><label>D — modulation</label><input type="range" id="sD" min="4" max="128" step="1" value="32"><div class="vd" id="dD">32</div></div>
-        <div class="cg"><label>θ range (× π)</label><input type="range" id="sTheta" min="2" max="300" step="1" value="64"><div class="vd" id="dTheta">64π</div></div>
-        <div class="cg"><label>Trail / History</label><input type="range" id="sTrail" min="1" max="40" step="1" value="6"><div class="vd" id="dTrail">6</div></div>
-      </div>
-    </div>
 
     <!-- Playback -->
     <div class="sidebar-label">Playback</div>
@@ -1034,6 +1004,41 @@ select {
   <!-- ══ CENTER — Visualization ═════════════════════════════════ -->
   <main class="col-center">
 
+    <!-- Formula Parameters (moved to top) -->
+    <div style="max-width:900px;width:100%;margin-bottom:16px;">
+      <div class="sidebar-label" style="margin-bottom:8px;">Formula Parameters</div>
+      <div class="side-card">
+        <div class="grid-2">
+          <div class="cg"><label>A — offset</label><input type="range" id="sA" min="0.1" max="4" step="0.05" value="2"><div class="vd" id="dA">2</div></div>
+          <div class="cg"><label>B — outer freq</label><input type="range" id="sB" min="1" max="12" step="0.5" value="1"><div class="vd" id="dB">1</div></div>
+          <div class="cg"><label>C — inner freq</label><input type="range" id="sC" min="1" max="12" step="0.5" value="3"><div class="vd" id="dC">3</div></div>
+          <div class="cg"><label>D — modulation</label><input type="range" id="sD" min="4" max="128" step="1" value="32"><div class="vd" id="dD">32</div></div>
+          <div class="cg"><label>θ range (× π)</label><input type="range" id="sTheta" min="2" max="300" step="1" value="64"><div class="vd" id="dTheta">64π</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Presets (moved below formula parameters) -->
+    <div style="max-width:900px;width:100%;margin-bottom:20px;">
+      <div class="sidebar-label" style="margin-bottom:8px;">Presets</div>
+      <div class="side-card">
+        <div class="preset-drop-wrap" style="max-width:none;margin:0">
+          <div class="preset-drop-header" id="presetDropHeader">
+            <div class="preset-drop-title">Select Preset</div>
+            <span class="preset-active-name" id="presetActiveName">Original</span>
+            <span class="preset-drop-chevron" id="presetDropChev">▼</span>
+          </div>
+          <div class="preset-drop-body" id="presetDropBody">
+            <div class="pg-label">Classics</div><div class="presets" id="pgClassic"></div>
+            <div class="pg-label">Complex</div><div class="presets" id="pgComplex"></div>
+            <div class="pg-label">Organic</div><div class="presets" id="pgOrganic"></div>
+            <div class="pg-label">Geometric</div><div class="presets" id="pgGeo"></div>
+            <div class="pg-label">Ethereal</div><div class="presets" id="pgEth"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Sphere canvas -->
     <div class="sphere-wrap">
       <canvas id="polarCanvas"></canvas>
@@ -1052,31 +1057,34 @@ select {
       
       <!-- Manual Rotation Controls -->
       <div style="margin-top:12px;margin-bottom:8px;">
-        <!-- X Rotation -->
-        <div style="margin-bottom:10px;">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;">
-            <label style="font-size:.48rem;color:var(--text-dim);font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.1em;">X°</label>
-            <input type="number" class="rotation-input-small" id="rotX" value="90" min="0" max="360" step="1" style="width:60px;padding:4px 6px;background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:.7rem;text-align:center;">
+        <div class="pg-label" style="margin-bottom:6px;">rotation (degrees)</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
+          <!-- X Rotation -->
+          <div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;">
+              <label style="font-size:.48rem;color:var(--text-dim);font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.1em;">X°</label>
+              <input type="number" class="rotation-input-small" id="rotX" value="90" min="0" max="360" step="1" style="width:50px;padding:3px 5px;background:var(--surface);border:1px solid var(--border);border-radius:3px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:.65rem;text-align:center;">
+            </div>
+            <input type="range" class="slider" id="rotXSlider" min="0" max="360" step="1" value="90" style="width:100%;">
           </div>
-          <input type="range" class="slider" id="rotXSlider" min="0" max="360" step="1" value="90" style="width:100%;">
-        </div>
-        
-        <!-- Y Rotation -->
-        <div style="margin-bottom:10px;">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;">
-            <label style="font-size:.48rem;color:var(--text-dim);font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.1em;">Y°</label>
-            <input type="number" class="rotation-input-small" id="rotY" value="0" min="0" max="360" step="1" style="width:60px;padding:4px 6px;background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:.7rem;text-align:center;">
+          
+          <!-- Y Rotation -->
+          <div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;">
+              <label style="font-size:.48rem;color:var(--text-dim);font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.1em;">Y°</label>
+              <input type="number" class="rotation-input-small" id="rotY" value="0" min="0" max="360" step="1" style="width:50px;padding:3px 5px;background:var(--surface);border:1px solid var(--border);border-radius:3px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:.65rem;text-align:center;">
+            </div>
+            <input type="range" class="slider" id="rotYSlider" min="0" max="360" step="1" value="0" style="width:100%;">
           </div>
-          <input type="range" class="slider" id="rotYSlider" min="0" max="360" step="1" value="0" style="width:100%;">
-        </div>
-        
-        <!-- Z Rotation -->
-        <div style="margin-bottom:10px;">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;">
-            <label style="font-size:.48rem;color:var(--text-dim);font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.1em;">Z°</label>
-            <input type="number" class="rotation-input-small" id="rotZ" value="0" min="0" max="360" step="1" style="width:60px;padding:4px 6px;background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:.7rem;text-align:center;">
+          
+          <!-- Z Rotation -->
+          <div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;">
+              <label style="font-size:.48rem;color:var(--text-dim);font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.1em;">Z°</label>
+              <input type="number" class="rotation-input-small" id="rotZ" value="0" min="0" max="360" step="1" style="width:50px;padding:3px 5px;background:var(--surface);border:1px solid var(--border);border-radius:3px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:.65rem;text-align:center;">
+            </div>
+            <input type="range" class="slider" id="rotZSlider" min="0" max="360" step="1" value="0" style="width:100%;">
           </div>
-          <input type="range" class="slider" id="rotZSlider" min="0" max="360" step="1" value="0" style="width:100%;">
         </div>
       </div>
       
@@ -1446,7 +1454,7 @@ let gapIndexMap = {};
 // ═══════════════════════════════════════════════════════════════
 //  VISUALIZATION STATE
 // ═══════════════════════════════════════════════════════════════
-let A=1.9, B=3, C=3, D=32, thetaTotal=64*Math.PI, trailFade=6;
+let A=2, B=1, C=3, D=32, thetaTotal=64*Math.PI, trailFade=6;
 let speed=8, paused=true, looping=false;
 let traceThickness = 1.35;
 
@@ -1759,9 +1767,8 @@ function renderSphere() {
   const end = Math.floor(drawProgress);
   if (end < 2) return;
 
-  const histFrac = 1 - ((trailFade-1)/39)*0.9;
-  const histLen = Math.max(2, Math.floor(end * histFrac));
-  const startIdx = Math.max(1, end - histLen);
+  // Always draw from the beginning (index 1) to keep full trail visible
+  const startIdx = 1;
   const hasGapSel = selectedGaps.size > 0;
   const dimBase = hasGapSel;
 
@@ -1788,7 +1795,8 @@ function renderSphere() {
     const p2=precomputed[Math.min(TOTAL_PTS-1,i+1)];
     const p3=precomputed[Math.min(TOTAL_PTS-1,i+2)];
     if(!p0||!p1||!p2||!p3) continue;
-    const bi=Math.min(HUE_BANDS-1, Math.floor((i-startIdx)/histLen*HUE_BANDS));
+    // Color bands based on position in the full drawn range
+    const bi=Math.min(HUE_BANDS-1, Math.floor((i-startIdx)/(end-startIdx)*HUE_BANDS));
     // Walk N_SUB sub-intervals
     for(let s=0; s<N_SUB; s++){
       const ta=s/N_SUB, tb=(s+1)/N_SUB;
@@ -2305,7 +2313,6 @@ bind('sB','dB',v=>B=v);
 bind('sC','dC',v=>C=v);
 bind('sD','dD',v=>D=v);
 bind('sTheta','dTheta',v=>thetaTotal=v*Math.PI,v=>v+'π');
-bind('sTrail','dTrail',v=>trailFade=v,null,true);
 bind('sSpeed','dSpeed',v=>{speed=v;updateSpeedDesc(v); if(!paused && harmSyncEnabled) harmSyncStart(); },v=>v.toFixed(2),true);
 
 document.getElementById('btnPlay').addEventListener('click',function(){
@@ -2322,6 +2329,7 @@ document.getElementById('btnReset').addEventListener('click',()=>{ harmSyncStop(
 //  4K SPHERE EXPORT
 // ═══════════════════════════════════════════════════════════════
 document.getElementById('btnExport4K').addEventListener('click', exportSphere4K);
+document.getElementById('btnExportMulti').addEventListener('click', exportMultiAngle);
 
 function exportSphere4K() {
   // ── Composite 4K export: sphere + formula + cart canvas + stats bar ──
@@ -2386,9 +2394,8 @@ function exportSphere4K() {
   // Curve trace on sphere
   const end=Math.floor(drawProgress);
   if(end>=2){
-    const histFrac=1-((trailFade-1)/39)*0.9;
-    const histLen=Math.max(2,Math.floor(end*histFrac));
-    const startIdx=Math.max(1,end-histLen);
+    // Always draw from beginning to keep full trail visible
+    const startIdx=1;
     sc.lineWidth=traceThickness*2.2;
     for(let i=startIdx;i<end;i++){
       const p0=precomputed[i-1],p1=precomputed[i];
@@ -2509,6 +2516,83 @@ function exportSphere4K() {
   });
   ry += STATS_H + 48;
 
+  // ── Parameter Legend (Bottom-Right) ──
+  const LEGEND_X = RIGHT_X;
+  const LEGEND_Y = H - 580;  // Position from bottom
+  const LEGEND_W = RIGHT_W;
+  const LEGEND_H = 500;
+  
+  // Background panel
+  ctx.fillStyle='rgba(91,156,246,0.04)';
+  ctx.strokeStyle='rgba(91,156,246,0.18)'; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.roundRect(LEGEND_X, LEGEND_Y, LEGEND_W, LEGEND_H, 12); ctx.fill(); ctx.stroke();
+  
+  // Title
+  ctx.textAlign='left'; ctx.textBaseline='top';
+  ctx.fillStyle='rgba(91,156,246,0.7)';
+  ctx.font=`bold 32px 'JetBrains Mono', monospace`;
+  ctx.fillText('PARAMETERS', LEGEND_X + 24, LEGEND_Y + 20);
+  
+  let py = LEGEND_Y + 70;
+  const lineH = 36;
+  const indent = LEGEND_X + 24;
+  
+  // Parameter details
+  const params = [
+    { label: 'Formula Parameters:', value: '', color: 'rgba(255,215,0,0.6)' },
+    { label: '  A (Offset):', value: A.toString(), color: '#ffd700' },
+    { label: '  B (Amplitude):', value: B.toString(), color: '#ffd700' },
+    { label: '  C (Frequency):', value: C.toString(), color: '#ffd700' },
+    { label: '  D (Phase):', value: D.toString(), color: '#ffd700' },
+    { label: '', value: '', color: '' },
+    { label: 'Visualization:', value: '', color: 'rgba(91,156,246,0.6)' },
+    { label: '  Color Mode:', value: harmColorMode ? 'Harmonic Consonance' : 'Hue Gradient', color: harmColorMode ? '#5ebd78' : '#5b9cf6' },
+    { label: '  Rotation X:', value: `${Math.round(manualRotX)}°`, color: '#5b9cf6' },
+    { label: '  Rotation Y:', value: `${Math.round(manualRotY)}°`, color: '#5b9cf6' },
+    { label: '  Rotation Z:', value: `${Math.round(manualRotZ)}°`, color: '#5b9cf6' },
+    { label: '  Zoom Level:', value: `${zoomLevel.toFixed(2)}×`, color: '#5b9cf6' },
+    { label: '  Trace Thickness:', value: traceThickness.toString(), color: '#5b9cf6' },
+    { label: '  Speed:', value: speed.toString(), color: '#5b9cf6' },
+  ];
+  
+  ctx.font=`500 24px 'JetBrains Mono', monospace`;
+  params.forEach(p => {
+    if (p.label === '' && p.value === '') {
+      py += lineH * 0.3; // Small gap
+    } else if (p.value === '') {
+      // Section header
+      ctx.fillStyle = p.color;
+      ctx.font=`bold 26px 'JetBrains Mono', monospace`;
+      ctx.fillText(p.label, indent, py);
+      ctx.font=`500 24px 'JetBrains Mono', monospace`;
+      py += lineH;
+    } else {
+      // Parameter line
+      ctx.fillStyle = 'rgba(180,200,235,0.5)';
+      ctx.fillText(p.label, indent, py);
+      ctx.fillStyle = p.color;
+      const labelW = ctx.measureText(p.label).width;
+      ctx.fillText(p.value, indent + labelW + 12, py);
+      py += lineH;
+    }
+  });
+
+  // Add harmonic intervals if color mode is on
+  if (harmColorMode && harmSelectedIntervals.size > 0) {
+    py += lineH * 0.3; // Small gap
+    ctx.fillStyle = 'rgba(94,189,120,0.6)';
+    ctx.font=`bold 26px 'JetBrains Mono', monospace`;
+    ctx.fillText('Harmonic Intervals:', indent, py);
+    ctx.font=`500 22px 'JetBrains Mono', monospace`;
+    py += lineH;
+    
+    const sel = [...harmSelectedIntervals].sort((a,b) => a-b);
+    const intervalStr = sel.map(i => HARM_INTERVALS[i].name).join(', ');
+    ctx.fillStyle = '#5ebd78';
+    ctx.fillText(`  ${intervalStr}`, indent, py);
+    py += lineH;
+  }
+
   // ── Watermark ──
   ctx.textAlign='left'; ctx.textBaseline='bottom';
   ctx.fillStyle='rgba(91,156,246,0.35)';
@@ -2526,6 +2610,205 @@ function exportSphere4K() {
   link.download = `polar_cart_4K_A${A}_B${B}_C${C}_D${D}.png`;
   link.href = cv.toDataURL('image/png');
   link.click();
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  MULTI-ANGLE EXPORT
+// ═══════════════════════════════════════════════════════════════
+function exportMultiAngle() {
+  // Prompt user for number of angles
+  const countStr = prompt('How many angle views do you want? (2-12)', '4');
+  const count = parseInt(countStr);
+  
+  if (!count || count < 2 || count > 12) {
+    alert('Please enter a number between 2 and 12');
+    return;
+  }
+  
+  // Ask if user wants individual files or combined
+  const exportMode = confirm('Click OK for COMBINED image\nClick Cancel for INDIVIDUAL images');
+  
+  // Generate evenly distributed rotation angles
+  // Always start with X=0, Y=0, Z=0, then rotate Y axis
+  const angles = [];
+  for (let i = 0; i < count; i++) {
+    const yAngle = Math.round((360 / count) * i);
+    angles.push({ x: 0, y: yAngle, z: 0 });
+  }
+  
+  // Size for each canvas (high quality)
+  const SIZE = 2048; // 2K per image
+  const cvTemp = document.createElement('canvas');
+  cvTemp.width = cvTemp.height = SIZE;
+  const ctx = cvTemp.getContext('2d');
+  
+  // Save current rotation
+  const savedRotX = manualRotX;
+  const savedRotY = manualRotY;
+  const savedRotZ = manualRotZ;
+  const savedRotMat = [...rotMat];
+  
+  // Generate each angle
+  const images = [];
+  angles.forEach((angle, idx) => {
+    // Set rotation
+    manualRotX = angle.x;
+    manualRotY = angle.y;
+    manualRotZ = angle.z;
+    const rx = manualRotX * Math.PI / 180;
+    const ry = manualRotY * Math.PI / 180;
+    const rz = manualRotZ * Math.PI / 180;
+    rotMat = mmul(mrotX(rx), mmul(mrotY(ry), mrotZ(rz)));
+    
+    // Clear canvas
+    ctx.fillStyle = '#060608';
+    ctx.fillRect(0, 0, SIZE, SIZE);
+    
+    // Draw grid
+    const R = SIZE * 0.37;
+    function proj2K(rx, ry, rz) {
+      const fov = 2.8, scale = fov / (fov - rz);
+      return [SIZE / 2 + rx * R * scale * zoomLevel, SIZE / 2 - ry * R * scale * zoomLevel];
+    }
+    
+    ctx.lineWidth = 1.5;
+    // Latitude lines
+    for (let li = -2; li <= 2; li++) {
+      const lat = (li / 3) * Math.PI / 2, cosLat = Math.cos(lat), sinLat = Math.sin(lat);
+      ctx.beginPath();
+      let first = true;
+      for (let lo = 0; lo <= Math.PI * 2 + 0.05; lo += 0.04) {
+        const x = cosLat * Math.cos(lo), y = sinLat, z = cosLat * Math.sin(lo);
+        const [rx, ry, rz] = applyM(rotMat, x, y, z);
+        const [px, py] = proj2K(rx, ry, rz);
+        ctx.globalAlpha = Math.max(0.05, 0.06 + (rz + 1) * 0.12);
+        ctx.strokeStyle = '#3a7040';
+        if (first) { ctx.moveTo(px, py); first = false; } else ctx.lineTo(px, py);
+      }
+      ctx.stroke();
+    }
+    // Longitude lines
+    for (let lo = 0; lo < 8; lo++) {
+      const lon = (lo / 8) * Math.PI * 2, cosLon = Math.cos(lon), sinLon = Math.sin(lon);
+      ctx.beginPath();
+      let first = true;
+      for (let la = -Math.PI / 2; la <= Math.PI / 2 + 0.05; la += 0.04) {
+        const x = Math.cos(la) * cosLon, y = Math.sin(la), z = Math.cos(la) * sinLon;
+        const [rx, ry, rz] = applyM(rotMat, x, y, z);
+        const [px, py] = proj2K(rx, ry, rz);
+        ctx.globalAlpha = Math.max(0.05, 0.06 + (rz + 1) * 0.12);
+        ctx.strokeStyle = '#3a7040';
+        if (first) { ctx.moveTo(px, py); first = false; } else ctx.lineTo(px, py);
+      }
+      ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
+    
+    // Draw curve
+    const end = Math.floor(drawProgress);
+    if (end >= 2) {
+      ctx.lineWidth = traceThickness * 2.5;
+      for (let i = 1; i < end; i++) {
+        const p1 = precomputed[i], p0 = precomputed[i - 1];
+        if (!p0 || !p1) continue;
+        const [rx1, ry1, rz1] = applyM(rotMat, p0[0], p0[1], p0[2]);
+        const [rx2, ry2, rz2] = applyM(rotMat, p1[0], p1[1], p1[2]);
+        const [px1, py1] = proj2K(rx1, ry1, rz1);
+        const [px2, py2] = proj2K(rx2, ry2, rz2);
+        const frac = i / TOTAL_PTS;
+        ctx.strokeStyle = harmColorMode ? (harmColorForProgress(frac) || `hsl(${200 + frac * 80},90%,60%)`) : `hsl(${200 + frac * 80},90%,60%)`;
+        ctx.globalAlpha = 0.9;
+        ctx.beginPath();
+        ctx.moveTo(px1, py1);
+        ctx.lineTo(px2, py2);
+        ctx.stroke();
+      }
+    }
+    
+    // Add title
+    ctx.globalAlpha = 1;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'top';
+    ctx.fillStyle = '#ffd700';
+    ctx.font = `bold 48px 'JetBrains Mono', monospace`;
+    ctx.fillText(`f(θ) = ${A} + sin(${B}θ) · sin(${C}θ / ${D})`, SIZE / 2, 40);
+    
+    // Add rotation angles at bottom
+    ctx.textBaseline = 'bottom';
+    ctx.fillStyle = '#5b9cf6';
+    ctx.font = `500 36px 'JetBrains Mono', monospace`;
+    ctx.fillText(`X: ${angle.x}°  Y: ${angle.y}°  Z: ${angle.z}°`, SIZE / 2, SIZE - 40);
+    
+    // Store image
+    images.push({
+      dataUrl: cvTemp.toDataURL('image/png'),
+      canvas: cvTemp.toDataURL('image/png'),
+      angle: angle
+    });
+  });
+  
+  // Restore rotation
+  manualRotX = savedRotX;
+  manualRotY = savedRotY;
+  manualRotZ = savedRotZ;
+  rotMat = savedRotMat;
+  
+  if (exportMode) {
+    // COMBINED MODE - Create grid layout
+    const cols = count <= 4 ? count : Math.ceil(Math.sqrt(count));
+    const rows = Math.ceil(count / cols);
+    const PADDING = 40;
+    const gridW = cols * SIZE + (cols + 1) * PADDING;
+    const gridH = rows * SIZE + (rows + 1) * PADDING + 120; // Extra space for title
+    
+    const gridCanvas = document.createElement('canvas');
+    gridCanvas.width = gridW;
+    gridCanvas.height = gridH;
+    const gCtx = gridCanvas.getContext('2d');
+    
+    // Background
+    gCtx.fillStyle = '#060608';
+    gCtx.fillRect(0, 0, gridW, gridH);
+    
+    // Title
+    gCtx.textAlign = 'center';
+    gCtx.textBaseline = 'top';
+    gCtx.fillStyle = '#ffd700';
+    gCtx.font = `bold 64px 'JetBrains Mono', monospace`;
+    gCtx.fillText(`f(θ) = ${A} + sin(${B}θ) · sin(${C}θ / ${D})`, gridW / 2, PADDING);
+    
+    // Draw each image in grid
+    images.forEach((img, idx) => {
+      const col = idx % cols;
+      const row = Math.floor(idx / cols);
+      const x = PADDING + col * (SIZE + PADDING);
+      const y = PADDING + 80 + row * (SIZE + PADDING);
+      
+      // Load and draw image
+      const imgEl = new Image();
+      imgEl.src = img.canvas;
+      gCtx.drawImage(imgEl, x, y, SIZE, SIZE);
+    });
+    
+    // Download combined image
+    setTimeout(() => {
+      const link = document.createElement('a');
+      link.download = `polar_multi_${count}views_A${A}_B${B}_C${C}_D${D}.png`;
+      link.href = gridCanvas.toDataURL('image/png');
+      link.click();
+      alert(`Exported combined grid with ${count} views!`);
+    }, 500); // Small delay to ensure images load
+    
+  } else {
+    // INDIVIDUAL MODE - Download separately
+    images.forEach((img, idx) => {
+      const link = document.createElement('a');
+      link.download = `polar_A${A}_B${B}_C${C}_D${D}_angle${idx + 1}_X${img.angle.x}_Y${img.angle.y}_Z${img.angle.z}.png`;
+      link.href = img.dataUrl;
+      link.click();
+    });
+    alert(`Exported ${count} individual angle views!`);
+  }
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -2561,7 +2844,6 @@ function applyPreset(p, btn, isGap){
   const sl=(id,v,fmt)=>{ document.getElementById(id).value=v; document.getElementById('d'+id.slice(1)).textContent=fmt?fmt(v):v; };
   sl('sA',A); sl('sB',B); sl('sC',C); sl('sD',D);
   sl('sTheta',p.theta,v=>v+'π');
-  sl('sTrail',trailFade);
   if(activePresetBtn) activePresetBtn.classList.remove('active','gap-active');
   if(btn){ btn.classList.add(isGap?'gap-active':'active'); activePresetBtn=btn; }
 
@@ -2569,19 +2851,19 @@ function applyPreset(p, btn, isGap){
   const nameEl=document.getElementById('presetActiveName');
   if(nameEl) nameEl.textContent=p.name;
 
-  // Loop ON (user has interacted)
-  looping=true;
+  // Loop OFF (as requested)
+  looping=false;
   const cbLoop=document.getElementById('cbLoop');
-  if(cbLoop){ cbLoop.checked=true; }
-  document.getElementById('loopState').textContent='on — loops forever';
+  if(cbLoop){ cbLoop.checked=false; }
+  document.getElementById('loopState').textContent='off — stops at end';
 
   // Fast speed
   setSpeed(20);
 
-  // Auto-rotate on
-  autoRotate=true;
+  // Auto-rotate OFF (as requested)
+  autoRotate=false;
   const rotBtn=document.getElementById('btnAutoRot');
-  if(rotBtn){ rotBtn.classList.add('on'); rotBtn.textContent='⟳ Rotating...'; }
+  if(rotBtn){ rotBtn.classList.remove('on'); rotBtn.textContent='⟳ Auto-Rotate'; }
 
   // Reset then play
   hardReset();
