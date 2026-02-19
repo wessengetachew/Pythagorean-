@@ -424,8 +424,115 @@ button.ctrl.gold-ctrl:hover, button.ctrl.gold-ctrl.on { background:var(--gold); 
 .gap-leg { display:flex; align-items:center; gap:4px; font-size:.52rem; color:rgba(150,175,115,.7); font-family:'JetBrains Mono',monospace; }
 .gap-leg-sw { width:8px; height:8px; border-radius:2px; flex-shrink:0; }
 
-/* Export row */
-.export-row { display:flex; gap:7px; flex-wrap:wrap; margin-top:12px; padding-top:12px; border-top:1px solid rgba(232,197,71,.08); }
+/* Export row — styled like reference file */
+.gd-export-row {
+  display: flex;
+  gap: 7px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(232,197,71,.12);
+}
+.gd-export-btn {
+  flex: 1;
+  min-width: 80px;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: .6rem;
+  font-weight: 700;
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  transition: all .2s;
+}
+.gd-export-btn:hover { transform: translateY(-1px); box-shadow: 0 3px 10px rgba(0,0,0,.4); }
+.gd-export-btn.csv  { background: linear-gradient(135deg,#64ff64,#32aa32); color:#000; }
+.gd-export-btn.csv:hover  { box-shadow: 0 2px 10px rgba(100,255,100,.3); }
+.gd-export-btn.dom  { background: linear-gradient(135deg,#3b82f6,#1e40af); color:#fff; }
+.gd-export-btn.dom:hover  { box-shadow: 0 2px 10px rgba(59,130,246,.35); }
+.gd-export-btn.cvs  { background: linear-gradient(135deg,#ef4444,#991b1b); color:#fff; }
+.gd-export-btn.cvs:hover  { box-shadow: 0 2px 10px rgba(239,68,68,.35); }
+
+/* Standalone Gap Ratio Analysis Panel */
+.gd-ratio-panel {
+  width: 100%;
+  max-width: 900px;
+  background: rgba(232,197,71,.025);
+  border: 1px solid rgba(232,197,71,.2);
+  border-radius: 10px;
+  overflow: hidden;
+  display: none; /* shown after gap data is computed */
+}
+.gd-ratio-panel-header {
+  padding: 14px 18px 10px;
+  border-bottom: 1px solid rgba(232,197,71,.12);
+}
+.gd-ratio-panel-title {
+  font-family: 'Lora', serif;
+  font-size: clamp(.9rem,1.8vw,1.15rem);
+  color: var(--gold);
+  margin-bottom: 6px;
+}
+.gd-ratio-panel-desc {
+  background: rgba(232,197,71,.07);
+  border-left: 3px solid rgba(232,197,71,.4);
+  border-radius: 4px;
+  padding: 10px 14px;
+  font-size: .68rem;
+  color: rgba(200,210,180,.75);
+  line-height: 1.7;
+  font-family: 'DM Sans', sans-serif;
+}
+.gd-ratio-canvas-wrap {
+  width: 100%;
+  padding: 12px 14px 0;
+}
+.gd-ratio-canvas-wrap canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 6px;
+  background: #060608;
+}
+.gd-ratio-table-wrap {
+  padding: 12px 14px 16px;
+}
+.gd-ratio-table-title {
+  font-size: .52rem;
+  text-transform: uppercase;
+  letter-spacing: .18em;
+  color: rgba(232,197,71,.45);
+  font-family: 'JetBrains Mono', monospace;
+  margin-bottom: 8px;
+}
+.gd-ratio-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: .6rem;
+  font-family: 'JetBrains Mono', monospace;
+}
+.gd-ratio-table th {
+  text-align: left;
+  padding: 5px 8px;
+  color: rgba(232,197,71,.7);
+  border-bottom: 1px solid rgba(232,197,71,.15);
+  font-size: .55rem;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+}
+.gd-ratio-table td {
+  padding: 5px 8px;
+  color: rgba(200,215,185,.75);
+  border-bottom: 1px solid rgba(255,255,255,.03);
+}
+.gd-ratio-table tr:hover td { background: rgba(232,197,71,.04); }
+.gd-ratio-val-good { color: #5ebd78 !important; font-weight: 700; }
+.gd-ratio-val-warn { color: var(--gold) !important; font-weight: 700; }
+.gd-ratio-val-bad  { color: #f87171 !important; }
+
+
 
 /* Gap presets inside the gap panel */
 .gap-wave-presets { margin-bottom:12px; }
@@ -926,6 +1033,7 @@ select {
 }
 
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
 <body>
 <div class="page-shell">
@@ -993,12 +1101,12 @@ select {
     <div class="sidebar-label" style="margin-top:10px">Coordinate Mode</div>
     <div class="side-card" id="coordPanel">
       <div class="coord-mode-grid" id="coordModeGrid">
-        <button class="coord-mode-btn active" data-mode="polar">⊙ Polar</button>
-        <button class="coord-mode-btn" data-mode="logcylinder">⌇ Log-Cyl</button>
+        <button class="coord-mode-btn" data-mode="polar">⊙ Polar</button>
+        <button class="coord-mode-btn active" data-mode="logcylinder">⌇ Log-Cyl</button>
         <button class="coord-mode-btn" data-mode="logspiral">🌀 Spiral</button>
         <button class="coord-mode-btn" data-mode="poincare">⬤ Poincaré</button>
       </div>
-      <div style="font-size:.56rem;color:rgba(94,189,120,.45);line-height:1.6;margin:7px 0;font-family:'JetBrains Mono',monospace" id="coordModeDesc">Polar/spherical — default.</div>
+      <div style="font-size:.56rem;color:rgba(94,189,120,.45);line-height:1.6;margin:7px 0;font-family:'JetBrains Mono',monospace" id="coordModeDesc">Log-Cylinder: u = ln(θ+1), v = f(θ). Compresses the θ axis logarithmically, revealing fine structure near origin.</div>
       <div class="cg">
         <label style="color:rgba(150,180,150,.7)">Blend</label>
         <input type="range" id="coordBlend" min="0" max="1" step="0.01" value="1" style="background:rgba(94,189,120,.18)">
@@ -1010,12 +1118,12 @@ select {
     <div class="sidebar-label" style="margin-top:10px">Presets</div>
     <div class="side-card">
       <div class="preset-drop-wrap" style="max-width:none;margin:0">
-        <div class="preset-drop-header" id="presetDropHeader">
+        <div class="preset-drop-header open" id="presetDropHeader">
           <div class="preset-drop-title">Select Preset</div>
           <span class="preset-active-name" id="presetActiveName">Original</span>
-          <span class="preset-drop-chevron" id="presetDropChev">▼</span>
+          <span class="preset-drop-chevron open" id="presetDropChev">▼</span>
         </div>
-        <div class="preset-drop-body" id="presetDropBody">
+        <div class="preset-drop-body open" id="presetDropBody">
           <div class="pg-label">Classics</div><div class="presets" id="pgClassic"></div>
           <div class="pg-label">Complex</div><div class="presets" id="pgComplex"></div>
           <div class="pg-label">Organic</div><div class="presets" id="pgOrganic"></div>
@@ -1325,10 +1433,7 @@ select {
             </div>
             <button class="ctrl gold-ctrl" id="gdChartScreenshot" onclick="screenshotCanvas(gdCanvas,'gap_chart')" style="font-size:.48rem;padding:2px 7px;opacity:.7;display:none;margin-left:8px;flex-shrink:0">⬇ Chart PNG</button>
           </div>
-          <!-- Chart canvas (re-rendered here from the center wave panel, shown large) -->
-          <div id="gdChartArea" style="width:100%;display:none">
-            <canvas id="gdChartBig" style="width:100%;border-radius:4px;background:#060608;display:block"></canvas>
-          </div>
+          <!-- Chart canvas (re-rendered here from the center wave panel, shown large) -->\n          <div id=\"gdChartArea\" style=\"width:100%;display:none\">\n            <canvas id=\"gdChartBig\" style=\"width:100%;border-radius:4px;background:#060608;display:block\"></canvas>\n            <!-- Export row matching reference file style -->\n            <div class=\"gd-export-row\">\n              <button class=\"gd-export-btn csv\" onclick=\"gdExportChartCSV()\">⬇ Export CSV</button>\n              <button class=\"gd-export-btn dom\" onclick=\"gdExportDOM()\">📷 DOM Export PNG</button>\n              <button class=\"gd-export-btn cvs\" onclick=\"gdExportCanvasPNG()\">🖼 Canvas Export PNG</button>\n              <button class=\"gd-export-btn\" style=\"background:linear-gradient(135deg,#e8c547,#b8960f);color:#000\" onclick=\"gdExport4K();event.stopPropagation()\">⬇ Full 4K Report PNG</button>\n            </div>\n          </div>
 
           <!-- Contributions table with screenshot -->
           <div class="gap-table-wrap" id="gdTableSection" style="display:none">
@@ -1400,6 +1505,44 @@ select {
 
         </div><!-- /.accordion-body #gapAccBody -->
       </div><!-- /.gap-accordion -->
+
+      <!-- ── Standalone Gap Ratio Analysis: Twin Prime Conjecture Evidence ── -->
+      <div class="gd-ratio-panel" id="gdRatioPanel">
+        <div class="gd-ratio-panel-header">
+          <div class="gd-ratio-panel-title">📊 Gap Ratio Analysis: Twin Prime Conjecture Evidence</div>
+          <div class="gd-ratio-panel-desc">
+            Tracks Count(gap=2)/Count(gap=4) and other gap ratios. Hardy-Littlewood predicts twin primes (gap 2) and
+            cousin primes (gap 4) have <em>identical</em> singular series constants, so their ratio should approach
+            <strong style="color:var(--gold)">1.0</strong> as N→∞. Gap 6 (sexy primes) has a 2× larger constant
+            due to the p=3 factor — so it is asymptotically <em>twice as frequent</em> as gap 2 or gap 4, not equal.
+          </div>
+        </div>
+        <div class="gd-ratio-canvas-wrap">
+          <canvas id="gdRatioChartBig" width="3840" height="2160"></canvas>
+        </div>
+        <div class="gd-ratio-table-wrap">
+          <div class="gd-ratio-table-title">Gap Ratio Data</div>
+          <table class="gd-ratio-table" id="gdRatioTable">
+            <thead>
+              <tr>
+                <th>Metric</th>
+                <th>Value</th>
+                <th>Target</th>
+                <th>Status</th>
+                <th>Interpretation</th>
+              </tr>
+            </thead>
+            <tbody id="gdRatioTableBody">
+              <tr><td colspan="5" style="color:rgba(180,200,180,.4);padding:10px 8px">Run Gap Decomposition to populate…</td></tr>
+            </tbody>
+          </table>
+          <div class="gd-export-row">
+            <button class="gd-export-btn csv" onclick="gdExportRatioCSV()">⬇ Export Table CSV</button>
+            <button class="gd-export-btn dom" onclick="gdExportRatioDOM()">📷 DOM Export PNG</button>
+            <button class="gd-export-btn cvs" onclick="gdExportRatioCanvas()">🖼 Canvas Export PNG</button>
+          </div>
+        </div>
+      </div>
 
       <!-- ── Riemann Zeta ζ(½+it) Accordion ── -->
       <div class="accordion" id="zetaAccordionWrap" style="border-color:rgba(180,100,255,.25);">
@@ -3329,18 +3472,28 @@ function gdResizeCanvas(){
   const leftSidebar = window.innerWidth > 900 ? 320 : 0;
   const sphereW = Math.min(window.innerWidth - leftSidebar - 80, 900);
 
-  if(!gapPanel || gapPanel.classList.contains('gap-hidden')){
-    gdCanvas.width = Math.max(280, 400);
-  } else {
-    gdCanvas.width = Math.max(280, Math.floor((sphereW - 12) / 2));
-  }
-  gdCanvas.height = Math.max(200, Math.round(cCv.height || 200));
+  // Use devicePixelRatio for the small inline canvas so it's crisp on HiDPI screens
+  const dpr = window.devicePixelRatio || 1;
+  const displayW = !gapPanel || gapPanel.classList.contains('gap-hidden')
+    ? Math.max(280, 400)
+    : Math.max(280, Math.floor((sphereW - 12) / 2));
+  const displayH = Math.max(200, Math.round(cCv.height || 200));
 
-  // Also size the big accordion chart canvas
+  gdCanvas.width  = displayW  * dpr;
+  gdCanvas.height = displayH * dpr;
+  gdCanvas.style.width  = displayW  + 'px';
+  gdCanvas.style.height = displayH + 'px';
+  gdCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+  // Big accordion chart canvas — 4K internal resolution, displayed at 100% width via CSS
   const bigCv = document.getElementById('gdChartBig');
   if(bigCv){
-    bigCv.width = Math.max(400, sphereW);
-    bigCv.height = Math.round(bigCv.width * 0.45);
+    bigCv.width  = 3840;
+    bigCv.height = 2160;
+    // CSS will scale it to 100% width; height:auto keeps the 16:9 ratio
+    bigCv.style.width  = '100%';
+    bigCv.style.height = 'auto';
+    bigCv.style.imageRendering = 'auto';
   }
 
   if(gdData) gdDraw();
@@ -3829,14 +3982,26 @@ function gdDraw(offCtx, offW, offH){
 
   if(offCtx){ gdCtx = _saved; }
 
-  // Mirror to big accordion chart canvas (only for live draw)
+  // Mirror to big accordion chart canvas (only for live draw) — render at full 4K quality
   if(!offCtx){
     const bigCv = document.getElementById('gdChartBig');
     if(bigCv && bigCv.width > 0 && bigCv.height > 0){
       const bigCtx = bigCv.getContext('2d');
+      bigCtx.imageSmoothingEnabled = true;
+      bigCtx.imageSmoothingQuality = 'high';
       bigCtx.fillStyle='#060608'; bigCtx.fillRect(0,0,bigCv.width,bigCv.height);
-      bigCtx.drawImage(gdCanvas, 0, 0, bigCv.width, bigCv.height);
+      // Re-render at full 4K resolution rather than scaling up the small canvas
+      const _saved2 = gdCtx;
+      gdCtx = bigCtx;
+      if(gdTab==='contrib') gdDrawContrib(bigCv.width, bigCv.height);
+      else if(gdTab==='dist') gdDrawDist(bigCv.width, bigCv.height);
+      else if(gdTab==='conv') gdDrawConv(bigCv.width, bigCv.height);
+      else if(gdTab==='ratio') gdDrawRatio(bigCv.width, bigCv.height);
+      else if(gdTab==='pct') gdDrawPct(bigCv.width, bigCv.height);
+      gdCtx = _saved2;
     }
+    // Also update the standalone Gap Ratio panel canvas if it exists
+    gdUpdateRatioPanel();
   }
 }
 
@@ -4559,6 +4724,204 @@ function gdExport4K(){
 
   // Redraw live canvas
   gdDraw();
+}
+
+// ── New Chart export functions ────────────────────────────────────────────
+
+function gdExportChartCSV(){
+  // Re-use existing CSV exporter but named clearly for the export row button
+  gdExportCSV();
+}
+
+function gdExportDOM(){
+  // DOM-screenshot of the entire accordion chart area
+  const wrap = document.getElementById('gdChartArea');
+  if(!wrap){ alert('No chart data yet — run decomposition first.'); return; }
+  if(typeof html2canvas === 'undefined'){ alert('html2canvas not loaded.'); return; }
+  html2canvas(wrap, {
+    scale: 2,
+    backgroundColor: '#060608',
+    logging: false,
+    useCORS: true,
+    allowTaint: true
+  }).then(cv => {
+    const a = document.createElement('a');
+    a.download = `gap_decomp_DOM_${gdData?.maxN||''}_${gdTab}.png`;
+    a.href = cv.toDataURL('image/png');
+    a.click();
+  }).catch(e => alert('Export failed: ' + e));
+}
+
+function gdExportCanvasPNG(){
+  // Direct canvas export at 4K quality
+  const bigCv = document.getElementById('gdChartBig');
+  if(!bigCv || !gdData){ alert('Run decomposition first.'); return; }
+  // Ensure 4K redraw
+  const bCtx = bigCv.getContext('2d');
+  bCtx.fillStyle='#060608'; bCtx.fillRect(0,0,bigCv.width,bigCv.height);
+  const _saved = gdCtx; gdCtx = bCtx;
+  if(gdTab==='contrib') gdDrawContrib(bigCv.width,bigCv.height);
+  else if(gdTab==='dist') gdDrawDist(bigCv.width,bigCv.height);
+  else if(gdTab==='conv') gdDrawConv(bigCv.width,bigCv.height);
+  else if(gdTab==='ratio') gdDrawRatio(bigCv.width,bigCv.height);
+  else if(gdTab==='pct') gdDrawPct(bigCv.width,bigCv.height);
+  gdCtx = _saved;
+  const a = document.createElement('a');
+  a.download = `gap_decomp_canvas_4K_${gdData.maxN}_${gdTab}.png`;
+  a.href = bigCv.toDataURL('image/png');
+  a.click();
+}
+
+// ── Standalone Gap Ratio Panel ───────────────────────────────────────────
+
+function gdUpdateRatioPanel(){
+  if(!gdData) return;
+  const panel = document.getElementById('gdRatioPanel');
+  if(panel) panel.style.display = 'block';
+
+  // Render high-res ratio chart
+  const cv = document.getElementById('gdRatioChartBig');
+  if(!cv) return;
+  const rCtx = cv.getContext('2d');
+  rCtx.imageSmoothingEnabled = true;
+  rCtx.imageSmoothingQuality = 'high';
+  rCtx.fillStyle = '#060608';
+  rCtx.fillRect(0, 0, cv.width, cv.height);
+  const _saved = gdCtx;
+  gdCtx = rCtx;
+  gdDrawRatio(cv.width, cv.height);
+  gdCtx = _saved;
+
+  // Populate the ratio table
+  gdBuildRatioTable();
+}
+
+function gdBuildRatioTable(){
+  if(!gdData) return;
+  const d = gdData;
+  const c2  = d.c2  || d.gapProducts[2]?.count  || 0;
+  const c4  = d.c4  || d.gapProducts[4]?.count  || 0;
+  const c6  = d.c6  || d.gapProducts[6]?.count  || 0;
+  const c10 = d.gapProducts[10]?.count || 0;
+  const c12 = d.gapProducts[12]?.count || 0;
+  const total = d.primes.length || 1;
+  const N = d.maxN;
+
+  const C2 = 0.6601618158468696;
+  const lnN = Math.log(N);
+  const li2 = N/(lnN*lnN) * (1 + 2/lnN + 6/(lnN*lnN) + 24/(lnN*lnN*lnN));
+  function singS(h){ let m=1; for(let p=3;p<=h;p++){ if(h%p===0){let ip=true;for(let d=2;d*d<=p;d++) if(p%d===0){ip=false;break;} if(ip) m*=(p-1)/(p-2);}} return 2*C2*m; }
+  const pred2 = singS(2)*li2, pred4 = singS(4)*li2, pred6 = singS(6)*li2;
+  const r24   = c4>0 ? c2/c4 : 0;
+  const r26   = c6>0 ? c2/c6 : 0;
+  const r46   = c6>0 ? c4/c6 : 0;
+  const hlErr2 = c2>0 ? Math.abs(c2-pred2)/c2*100 : 0;
+  const hlErr4 = c4>0 ? Math.abs(c4-pred4)/c4*100 : 0;
+  const hlErr6 = c6>0 ? Math.abs(c6-pred6)/c6*100 : 0;
+
+  const fmt = (v, dec=6) => v.toFixed(dec);
+  const pct = v => (v/total*100).toFixed(4)+'%';
+
+  const statusCls = (v, tgt, tol=0.02) => Math.abs(v-tgt)<tol*tgt ? 'gd-ratio-val-good' : Math.abs(v-tgt)<0.1*tgt ? 'gd-ratio-val-warn' : 'gd-ratio-val-bad';
+
+  const rows = [
+    // Gap counts
+    { m:'Gap 2 (Twin) count',        v:c2.toLocaleString(),           tgt:'—',     sc:'', interp:'Pairs (p, p+2)' },
+    { m:'Gap 4 (Cousin) count',      v:c4.toLocaleString(),           tgt:'—',     sc:'', interp:'Pairs (p, p+4)' },
+    { m:'Gap 6 (Sexy) count',        v:c6.toLocaleString(),           tgt:'~2×g2', sc:'', interp:'Pairs (p, p+6); S(6)=2×S(2)' },
+    { m:'Gap 10 count',              v:c10.toLocaleString(),          tgt:'—',     sc:'', interp:'Pairs (p, p+10)' },
+    { m:'Gap 12 count',              v:c12.toLocaleString(),          tgt:'—',     sc:'', interp:'Pairs (p, p+12)' },
+    // Percentages
+    { m:'Gap 2 % of total',          v:pct(c2),                       tgt:'—',     sc:'', interp:'Fraction of all primes in twin pairs' },
+    { m:'Gap 4 % of total',          v:pct(c4),                       tgt:'~g2%',  sc:'', interp:'Should ≈ gap 2 % asymptotically' },
+    { m:'Gap 6 % of total',          v:pct(c6),                       tgt:'~2×g2%',sc:'', interp:'Should be ~2× gap 2 % asymptotically' },
+    // Ratios
+    { m:'Ratio gap2/gap4',           v:fmt(r24,6),                    tgt:'→ 1.0', sc:statusCls(r24,1.0), interp:'H-L: identical constants → converges to 1' },
+    { m:'Ratio gap2/gap6',           v:fmt(r26,6),                    tgt:'→ 0.5', sc:statusCls(r26,0.5), interp:'H-L: S(6)=2S(2) → gap2/gap6 → 0.5' },
+    { m:'Ratio gap4/gap6',           v:fmt(r46,6),                    tgt:'→ 0.5', sc:statusCls(r46,0.5), interp:'H-L: S(6)=2S(4) → gap4/gap6 → 0.5' },
+    // H-L predictions
+    { m:'H-L predicted gap 2',       v:Math.round(pred2).toLocaleString(), tgt:c2.toLocaleString(), sc:'', interp:`Error: ${hlErr2.toFixed(4)}%` },
+    { m:'H-L predicted gap 4',       v:Math.round(pred4).toLocaleString(), tgt:c4.toLocaleString(), sc:'', interp:`Error: ${hlErr4.toFixed(4)}%` },
+    { m:'H-L predicted gap 6',       v:Math.round(pred6).toLocaleString(), tgt:c6.toLocaleString(), sc:'', interp:`Error: ${hlErr6.toFixed(4)}%` },
+    // H-L accuracy
+    { m:'H-L error (gap 2)',         v:hlErr2.toFixed(6)+'%',         tgt:'< 1%',  sc:hlErr2<1?'gd-ratio-val-good':hlErr2<5?'gd-ratio-val-warn':'gd-ratio-val-bad', interp:'Convergence to H-L constant C₂' },
+    { m:'H-L error (gap 4)',         v:hlErr4.toFixed(6)+'%',         tgt:'< 1%',  sc:hlErr4<1?'gd-ratio-val-good':hlErr4<5?'gd-ratio-val-warn':'gd-ratio-val-bad', interp:'Convergence to H-L constant C₂' },
+    { m:'Twin prime constant C₂',    v:'0.6601618158…',               tgt:'exact',sc:'', interp:'Product over primes p≥3 of p(p-2)/(p-1)²' },
+    { m:'li₂(N) estimate',           v:Math.round(li2).toLocaleString(), tgt:'—', sc:'', interp:`4-term asymptotic series at N=${N.toLocaleString()}` },
+  ];
+
+  const tbody = document.getElementById('gdRatioTableBody');
+  if(!tbody) return;
+  tbody.innerHTML = rows.map(({m,v,tgt,sc,interp}) =>
+    `<tr>
+      <td>${m}</td>
+      <td class="${sc}" style="font-weight:${sc?700:400};text-align:right">${v}</td>
+      <td style="color:rgba(180,200,180,.45);text-align:center">${tgt}</td>
+      <td style="text-align:center">${
+        sc==='gd-ratio-val-good' ? '<span style="color:#5ebd78">✓ Good</span>' :
+        sc==='gd-ratio-val-warn' ? '<span style="color:#e8c547">≈ Close</span>' :
+        sc==='gd-ratio-val-bad'  ? '<span style="color:#f87171">✗ Far</span>' : '—'
+      }</td>
+      <td style="color:rgba(160,180,155,.55)">${interp}</td>
+    </tr>`
+  ).join('');
+}
+
+function gdExportRatioCSV(){
+  if(!gdData) return;
+  const d = gdData;
+  const c2  = d.c2  || d.gapProducts[2]?.count  || 0;
+  const c4  = d.c4  || d.gapProducts[4]?.count  || 0;
+  const c6  = d.c6  || d.gapProducts[6]?.count  || 0;
+  const c10 = d.gapProducts[10]?.count || 0;
+  const c12 = d.gapProducts[12]?.count || 0;
+  const total = d.primes.length || 1;
+  const N = d.maxN;
+  const C2 = 0.6601618158468696;
+  const lnN = Math.log(N);
+  const li2 = N/(lnN*lnN) * (1 + 2/lnN + 6/(lnN*lnN) + 24/(lnN*lnN*lnN));
+  function singS(h){ let m=1; for(let p=3;p<=h;p++){ if(h%p===0){let ip=true;for(let d=2;d*d<=p;d++) if(p%d===0){ip=false;break;} if(ip) m*=(p-1)/(p-2);}} return 2*C2*m; }
+  const pred2 = singS(2)*li2, pred4 = singS(4)*li2, pred6 = singS(6)*li2;
+  let csv = 'Metric,Value\n';
+  csv += `N Range,${N}\nTotal Primes,${total}\n`;
+  csv += `Gap 2 Count,${c2}\nGap 4 Count,${c4}\nGap 6 Count,${c6}\nGap 10 Count,${c10}\nGap 12 Count,${c12}\n`;
+  csv += `Gap2/Gap4 Ratio,${c4>0?c2/c4:0}\nGap2/Gap6 Ratio,${c6>0?c2/c6:0}\nGap4/Gap6 Ratio,${c6>0?c4/c6:0}\n`;
+  csv += `HL Predicted Gap2,${Math.round(pred2)}\nHL Predicted Gap4,${Math.round(pred4)}\nHL Predicted Gap6,${Math.round(pred6)}\n`;
+  csv += `HL Error Gap2 (%),${c2>0?Math.abs(c2-pred2)/c2*100:0}\nHL Error Gap4 (%),${c4>0?Math.abs(c4-pred4)/c4*100:0}\nHL Error Gap6 (%),${c6>0?Math.abs(c6-pred6)/c6*100:0}\n`;
+  csvDownload(csv, `gap_ratio_analysis_N${N}.csv`);
+}
+
+function gdExportRatioDOM(){
+  const wrap = document.getElementById('gdRatioPanel');
+  if(!wrap || !gdData){ alert('Run decomposition first.'); return; }
+  if(typeof html2canvas === 'undefined'){ alert('html2canvas not loaded.'); return; }
+  html2canvas(wrap, {
+    scale: 2,
+    backgroundColor: '#0e1119',
+    logging: false,
+    useCORS: true,
+    allowTaint: true
+  }).then(cv => {
+    const a = document.createElement('a');
+    a.download = `gap_ratio_analysis_DOM_${gdData?.maxN||''}.png`;
+    a.href = cv.toDataURL('image/png');
+    a.click();
+  }).catch(e => alert('DOM Export failed: ' + e));
+}
+
+function gdExportRatioCanvas(){
+  const cv = document.getElementById('gdRatioChartBig');
+  if(!cv || !gdData){ alert('Run decomposition first.'); return; }
+  // Re-render at 4K
+  const rCtx = cv.getContext('2d');
+  rCtx.fillStyle='#060608'; rCtx.fillRect(0,0,cv.width,cv.height);
+  const _s = gdCtx; gdCtx = rCtx;
+  gdDrawRatio(cv.width, cv.height);
+  gdCtx = _s;
+  const a = document.createElement('a');
+  a.download = `gap_ratio_analysis_canvas_4K_N${gdData.maxN}.png`;
+  a.href = cv.toDataURL('image/png');
+  a.click();
 }
 
 function gdExportCSV(){
@@ -5676,7 +6039,7 @@ document.addEventListener('keydown', e=>{
 // ═══════════════════════════════════════════════════════════════
 //  COORDINATE SYSTEM MODES
 // ═══════════════════════════════════════════════════════════════
-let coordMode = 'polar';
+let coordMode = 'logcylinder';
 let coordBlend = 1.0;
 
 const COORD_DESCS = {
