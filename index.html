@@ -424,6 +424,49 @@ button.ctrl.gold-ctrl:hover, button.ctrl.gold-ctrl.on { background:var(--gold); 
 .gap-leg { display:flex; align-items:center; gap:4px; font-size:.52rem; color:rgba(150,175,115,.7); font-family:'JetBrains Mono',monospace; }
 .gap-leg-sw { width:8px; height:8px; border-radius:2px; flex-shrink:0; }
 
+/* Wave scrubber slider */
+.wave-scrubber-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 7px;
+  padding: 7px 10px;
+  background: rgba(91,156,246,.05);
+  border: 1px solid rgba(91,156,246,.14);
+  border-radius: 6px;
+}
+.wave-scrubber-label {
+  font-size: .48rem;
+  text-transform: uppercase;
+  letter-spacing: .14em;
+  color: rgba(91,156,246,.5);
+  font-family: 'JetBrains Mono', monospace;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.wave-scrubber-wrap input[type=range] {
+  flex: 1;
+  accent-color: #5b9cf6;
+  cursor: pointer;
+  height: 4px;
+}
+.wave-scrubber-pct {
+  font-size: .55rem;
+  color: var(--blue);
+  font-family: 'JetBrains Mono', monospace;
+  min-width: 38px;
+  text-align: right;
+  flex-shrink: 0;
+}
+.probe-color-swatch {
+  display: inline-block;
+  width: 10px; height: 10px;
+  border-radius: 2px;
+  vertical-align: middle;
+  margin-right: 4px;
+  flex-shrink: 0;
+}
+
 /* Export row — styled like reference file */
 .gd-export-row {
   display: flex;
@@ -1046,13 +1089,13 @@ select {
     </div>
 
     <div class="topbar-actions">
-      <button class="ctrl" id="btnPlay">▶ Play</button>
+      <button class="ctrl" id="btnPlay">Play</button>
       <button class="ctrl" id="btnReset">↺ Reset</button>
-      <button class="ctrl" id="btnSkipComplete" title="Skip drawing — show completed state instantly">⏭ Complete</button>
-      <button class="ctrl gold-ctrl" id="btnExport4K" title="Export 4K PNG">⬇ 4K</button>
-      <button class="ctrl gold-ctrl" id="btnExportMulti" title="Export Multiple Angles">⬇ Multi</button>
+      <button class="ctrl" id="btnSkipComplete" title="Skip drawing — show completed state instantly"> Complete</button>
+      <button class="ctrl gold-ctrl" id="btnExport4K" title="Export 4K PNG"> 4K</button>
+      <button class="ctrl gold-ctrl" id="btnExportMulti" title="Export Multiple Angles"> Multi</button>
       <button class="ctrl" id="btnAutoRot">⟳ Rotate</button>
-      <button class="ctrl" id="btnFullscreen" title="Toggle fullscreen">⛶ Full</button>
+      <button class="ctrl" id="btnFullscreen" title="Toggle fullscreen"> Full</button>
     </div>
   </header>
 
@@ -1102,9 +1145,9 @@ select {
     <div class="side-card" id="coordPanel">
       <div class="coord-mode-grid" id="coordModeGrid">
         <button class="coord-mode-btn" data-mode="polar">⊙ Polar</button>
-        <button class="coord-mode-btn active" data-mode="logcylinder">⌇ Log-Cyl</button>
-        <button class="coord-mode-btn" data-mode="logspiral">🌀 Spiral</button>
-        <button class="coord-mode-btn" data-mode="poincare">⬤ Poincaré</button>
+        <button class="coord-mode-btn active" data-mode="logcylinder"> Log-Cyl</button>
+        <button class="coord-mode-btn" data-mode="logspiral">Spiral</button>
+        <button class="coord-mode-btn" data-mode="poincare">Poincare</button>
       </div>
       <div style="font-size:.56rem;color:rgba(94,189,120,.45);line-height:1.6;margin:7px 0;font-family:'JetBrains Mono',monospace" id="coordModeDesc">Log-Cylinder: u = ln(θ+1), v = f(θ). Compresses the θ axis logarithmically, revealing fine structure near origin.</div>
       <div class="cg">
@@ -1169,8 +1212,8 @@ select {
       </div>
 
       <div class="gap-run-row" style="margin-top:8px">
-        <button class="ctrl gold-ctrl" id="gdRunBtn" onclick="gdRun()">▶ Compute</button>
-        <button class="ctrl gold-ctrl" onclick="gdClear()" style="font-size:.6rem;padding:6px 10px">✕ Clear</button>
+        <button class="ctrl gold-ctrl" id="gdRunBtn" onclick="gdRun()">Compute</button>
+        <button class="ctrl gold-ctrl" onclick="gdClear()" style="font-size:.6rem;padding:6px 10px"> Clear</button>
       </div>
 
       <div class="thick-row">
@@ -1259,11 +1302,20 @@ select {
         </div>
         <canvas id="cartCanvas" style="cursor:crosshair"></canvas>
 
-        <!-- Probe detail panel — shown after click -->
+        <!-- Wave scrubber slider — drag to scan any drawn point -->
+        <div class="wave-scrubber-wrap">
+          <span class="wave-scrubber-label">⟵ Wave Scrub ⟶</span>
+          <input type="range" id="waveScrubber" min="0" max="10000" step="1" value="0"
+                 oninput="onWaveScrub(this.value)"
+                 title="Drag to highlight any drawn point on both canvases">
+          <span class="wave-scrubber-pct" id="waveScrubPct">0%</span>
+        </div>
+
+        <!-- Probe detail panel — shown after click or scrub -->
         <div id="cartProbePanel" style="display:none;margin-top:8px;background:rgba(6,6,8,.85);border:1px solid rgba(91,156,246,.18);border-radius:6px;padding:10px 14px;">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
             <span style="font-size:.5rem;text-transform:uppercase;letter-spacing:.2em;color:rgba(91,156,246,.5);font-family:'JetBrains Mono',monospace">Point Probe</span>
-            <button onclick="clearCartProbe()" style="background:none;border:none;color:rgba(91,156,246,.4);font-size:.65rem;cursor:pointer;padding:0 2px">✕</button>
+            <button onclick="clearCartProbe()" style="background:none;border:none;color:rgba(91,156,246,.4);font-size:.65rem;cursor:pointer;padding:0 2px"></button>
           </div>
           <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px 12px;" id="cartProbeGrid">
             <!-- filled by JS -->
@@ -1309,7 +1361,7 @@ select {
     <div class="center-bottom">
       <div class="accordion harm-accordion" id="harmPanelWrap">
         <div class="accordion-header" id="harmAccHeader" onclick="toggleHarmAccordion(event)">
-          <span class="accordion-title">♩ Harmonics · Farey Intervals</span>
+          <span class="accordion-title"> Harmonics · Farey Intervals</span>
           <div class="acc-onoff-wrap" onclick="event.stopPropagation()">
             <input type="checkbox" class="harm-toggle" id="harmSyncOn"
               style="background:rgba(91,156,246,.12);border-color:rgba(91,156,246,.3);"
@@ -1342,8 +1394,8 @@ select {
             <span id="harmModeIndicator" style="margin-left:8px;font-size:.48rem;color:rgba(91,156,246,.5);text-transform:none;letter-spacing:.04em;font-family:'DM Sans',sans-serif">· sound is off</span>
           </div>
           <div class="harm-btn-row">
-            <button class="harm-btn" id="harmPlayBtn" onclick="harmPlay()">▶ Play once</button>
-            <button class="harm-btn" id="harmChordBtn" onclick="harmChord()">♪ Chord</button>
+            <button class="harm-btn" id="harmPlayBtn" onclick="harmPlay()">Play once</button>
+            <button class="harm-btn" id="harmChordBtn" onclick="harmChord()"> Chord</button>
             <button class="harm-btn" id="harmArpBtn" onclick="harmArp()">∿ Arp</button>
             <button class="harm-btn" onclick="harmStop()">■ Stop</button>
           </div>
@@ -1382,11 +1434,11 @@ select {
       <!-- ── Gap Decomposition Results Accordion ── -->
       <div class="accordion gap-accordion" id="gapDecompWrap">
         <div class="accordion-header" id="gapAccHeader" onclick="toggleGapAccordion(event)">
-          <span class="accordion-title">⚡ Gap Decomposition · ζ(s)</span>
+          <span class="accordion-title">Gap Decomposition · ζ(s)</span>
           <div class="acc-onoff-wrap" style="display:flex;gap:8px;align-items:center">
-            <button class="ctrl gold-ctrl" id="gdExportPNG" onclick="gdExport4K();event.stopPropagation()" style="display:none;font-size:.5rem;padding:3px 8px">⬇ 4K PNG</button>
-            <button class="ctrl gold-ctrl" id="gdExportCSV" onclick="gdExportCSV();event.stopPropagation()" style="display:none;font-size:.5rem;padding:3px 8px">⬇ CSV</button>
-            <button class="ctrl gold-ctrl" id="gdExportTXT" onclick="gdExportTXT();event.stopPropagation()" style="display:none;font-size:.5rem;padding:3px 8px">⬇ Report</button>
+            <button class="ctrl gold-ctrl" id="gdExportPNG" onclick="gdExport4K();event.stopPropagation()" style="display:none;font-size:.5rem;padding:3px 8px">4K PNG</button>
+            <button class="ctrl gold-ctrl" id="gdExportCSV" onclick="gdExportCSV();event.stopPropagation()" style="display:none;font-size:.5rem;padding:3px 8px">CSV</button>
+            <button class="ctrl gold-ctrl" id="gdExportTXT" onclick="gdExportTXT();event.stopPropagation()" style="display:none;font-size:.5rem;padding:3px 8px">Report</button>
           </div>
           <span class="accordion-chevron" id="gapAccChev">▼</span>
         </div>
@@ -1397,7 +1449,7 @@ select {
             <div class="gap-selector-label">
               Click gaps to highlight on sphere &amp; cart
               <span>— each gets its own color; deselect to remove</span>
-              <button class="gap-filter-btn" onclick="gdClearSelection()" style="margin-left:auto">✕ Clear all</button>
+              <button class="gap-filter-btn" onclick="gdClearSelection()" style="margin-left:auto"> Clear all</button>
             </div>
             <div class="gap-chips" id="gdChips"></div>
           </div>
@@ -1405,7 +1457,7 @@ select {
           <!-- Stats grid with screenshot -->
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;margin-top:2px">
             <span style="font-size:.48rem;text-transform:uppercase;letter-spacing:.18em;color:rgba(232,197,71,.4);font-family:'JetBrains Mono',monospace">Statistics</span>
-            <button class="ctrl gold-ctrl" onclick="screenshotSection('gdStatsGrid','gap_stats')" style="font-size:.48rem;padding:2px 7px;opacity:.7">⬇ Stats PNG</button>
+            <button class="ctrl gold-ctrl" onclick="screenshotSection('gdStatsGrid','gap_stats')" style="font-size:.48rem;padding:2px 7px;opacity:.7">Stats PNG</button>
           </div>
           <div class="gap-live-stats" id="gdStatsGrid" style="display:none">
             <div class="gap-stat"><div class="gap-stat-lbl">Total primes</div><div class="gap-stat-val" id="gst0">—</div></div>
@@ -1431,9 +1483,19 @@ select {
               <button class="gap-tab" onclick="gdSwitchTab(this,'ratio')">Gap Ratios</button>
               <button class="gap-tab" onclick="gdSwitchTab(this,'pct')">% Share</button>
             </div>
-            <button class="ctrl gold-ctrl" id="gdChartScreenshot" onclick="screenshotCanvas(gdCanvas,'gap_chart')" style="font-size:.48rem;padding:2px 7px;opacity:.7;display:none;margin-left:8px;flex-shrink:0">⬇ Chart PNG</button>
+            <button class="ctrl gold-ctrl" id="gdChartScreenshot" onclick="screenshotCanvas(gdCanvas,'gap_chart')" style="font-size:.48rem;padding:2px 7px;opacity:.7;display:none;margin-left:8px;flex-shrink:0">Chart PNG</button>
           </div>
-          <!-- Chart canvas (re-rendered here from the center wave panel, shown large) -->\n          <div id=\"gdChartArea\" style=\"width:100%;display:none\">\n            <canvas id=\"gdChartBig\" style=\"width:100%;border-radius:4px;background:#060608;display:block\"></canvas>\n            <!-- Export row matching reference file style -->\n            <div class=\"gd-export-row\">\n              <button class=\"gd-export-btn csv\" onclick=\"gdExportChartCSV()\">⬇ Export CSV</button>\n              <button class=\"gd-export-btn dom\" onclick=\"gdExportDOM()\">📷 DOM Export PNG</button>\n              <button class=\"gd-export-btn cvs\" onclick=\"gdExportCanvasPNG()\">🖼 Canvas Export PNG</button>\n              <button class=\"gd-export-btn\" style=\"background:linear-gradient(135deg,#e8c547,#b8960f);color:#000\" onclick=\"gdExport4K();event.stopPropagation()\">⬇ Full 4K Report PNG</button>\n            </div>\n          </div>
+          <!-- Chart canvas (re-rendered here from the center wave panel, shown large) -->
+          <div id="gdChartArea" style="width:100%;display:none">
+            <canvas id="gdChartBig" style="width:100%;border-radius:4px;background:#060608;display:block"></canvas>
+            <!-- Export row matching reference file style -->
+            <div class="gd-export-row">
+              <button class="gd-export-btn csv" onclick="gdExportChartCSV()">Export CSV</button>
+              <button class="gd-export-btn dom" onclick="gdExportDOM()">DOM Export PNG</button>
+              <button class="gd-export-btn cvs" onclick="gdExportCanvasPNG()">Canvas Export PNG</button>
+              <button class="gd-export-btn" style="background:linear-gradient(135deg,#e8c547,#b8960f);color:#000" onclick="gdExport4K();event.stopPropagation()">Full 4K Report PNG</button>
+            </div>
+          </div>
 
           <!-- Contributions table with screenshot -->
           <div class="gap-table-wrap" id="gdTableSection" style="display:none">
@@ -1462,7 +1524,7 @@ select {
                 </label>
                 <label><input type="checkbox" id="gdTableHighlight" checked onchange="gdBuildTable()"> Highlight selected</label>
               </div>
-              <button class="ctrl gold-ctrl" onclick="screenshotSection('gdTableWrap','gap_table')" style="font-size:.48rem;padding:2px 7px;opacity:.7;margin-left:8px;flex-shrink:0">⬇ Table PNG</button>
+              <button class="ctrl gold-ctrl" onclick="screenshotSection('gdTableWrap','gap_table')" style="font-size:.48rem;padding:2px 7px;opacity:.7;margin-left:8px;flex-shrink:0"> Table PNG</button>
             </div>
             <div id="gdTableWrap"></div>
           </div>
@@ -1471,7 +1533,7 @@ select {
           <div class="conv-dropdown-wrap" id="gdConvSection" style="display:none">
             <div class="conv-dropdown-header" id="convDropHeader">
               <div class="conv-dropdown-title">⟶ Step-by-step convergence to π²/6 = ζ(2)</div>
-              <button class="ctrl gold-ctrl" onclick="screenshotSection('gdConvTableWrap','gap_convergence');event.stopPropagation()" style="font-size:.48rem;padding:2px 7px;opacity:.7;margin-right:8px">⬇ Conv PNG</button>
+              <button class="ctrl gold-ctrl" onclick="screenshotSection('gdConvTableWrap','gap_convergence');event.stopPropagation()" style="font-size:.48rem;padding:2px 7px;opacity:.7;margin-right:8px"> Conv PNG</button>
               <span class="conv-dropdown-chevron" id="convDropChev">▼</span>
             </div>
             <div class="conv-dropdown-body" id="convDropBody">
@@ -1509,7 +1571,7 @@ select {
       <!-- ── Standalone Gap Ratio Analysis: Twin Prime Conjecture Evidence ── -->
       <div class="gd-ratio-panel" id="gdRatioPanel">
         <div class="gd-ratio-panel-header">
-          <div class="gd-ratio-panel-title">📊 Gap Ratio Analysis: Twin Prime Conjecture Evidence</div>
+          <div class="gd-ratio-panel-title">Gap Ratio Analysis: Twin Prime Conjecture Evidence</div>
           <div class="gd-ratio-panel-desc">
             Tracks Count(gap=2)/Count(gap=4) and other gap ratios. Hardy-Littlewood predicts twin primes (gap 2) and
             cousin primes (gap 4) have <em>identical</em> singular series constants, so their ratio should approach
@@ -1537,9 +1599,9 @@ select {
             </tbody>
           </table>
           <div class="gd-export-row">
-            <button class="gd-export-btn csv" onclick="gdExportRatioCSV()">⬇ Export Table CSV</button>
-            <button class="gd-export-btn dom" onclick="gdExportRatioDOM()">📷 DOM Export PNG</button>
-            <button class="gd-export-btn cvs" onclick="gdExportRatioCanvas()">🖼 Canvas Export PNG</button>
+            <button class="gd-export-btn csv" onclick="gdExportRatioCSV()"> Export Table CSV</button>
+            <button class="gd-export-btn dom" onclick="gdExportRatioDOM()">DOM Export PNG</button>
+            <button class="gd-export-btn cvs" onclick="gdExportRatioCanvas()">Canvas Export PNG</button>
           </div>
         </div>
       </div>
@@ -1551,9 +1613,9 @@ select {
           <span class="accordion-title" style="color:rgba(200,140,255,.85)">ζ Riemann Zeta · ζ(½+it) Critical Line</span>
           <div style="display:flex;gap:6px;align-items:center;margin-right:8px">
             <button class="ctrl" id="zetaRunBtn" onclick="zetaRun();event.stopPropagation()"
-              style="font-size:.5rem;padding:3px 10px;background:rgba(180,100,255,.12);border-color:rgba(180,100,255,.3);color:rgba(200,140,255,.85)">▶ Compute</button>
+              style="font-size:.5rem;padding:3px 10px;background:rgba(180,100,255,.12);border-color:rgba(180,100,255,.3);color:rgba(200,140,255,.85)">Compute</button>
             <button class="ctrl" id="zetaScreenshotBtn" onclick="screenshotCanvas(zetaCv,'zeta_spiral');event.stopPropagation()"
-              style="display:none;font-size:.48rem;padding:2px 7px;background:rgba(180,100,255,.08);border-color:rgba(180,100,255,.2);color:rgba(200,140,255,.6)">⬇ PNG</button>
+              style="display:none;font-size:.48rem;padding:2px 7px;background:rgba(180,100,255,.08);border-color:rgba(180,100,255,.2);color:rgba(200,140,255,.6)"> PNG</button>
           </div>
           <span class="accordion-chevron" id="zetaAccChev" style="color:rgba(180,100,255,.5)">▼</span>
         </div>
@@ -2365,15 +2427,39 @@ function renderCart() {
         const [cxb,cyb]=cartXY(tb,rb);
         const fracA=(i+s/C_SUB)/TOTAL_PTS;
         const hue=295+fracA*40;
-        // Dim if gaps selected so FFT lanes read clearly
-        if(hasGapSel){
-          cbCtx.strokeStyle='rgba(40,60,40,0.12)'; cbCtx.lineWidth=traceThickness*0.35;
+
+        // Match the sphere's color logic exactly
+        const pc = precomputed[i];
+        const gap = pc ? pc[4] : null;
+        const selCol = (gap !== null && gap !== undefined) ? selectedGaps.get(gap) : undefined;
+
+        if(selCol){
+          // Gap is selected — use exact gap color (same as sphere)
+          cbCtx.strokeStyle = selCol;
+          cbCtx.lineWidth = traceThickness;
+          cbCtx.shadowColor = selCol;
+          cbCtx.shadowBlur = 4;
+        } else if(hasGapSel){
+          // Gap decomp active but this point's gap is not selected — dim it
+          cbCtx.strokeStyle = 'rgba(30,50,30,0.10)';
+          cbCtx.lineWidth = traceThickness * 0.3;
+          cbCtx.shadowBlur = 0;
+        } else if(harmColorMode){
+          // Harmonic consonance color mode
+          const hc = harmColorForProgress(fracA);
+          cbCtx.strokeStyle = hc || `hsl(${hue},100%,62%)`;
+          cbCtx.lineWidth = traceThickness;
+          cbCtx.shadowColor = cbCtx.strokeStyle;
+          cbCtx.shadowBlur = 3;
         } else {
-          cbCtx.strokeStyle=`hsl(${hue},100%,62%)`; cbCtx.lineWidth=traceThickness;
-          cbCtx.shadowColor='var(--blue,#5b9cf6)'; cbCtx.shadowBlur=3;
+          // Default hue gradient — matches sphere's `hsl(295+frac*40, 100%, bright%)`
+          cbCtx.strokeStyle = `hsl(${hue},100%,62%)`;
+          cbCtx.lineWidth = traceThickness;
+          cbCtx.shadowColor = 'var(--blue,#5b9cf6)';
+          cbCtx.shadowBlur = 3;
         }
         cbCtx.beginPath(); cbCtx.moveTo(cxa,cya); cbCtx.lineTo(cxb,cyb); cbCtx.stroke();
-        cbCtx.shadowBlur=0;
+        cbCtx.shadowBlur = 0;
       }
     }
     lastCartProg=newEnd;
@@ -2479,7 +2565,7 @@ function loop() {
       } else {
         drawProgress = TOTAL_PTS; paused = true;
         const btn = document.getElementById('btnPlay');
-        btn.textContent = '▶ Play'; btn.classList.remove('on');
+        btn.textContent = 'Play'; btn.classList.remove('on');
         harmSyncStop();
         // Start sequential X→Y→Z rotation after preset finishes drawing
         if (seqRotateOnComplete) { startSeqRotate(); }
@@ -2695,7 +2781,7 @@ bind('sSpeed','dSpeed',v=>{speed=v;updateSpeedDesc(v); if(!paused && harmSyncEna
 document.getElementById('btnPlay').addEventListener('click',function(){
   onUserInteraction(); // switches to loop mode after intro
   paused=!paused;
-  this.textContent=paused?'▶ Play':'⏸ Pause';
+  this.textContent=paused?'Play':' Pause';
   this.classList.toggle('on',!paused);
   if(!paused){ if(harmSyncEnabled) harmSyncStart(); }
   else { harmSyncPause(); }
@@ -2723,7 +2809,7 @@ function toggleFullscreen() {
 function onFullscreenChange() {
   const btn = document.getElementById('btnFullscreen');
   const isFs = !!(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement);
-  btn.textContent = isFs ? '⛶ Exit' : '⛶ Full';
+  btn.textContent = isFs ? ' Exit' : ' Full';
   btn.classList.toggle('active', isFs);
   // Resize canvases to fit new dimensions
   setTimeout(() => { setSize(); hardReset(); }, 120);
@@ -2759,7 +2845,7 @@ document.getElementById('btnSkipComplete').addEventListener('click', () => {
   lastCartProg = TOTAL_PTS;
   paused = true;
   const btn = document.getElementById('btnPlay');
-  btn.textContent = '▶ Play'; btn.classList.remove('on');
+  btn.textContent = 'Play'; btn.classList.remove('on');
   harmSyncStop();
   startSeqRotate();
 });
@@ -3444,7 +3530,7 @@ function applyPreset(p, btn, isGap){
   hardReset();
   paused=false;
   const playBtn=document.getElementById('btnPlay');
-  if(playBtn){ playBtn.textContent='⏸ Pause'; playBtn.classList.add('on'); }
+  if(playBtn){ playBtn.textContent=' Pause'; playBtn.classList.add('on'); }
   // Sync harmonics with wave
   harmSyncStart();
 }
@@ -3472,28 +3558,18 @@ function gdResizeCanvas(){
   const leftSidebar = window.innerWidth > 900 ? 320 : 0;
   const sphereW = Math.min(window.innerWidth - leftSidebar - 80, 900);
 
-  // Use devicePixelRatio for the small inline canvas so it's crisp on HiDPI screens
-  const dpr = window.devicePixelRatio || 1;
-  const displayW = !gapPanel || gapPanel.classList.contains('gap-hidden')
-    ? Math.max(280, 400)
-    : Math.max(280, Math.floor((sphereW - 12) / 2));
-  const displayH = Math.max(200, Math.round(cCv.height || 200));
+  if(!gapPanel || gapPanel.classList.contains('gap-hidden')){
+    gdCanvas.width = Math.max(280, 400);
+  } else {
+    gdCanvas.width = Math.max(280, Math.floor((sphereW - 12) / 2));
+  }
+  gdCanvas.height = Math.max(200, Math.round(cCv.height || 200));
 
-  gdCanvas.width  = displayW  * dpr;
-  gdCanvas.height = displayH * dpr;
-  gdCanvas.style.width  = displayW  + 'px';
-  gdCanvas.style.height = displayH + 'px';
-  gdCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
-
-  // Big accordion chart canvas — 4K internal resolution, displayed at 100% width via CSS
+  // Big accordion chart canvas — proportional to available width
   const bigCv = document.getElementById('gdChartBig');
   if(bigCv){
-    bigCv.width  = 3840;
-    bigCv.height = 2160;
-    // CSS will scale it to 100% width; height:auto keeps the 16:9 ratio
-    bigCv.style.width  = '100%';
-    bigCv.style.height = 'auto';
-    bigCv.style.imageRendering = 'auto';
+    bigCv.width = Math.max(400, sphereW);
+    bigCv.height = Math.round(bigCv.width * 0.45);
   }
 
   if(gdData) gdDraw();
@@ -3616,7 +3692,7 @@ function gdRun(){
   const filter = gdFilter;
 
   if(maxN > 300000000){
-    document.getElementById('gdStatus').textContent = '⚠ Max N is 300,000,000 (browser limit).';
+    document.getElementById('gdStatus').textContent = ' Max N is 300,000,000 (browser limit).';
     return;
   }
 
@@ -3640,7 +3716,7 @@ function gdRun(){
 
       const errPct = (gdData.finalError*100).toFixed(8);
       document.getElementById('gdStatus').textContent =
-        `✓ N=${maxN.toLocaleString()} · ${gdData.primes.length.toLocaleString()} primes · `+
+        ` N=${maxN.toLocaleString()} · ${gdData.primes.length.toLocaleString()} primes · `+
         `${gdData.gaps.length} gap families · `+
         `ζ(${s.toFixed(2)}) target=${gdData.target.toFixed(10)} · `+
         `computed=${gdData.finalProduct.toFixed(10)} · err=${errPct}%`;
@@ -3682,6 +3758,7 @@ function gdRun(){
 
       gdResizeCanvas();
       gdDraw();
+      gdUpdateRatioPanel();
 
     } catch(e) {
       document.getElementById('gdStatus').textContent = `Error: ${e.message}`;
@@ -3982,26 +4059,14 @@ function gdDraw(offCtx, offW, offH){
 
   if(offCtx){ gdCtx = _saved; }
 
-  // Mirror to big accordion chart canvas (only for live draw) — render at full 4K quality
+  // Mirror to big accordion chart canvas (only for live draw)
   if(!offCtx){
     const bigCv = document.getElementById('gdChartBig');
     if(bigCv && bigCv.width > 0 && bigCv.height > 0){
       const bigCtx = bigCv.getContext('2d');
-      bigCtx.imageSmoothingEnabled = true;
-      bigCtx.imageSmoothingQuality = 'high';
       bigCtx.fillStyle='#060608'; bigCtx.fillRect(0,0,bigCv.width,bigCv.height);
-      // Re-render at full 4K resolution rather than scaling up the small canvas
-      const _saved2 = gdCtx;
-      gdCtx = bigCtx;
-      if(gdTab==='contrib') gdDrawContrib(bigCv.width, bigCv.height);
-      else if(gdTab==='dist') gdDrawDist(bigCv.width, bigCv.height);
-      else if(gdTab==='conv') gdDrawConv(bigCv.width, bigCv.height);
-      else if(gdTab==='ratio') gdDrawRatio(bigCv.width, bigCv.height);
-      else if(gdTab==='pct') gdDrawPct(bigCv.width, bigCv.height);
-      gdCtx = _saved2;
+      bigCtx.drawImage(gdCanvas, 0, 0, bigCv.width, bigCv.height);
     }
-    // Also update the standalone Gap Ratio panel canvas if it exists
-    gdUpdateRatioPanel();
   }
 }
 
@@ -4374,13 +4439,13 @@ function gdDrawRatio(w, h){
     ctx.textAlign = 'center';
     ctx.fillText('Hardy-Littlewood Accuracy', px+pw/2, py+12);
 
-    // H-L prediction for twin primes: 2*C2*li2(N)
+    // H-L prediction for twin primes: 2*C2*li₂(N)
     // C2 = 0.6601618... (twin prime constant)
+    // li₂(x) = ∫₂ˣ dt/ln²(t) ≈ x/ln²(x) · (1 + 2/ln(x) + 6/ln²(x) + 24/ln³(x))
     const C2 = 0.6601618158468696;
     const N = maxN;
-    // li2 approx: N/ln(N) * (1 + 1/ln(N) + 2/ln²(N))
     const lnN = Math.log(N);
-    const li2 = N/lnN * (1 + 1/lnN + 2/(lnN*lnN));
+    const li2 = (N / (lnN * lnN)) * (1 + 2/lnN + 6/(lnN*lnN) + 24/(lnN*lnN*lnN));
     const hlPred = Math.round(2 * C2 * li2);
     const diff = c2 - hlPred;
     const errPct = c2 > 0 ? Math.abs(diff)/c2*100 : 0;
@@ -4423,10 +4488,12 @@ function gdDrawRatio(w, h){
 
   // Summary line
   const hlC2 = 0.6601618158468696;
+  const _lnN = Math.log(maxN);
+  const _li2footer = (maxN/(_lnN*_lnN)) * (1 + 2/_lnN + 6/(_lnN*_lnN) + 24/(_lnN*_lnN*_lnN));
   ctx.fillStyle = 'rgba(150,170,150,.45)';
   ctx.font = `${Math.max(6,w*.011)}px ${FONT}`;
   ctx.textAlign = 'center';
-  ctx.fillText(`Twin Prime Constant C₂ = ${hlC2.toFixed(13)} | H-L Predicted (li₂ formula): ${Math.round(2*hlC2*(maxN/Math.log(maxN))).toLocaleString()} twins`, w/2, h-3);
+  ctx.fillText(`Twin Prime Constant C₂ = ${hlC2.toFixed(13)} | H-L Predicted (li₂ formula): ${Math.round(2*hlC2*_li2footer).toLocaleString()} twins`, w/2, h-3);
 
   gdBuildLegend([]);
 }
@@ -4481,7 +4548,7 @@ function gdBuildLegend(gapList){
     const isSel=selectedGaps.has(g);
     return `<div class="gap-leg" style="${isSel?'font-weight:700;':''}" onclick="toggleGapChipByVal(${g})" style="cursor:pointer">
       <div class="gap-leg-sw" style="background:${col};${isSel?'outline:2px solid '+col:''}"></div>
-      gap ${g}${isSel?' ✓':''}
+      gap ${g}${isSel?' ':''}
     </div>`;
   }).join('');
 }
@@ -4779,14 +4846,21 @@ function gdUpdateRatioPanel(){
   const panel = document.getElementById('gdRatioPanel');
   if(panel) panel.style.display = 'block';
 
-  // Render high-res ratio chart
+  // Size the canvas to match the panel's display width (ratio chart draws relative to w/h)
   const cv = document.getElementById('gdRatioChartBig');
   if(!cv) return;
+  const panelWrap = cv.parentElement;
+  const displayW = panelWrap ? Math.max(400, panelWrap.offsetWidth || 860) : 860;
+  const displayH = Math.round(displayW * 0.42);
+  cv.width  = displayW;
+  cv.height = displayH;
+  cv.style.width  = '100%';
+  cv.style.height = 'auto';
+
   const rCtx = cv.getContext('2d');
-  rCtx.imageSmoothingEnabled = true;
-  rCtx.imageSmoothingQuality = 'high';
   rCtx.fillStyle = '#060608';
   rCtx.fillRect(0, 0, cv.width, cv.height);
+  // Swap gdCtx so gdDrawRatio renders into ratio canvas
   const _saved = gdCtx;
   gdCtx = rCtx;
   gdDrawRatio(cv.width, cv.height);
@@ -4858,9 +4932,9 @@ function gdBuildRatioTable(){
       <td class="${sc}" style="font-weight:${sc?700:400};text-align:right">${v}</td>
       <td style="color:rgba(180,200,180,.45);text-align:center">${tgt}</td>
       <td style="text-align:center">${
-        sc==='gd-ratio-val-good' ? '<span style="color:#5ebd78">✓ Good</span>' :
+        sc==='gd-ratio-val-good' ? '<span style="color:#5ebd78"> Good</span>' :
         sc==='gd-ratio-val-warn' ? '<span style="color:#e8c547">≈ Close</span>' :
-        sc==='gd-ratio-val-bad'  ? '<span style="color:#f87171">✗ Far</span>' : '—'
+        sc==='gd-ratio-val-bad'  ? '<span style="color:#f87171"> Far</span>' : '—'
       }</td>
       <td style="color:rgba(160,180,155,.55)">${interp}</td>
     </tr>`
@@ -5820,38 +5894,73 @@ function updateCartProbe() {
   const rv  = f(t);
   const [cx, cy] = cartXY(t, rv);
 
+  // Compute the actual point color — same logic as sphere + renderCart
+  const pc = precomputed[i];
+  const gap = pc ? pc[4] : null;
+  const selCol = (gap !== null && gap !== undefined) ? selectedGaps.get(gap) : undefined;
+  const frac = i / TOTAL_PTS;
+  const hue  = 295 + frac * 40;
+  let ptColor;
+  if (selCol) {
+    ptColor = selCol;
+  } else if (harmColorMode) {
+    ptColor = harmColorForProgress(frac) || `hsl(${hue},100%,62%)`;
+  } else {
+    ptColor = `hsl(${hue},100%,62%)`;
+  }
+
   // ── Draw crosshair overlay ──
   renderCart(); // redraw base
   const ctx = cCtx;
-  // Vertical probe line
-  ctx.save();
-  ctx.strokeStyle = 'rgba(91,156,246,.7)';
-  ctx.lineWidth = 1;
-  ctx.setLineDash([4, 3]);
   const {l, r: pr, t: pt, b} = PAD;
+
+  // Vertical probe line — colored to match the point
+  ctx.save();
+  ctx.strokeStyle = ptColor;
+  ctx.lineWidth = 1.5;
+  ctx.globalAlpha = 0.6;
+  ctx.setLineDash([4, 3]);
   ctx.beginPath();
   ctx.moveTo(cx, pt);
   ctx.lineTo(cx, cCv.height - b);
   ctx.stroke();
   ctx.setLineDash([]);
+  ctx.globalAlpha = 1;
 
-  // Dot on curve
+  // Dot on curve — colored to match the point
   ctx.beginPath();
-  ctx.arc(cx, cy, 5, 0, Math.PI * 2);
-  ctx.fillStyle = '#5b9cf6';
-  ctx.shadowColor = '#5b9cf6';
-  ctx.shadowBlur = 10;
+  ctx.arc(cx, cy, 6, 0, Math.PI * 2);
+  ctx.fillStyle = ptColor;
+  ctx.shadowColor = ptColor;
+  ctx.shadowBlur = 14;
   ctx.fill();
+  // White ring
+  ctx.beginPath();
+  ctx.arc(cx, cy, 6, 0, Math.PI * 2);
+  ctx.strokeStyle = 'rgba(255,255,255,0.75)';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
   ctx.shadowBlur = 0;
 
   // θ label on axis
-  ctx.fillStyle = 'rgba(91,156,246,.85)';
+  ctx.fillStyle = ptColor;
   ctx.font = `${Math.max(8, cCv.width * 0.018)}px JetBrains Mono,monospace`;
   ctx.textAlign = cx > cCv.width * 0.75 ? 'right' : 'left';
   ctx.textBaseline = 'top';
   const thetaLabel = `θ=${(t/Math.PI).toFixed(3)}π`;
   ctx.fillText(thetaLabel, cx + (ctx.textAlign === 'left' ? 6 : -6), cCv.height - b + 2);
   ctx.restore();
+
+  // ── Update scrubber to match ──
+  const scrub = document.getElementById('waveScrubber');
+  const pctEl = document.getElementById('waveScrubPct');
+  if (scrub) {
+    scrub.max = TOTAL_PTS;
+    scrub.value = i;
+    scrub.style.accentColor = ptColor;
+  }
+  if (pctEl) pctEl.style.color = ptColor;
+  if (pctEl) pctEl.textContent = (frac * 100).toFixed(1) + '%';
 
   // ── Probe detail panel ──
   const panel    = document.getElementById('cartProbePanel');
@@ -5862,70 +5971,104 @@ function updateCartProbe() {
 
   panel.style.display = 'block';
 
-  const pc = precomputed[i];
-  const gapVal = pc ? pc[4] : null;
-  const hue = 295 + (i / TOTAL_PTS) * 40;
-  const ptColor = gapVal && selectedGaps.has(gapVal)
-    ? selectedGaps.get(gapVal)
-    : `hsl(${hue},100%,62%)`;
-
   const primeIdx = pc ? Math.round((i / TOTAL_PTS) * (gdData ? gdData.primes.length - 1 : 0)) : 0;
   const nearPrime = gdData ? gdData.primes[primeIdx] : null;
 
   const cells = [
-    { lbl: 'θ',        val: `${(t / Math.PI).toFixed(5)}π` },
-    { lbl: 'f(θ)',     val: rv.toFixed(6) },
-    { lbl: 'progress', val: `${((i / TOTAL_PTS) * 100).toFixed(2)}%` },
-    { lbl: 'pt index', val: i.toLocaleString() },
-    { lbl: 'hue',      val: `${Math.round(hue)}°` },
+    { lbl: 'θ',          val: `${(t / Math.PI).toFixed(5)}π` },
+    { lbl: 'f(θ)',       val: rv.toFixed(6) },
+    { lbl: 'progress',   val: `${(frac * 100).toFixed(2)}%` },
+    { lbl: 'pt index',   val: i.toLocaleString() },
+    { lbl: 'hue',        val: harmColorMode ? 'harmonic' : `${Math.round(hue)}°` },
     { lbl: 'near prime', val: nearPrime ? nearPrime.toLocaleString() : '—' },
   ];
 
   grid.innerHTML = cells.map(c =>
     `<div style="font-family:'JetBrains Mono',monospace;">
        <div style="font-size:.42rem;text-transform:uppercase;letter-spacing:.15em;color:rgba(150,175,200,.4);margin-bottom:1px">${c.lbl}</div>
-       <div style="font-size:.65rem;color:${ptColor}">${c.val}</div>
+       <div style="font-size:.65rem;color:${ptColor};display:flex;align-items:center;gap:3px">
+         ${c.lbl==='hue'||c.lbl==='progress' ? `<span class="probe-color-swatch" style="background:${ptColor}"></span>` : ''}
+         ${c.val}
+       </div>
      </div>`
   ).join('');
 
   // Gap section
-  if (gapVal && gdData) {
+  if (gap && gdData) {
     gapSec.style.display = 'block';
-    const gp = gdData.gapProducts[gapVal];
-    const gCol = gapVal ? gapColor(gapVal, gdData.gaps.indexOf(gapVal)) : '#aaa';
+    const gapIdx = gdData.gaps.indexOf(gap);
+    const gCol = gapColor(gap, gapIdx);
+    const gp = gdData.gapProducts[gap];
     const share = gp ? ((gp.logProduct / gdData.totalLog) * 100).toFixed(4) : '—';
     const cnt   = gp ? gp.count.toLocaleString() : '—';
+    const isSel = selectedGaps.has(gap);
     gapDet.innerHTML =
-      `<span style="color:${gCol}">g = ${gapVal}</span>  ` +
-      `count = ${cnt}  ·  log-ζ share = ${share}%<br>` +
+      `<span style="display:inline-flex;align-items:center;gap:5px">` +
+      `<span class="probe-color-swatch" style="background:${gCol};width:12px;height:12px;border-radius:3px;box-shadow:0 0 6px ${gCol}"></span>` +
+      `<span style="color:${gCol};font-weight:700">g = ${gap}</span>` +
+      `${isSel ? ' <span style="color:rgba(255,255,255,.4);font-size:.5rem">selected</span>' : ''}` +
+      `</span>  count = ${cnt}  ·  log-ζ share = ${share}%<br>` +
       `<span style="color:rgba(200,180,120,.5);font-size:.52rem">` +
-      `This θ falls in a region where consecutive primes differ by ${gapVal}. ` +
-      `The gap family g=${gapVal} contributes ${share}% of ζ(${gdData.s.toFixed(2)}) via Euler product.</span>`;
-  } else if (gdData && !gapVal) {
+      `This θ falls in a region where consecutive primes differ by ${gap}. ` +
+      `The gap family g=${gap} contributes ${share}% of ζ(${gdData.s.toFixed(2)}) via Euler product.</span>`;
+  } else if (gdData && !gap) {
     gapSec.style.display = 'block';
     gapDet.innerHTML = `<span style="color:rgba(200,180,120,.4);font-size:.52rem">No gap data for this point. Run Compute with a larger N to cover this θ range.</span>`;
   } else {
     gapSec.style.display = 'none';
   }
 
-  // Sphere highlight
+  // Sphere highlight — persistent while panel is open
   highlightSphereProbe(i);
   sphHint.style.display = 'block';
+  sphHint.style.color = ptColor;
+  sphHint.style.borderColor = ptColor + '44';
+  sphHint.textContent = ` Point highlighted on sphere  (${gap ? `gap g=${gap}` : `hue ${Math.round(hue)}°`})`;
 }
 
-// Highlight the probed point on the 3D sphere with a bright flash dot
+// ── Wave scrubber handler ──────────────────────────────────────────
+function onWaveScrub(val) {
+  const maxDrawn = Math.floor(drawProgress);
+  let idx = Math.min(maxDrawn, Math.max(0, parseInt(val)));
+  if (idx <= 0 && maxDrawn <= 0) return;
+  // Clamp to drawn region
+  idx = Math.min(idx, maxDrawn > 0 ? maxDrawn - 1 : 0);
+  cartProbeIdx = idx;
+  cartProbePx  = -1; // not click-based
+  updateCartProbe();
+}
+
+// Keep scrubber max in sync with drawProgress
+function syncScrubberMax() {
+  const s = document.getElementById('waveScrubber');
+  if (s) {
+    s.max = TOTAL_PTS;
+    // Only update value if user isn't actively scrubbing and panel is closed
+    if (document.getElementById('cartProbePanel').style.display === 'none') {
+      s.value = Math.floor(drawProgress);
+      const pct = document.getElementById('waveScrubPct');
+      if (pct) { pct.textContent = ((drawProgress/TOTAL_PTS)*100).toFixed(1)+'%'; pct.style.color=''; }
+    }
+  }
+}
+
+
+
+// Highlight the probed point on the 3D sphere with a persistent bright dot
 let probeFlashFrame = 0;
+let probePersist = false; // true when probe panel is open
 function highlightSphereProbe(idx) {
-  probeFlashFrame = 12;
+  probeFlashFrame = 999; // large value — decrements each frame but keepProbeAlive tops it up
+  probePersist = true;
   _probeIdx = idx;
 }
 let _probeIdx = -1;
 
 // Called inside renderSphere() at the very end
 function drawProbeFlash(ctx, w) {
-  // Probe flash — highlighted cart click point
+  // Probe flash — highlighted cart click / scrub point
   if (probeFlashFrame > 0 && _probeIdx >= 0) {
-    probeFlashFrame--;
+    if (!probePersist) probeFlashFrame--;
     const pt = precomputed[_probeIdx];
     if (pt) {
       const [rx, ry, rz] = applyM(rotMat, pt[0], pt[1], pt[2]);
@@ -5933,16 +6076,46 @@ function drawProbeFlash(ctx, w) {
         const scale = w * 0.38;
         const cx    = w / 2 + rx * scale;
         const cy    = w / 2 - ry * scale;
-        const alpha = probeFlashFrame / 12;
+        // Compute point color for the sphere dot too
+        const pc = precomputed[_probeIdx];
+        const gap = pc ? pc[4] : null;
+        const selCol = (gap !== null && gap !== undefined) ? selectedGaps.get(gap) : undefined;
+        const frac = _probeIdx / TOTAL_PTS;
+        const hue  = 295 + frac * 40;
+        let dotColor;
+        if (selCol) dotColor = selCol;
+        else if (harmColorMode) dotColor = harmColorForProgress(frac) || `hsl(${hue},100%,62%)`;
+        else dotColor = `hsl(${hue},100%,70%)`;
+
+        const alpha = probePersist ? 1 : (probeFlashFrame / 12);
         ctx.save();
+        // Outer glow ring
         ctx.beginPath();
-        ctx.arc(cx, cy, 9, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(91,156,246,${alpha})`;
-        ctx.shadowColor = '#5b9cf6';
-        ctx.shadowBlur = 24;
+        ctx.arc(cx, cy, 13, 0, Math.PI * 2);
+        ctx.fillStyle = dotColor.replace(')', `,${alpha * 0.2})`).replace('hsl(', 'hsla(').replace('rgb(', 'rgba(').replace('#', 'rgba(') ;
+        // Simpler approach:
+        ctx.fillStyle = `rgba(255,255,255,${alpha * 0.15})`;
+        ctx.shadowColor = dotColor;
+        ctx.shadowBlur = 28;
         ctx.fill();
-        ctx.strokeStyle = `rgba(255,255,255,${alpha * 0.8})`;
-        ctx.lineWidth = 2;
+        // Inner dot
+        ctx.beginPath();
+        ctx.arc(cx, cy, 7, 0, Math.PI * 2);
+        ctx.fillStyle = dotColor;
+        ctx.shadowColor = dotColor;
+        ctx.shadowBlur = 22;
+        ctx.fill();
+        // White center
+        ctx.beginPath();
+        ctx.arc(cx, cy, 3, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255,255,255,${alpha * 0.9})`;
+        ctx.shadowBlur = 0;
+        ctx.fill();
+        // Ring outline
+        ctx.beginPath();
+        ctx.arc(cx, cy, 10, 0, Math.PI * 2);
+        ctx.strokeStyle = `rgba(255,255,255,${alpha * 0.6})`;
+        ctx.lineWidth = 1.5;
         ctx.stroke();
         ctx.restore();
       }
@@ -5952,13 +6125,18 @@ function drawProbeFlash(ctx, w) {
   if (typeof drawZetaZeroRings === 'function') drawZetaZeroRings(ctx, w);
 }
 
-// Keep probe dot alive (re-highlight each second if panel open)
+// Keep probe dot alive while panel is open
 function keepProbeAlive() {
-  if (cartProbeIdx >= 0 && document.getElementById('cartProbePanel').style.display !== 'none') {
-    probeFlashFrame = 6;
+  const panelOpen = document.getElementById('cartProbePanel').style.display !== 'none';
+  if (cartProbeIdx >= 0 && panelOpen) {
+    probePersist = true;
+    probeFlashFrame = 999;
     _probeIdx = cartProbeIdx;
+  } else {
+    probePersist = false;
   }
-  setTimeout(keepProbeAlive, 800);
+  syncScrubberMax();
+  setTimeout(keepProbeAlive, 500);
 }
 setTimeout(keepProbeAlive, 800);
 
@@ -5967,7 +6145,12 @@ function clearCartProbe() {
   cartProbePx  = -1;
   _probeIdx = -1;
   probeFlashFrame = 0;
+  probePersist = false;
   document.getElementById('cartProbePanel').style.display = 'none';
+  const pct = document.getElementById('waveScrubPct');
+  if (pct) { pct.textContent = '0%'; pct.style.color = ''; }
+  const scrub = document.getElementById('waveScrubber');
+  if (scrub) { scrub.value = 0; scrub.style.accentColor = ''; }
   renderCart(); // remove crosshair
 }
 
@@ -6195,7 +6378,7 @@ function autoRunZeta(callback){
       document.getElementById('gdProgressFill').style.width = '100%';
       setTimeout(()=>document.getElementById('gdProgress').style.display='none', 400);
       document.getElementById('gdStatus').textContent =
-        `✓ Auto-loaded: ${gdData.primes.length.toLocaleString()} primes · ${gdData.gaps.length} gap families`;
+        ` Auto-loaded: ${gdData.primes.length.toLocaleString()} primes · ${gdData.gaps.length} gap families`;
 
       updateGdStats();
       ['gdExportPNG','gdExportCSV','gdExportTXT'].forEach(id=>document.getElementById(id).style.display='inline-block');
@@ -6357,7 +6540,7 @@ function startIntro(){
   hardReset();
   paused = false;
   const playBtn = document.getElementById('btnPlay');
-  if(playBtn){ playBtn.textContent = '⏸ Pause'; playBtn.classList.add('on'); }
+  if(playBtn){ playBtn.textContent = ' Pause'; playBtn.classList.add('on'); }
 
   // Play the welcome harmonic sweep (single pass)
   harmSyncStart();
