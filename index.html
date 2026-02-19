@@ -1401,6 +1401,84 @@ select {
         </div><!-- /.accordion-body #gapAccBody -->
       </div><!-- /.gap-accordion -->
 
+      <!-- ── Riemann Zeta ζ(½+it) Accordion ── -->
+      <div class="accordion" id="zetaAccordionWrap" style="border-color:rgba(180,100,255,.25);">
+        <div class="accordion-header" id="zetaAccHeader" onclick="toggleZetaAccordion(event)"
+             style="border-bottom-color:rgba(180,100,255,.15)">
+          <span class="accordion-title" style="color:rgba(200,140,255,.85)">ζ Riemann Zeta · ζ(½+it) Critical Line</span>
+          <div style="display:flex;gap:6px;align-items:center;margin-right:8px">
+            <button class="ctrl" id="zetaRunBtn" onclick="zetaRun();event.stopPropagation()"
+              style="font-size:.5rem;padding:3px 10px;background:rgba(180,100,255,.12);border-color:rgba(180,100,255,.3);color:rgba(200,140,255,.85)">▶ Compute</button>
+            <button class="ctrl" id="zetaScreenshotBtn" onclick="screenshotCanvas(zetaCv,'zeta_spiral');event.stopPropagation()"
+              style="display:none;font-size:.48rem;padding:2px 7px;background:rgba(180,100,255,.08);border-color:rgba(180,100,255,.2);color:rgba(200,140,255,.6)">⬇ PNG</button>
+          </div>
+          <span class="accordion-chevron" id="zetaAccChev" style="color:rgba(180,100,255,.5)">▼</span>
+        </div>
+        <div class="accordion-body" id="zetaAccBody">
+
+          <!-- Controls row -->
+          <div style="display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid rgba(180,100,255,.1)">
+            <div style="flex:1;min-width:140px">
+              <label style="font-size:.48rem;text-transform:uppercase;letter-spacing:.15em;color:rgba(180,100,255,.5);font-family:'JetBrains Mono',monospace;display:block;margin-bottom:3px">t range (0 → T<sub>max</sub>)</label>
+              <input type="range" id="zetaTMax" min="10" max="200" step="1" value="50" style="width:100%">
+              <div style="font-size:.55rem;color:rgba(200,140,255,.7);font-family:'JetBrains Mono',monospace;margin-top:2px">T = <span id="zetaTMaxVal">50</span></div>
+            </div>
+            <div style="flex:1;min-width:120px">
+              <label style="font-size:.48rem;text-transform:uppercase;letter-spacing:.15em;color:rgba(180,100,255,.5);font-family:'JetBrains Mono',monospace;display:block;margin-bottom:3px">Resolution (pts)</label>
+              <input type="range" id="zetaRes" min="500" max="8000" step="100" value="3000" style="width:100%">
+              <div style="font-size:.55rem;color:rgba(200,140,255,.7);font-family:'JetBrains Mono',monospace;margin-top:2px">N = <span id="zetaResVal">3000</span></div>
+            </div>
+            <div>
+              <label style="font-size:.48rem;text-transform:uppercase;letter-spacing:.15em;color:rgba(180,100,255,.5);font-family:'JetBrains Mono',monospace;display:block;margin-bottom:3px">Sync with wave</label>
+              <input type="checkbox" class="harm-toggle" id="zetaSyncWave" style="background:rgba(180,100,255,.12);border-color:rgba(180,100,255,.3);" checked>
+            </div>
+          </div>
+
+          <!-- Mode tabs -->
+          <div style="display:flex;gap:4px;margin-bottom:10px">
+            <button class="gap-tab active" id="zetaTab0" onclick="zetaSwitchMode(0)"
+              style="--tab-col:rgba(180,100,255,.7)">Spiral 2D</button>
+            <button class="gap-tab" id="zetaTab1" onclick="zetaSwitchMode(1)"
+              style="--tab-col:rgba(180,100,255,.7)">Zeros on Sphere</button>
+            <button class="gap-tab" id="zetaTab2" onclick="zetaSwitchMode(2)"
+              style="--tab-col:rgba(180,100,255,.7)">3D Curve</button>
+          </div>
+
+          <!-- Status line -->
+          <div id="zetaStatus" style="font-size:.5rem;color:rgba(180,100,255,.45);font-family:'JetBrains Mono',monospace;margin-bottom:8px;min-height:14px">
+            Set T<sub>max</sub> and click Compute to draw ζ(½+it).
+          </div>
+
+          <!-- Spiral canvas (mode 0) -->
+          <div id="zetaMode0" style="width:100%">
+            <canvas id="zetaCanvas" style="width:100%;border-radius:6px;background:#070510;display:block"></canvas>
+            <!-- Zero list -->
+            <div id="zetaZeroList" style="display:none;margin-top:8px;padding:8px 12px;background:rgba(180,100,255,.04);border:1px solid rgba(180,100,255,.1);border-radius:6px">
+              <div style="font-size:.44rem;text-transform:uppercase;letter-spacing:.18em;color:rgba(180,100,255,.4);font-family:'JetBrains Mono',monospace;margin-bottom:5px">Zeros found in range</div>
+              <div id="zetaZeroItems" style="font-size:.56rem;color:rgba(200,160,255,.7);font-family:'JetBrains Mono',monospace;line-height:2;display:flex;flex-wrap:wrap;gap:4px 12px"></div>
+            </div>
+          </div>
+
+          <!-- Sphere zeros note (mode 1) -->
+          <div id="zetaMode1" style="display:none;padding:10px 14px;background:rgba(180,100,255,.04);border:1px solid rgba(180,100,255,.12);border-radius:6px">
+            <div style="font-size:.54rem;color:rgba(200,160,255,.7);font-family:'JetBrains Mono',monospace;line-height:1.9">
+              Zero t-values are overlaid on the sphere above as glowing rings.<br>
+              Each ring corresponds to a known non-trivial zero of ζ(½+it).<br>
+              <span id="zetaSphereZeroCount" style="color:rgba(200,140,255,.9)">Compute to activate.</span>
+            </div>
+          </div>
+
+          <!-- 3D curve canvas (mode 2) -->
+          <div id="zetaMode2" style="display:none;width:100%">
+            <canvas id="zeta3dCanvas" style="width:100%;border-radius:6px;background:#070510;display:block"></canvas>
+            <div style="font-size:.48rem;color:rgba(180,100,255,.35);font-family:'JetBrains Mono',monospace;margin-top:5px;text-align:center">
+              ζ(½+it) plotted as 3D tube — drag to rotate
+            </div>
+          </div>
+
+        </div><!-- /.accordion-body #zetaAccBody -->
+      </div><!-- /.zeta-accordion -->
+
     </div><!-- /.center-bottom -->
 
   </main>
@@ -2811,6 +2889,61 @@ function exportSphere4K() {
     py += lineH;
   }
 
+  // ── Gap Decomp overlay on sphere export ──
+  if(gdData && selectedGaps.size > 0){
+    // Add selected gap labels along the bottom of the sphere area
+    const selList = [...selectedGaps.entries()];
+    let gx = PADDING;
+    const gy = SPHERE_TOP + SPHERE_H + 28;
+    ctx.font = `bold 26px 'JetBrains Mono', monospace`;
+    ctx.fillStyle = 'rgba(255,215,0,.55)';
+    ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+    ctx.fillText('Gap selection: ', gx, gy);
+    gx += ctx.measureText('Gap selection: ').width;
+    selList.forEach(([g, col]) => {
+      ctx.fillStyle = col;
+      const gt = `g=${g}  `;
+      ctx.fillText(gt, gx, gy);
+      gx += ctx.measureText(gt).width;
+    });
+  }
+
+  // If gap data active, add a gap summary box above the parameters panel
+  if(gdData){
+    const selList = [...selectedGaps.entries()];
+    const GAP_BOX_Y = LEGEND_Y - 180;
+    ctx.fillStyle = 'rgba(232,197,71,.06)';
+    ctx.strokeStyle = 'rgba(232,197,71,.2)'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.roundRect(LEGEND_X, GAP_BOX_Y, LEGEND_W, 160, 8);
+    ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#ffd700'; ctx.font = `bold 26px 'JetBrains Mono', monospace`;
+    ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+    ctx.fillText(`Gap Decomp  ·  ζ(${gdData.s.toFixed(2)})  ·  N=${gdData.maxN.toLocaleString()}`, LEGEND_X+20, GAP_BOX_Y+16);
+    ctx.fillStyle = '#88cc88'; ctx.font = `22px 'JetBrains Mono', monospace`;
+    ctx.fillText(`${gdData.primes.length.toLocaleString()} primes  ·  ${gdData.gaps.length} families  ·  err=${(gdData.finalError*100).toFixed(8)}%`, LEGEND_X+20, GAP_BOX_Y+52);
+    // Selected gaps with colors
+    let sx = LEGEND_X+20;
+    ctx.font = `bold 24px 'JetBrains Mono', monospace`;
+    ctx.fillStyle = 'rgba(255,255,255,.4)';
+    ctx.fillText('Selected: ', sx, GAP_BOX_Y+88);
+    sx += ctx.measureText('Selected: ').width;
+    selList.forEach(([g, col]) => {
+      ctx.fillStyle = col;
+      const gt = `g=${g}  `;
+      ctx.fillText(gt, sx, GAP_BOX_Y+88);
+      sx += ctx.measureText(gt).width;
+    });
+    if(selList.length === 0){
+      ctx.fillStyle = 'rgba(255,255,255,.25)';
+      ctx.fillText('none', sx, GAP_BOX_Y+88);
+    }
+    // g2/g4 ratio
+    if(gdData.c4 > 0){
+      ctx.fillStyle = 'rgba(150,200,150,.6)'; ctx.font = `22px 'JetBrains Mono', monospace`;
+      ctx.fillText(`g2/g4=${( gdData.c2/gdData.c4).toFixed(6)}  g2/g6=${gdData.c6>0?(gdData.c2/gdData.c6).toFixed(6):'N/A'}  [HL→1.0, 0.5]`, LEGEND_X+20, GAP_BOX_Y+124);
+    }
+  }
+
   // ── Watermark ──
   ctx.textAlign='left'; ctx.textBaseline='bottom';
   ctx.fillStyle='rgba(91,156,246,0.35)';
@@ -2825,7 +2958,8 @@ function exportSphere4K() {
 
   // ── Download ──
   const link = document.createElement('a');
-  link.download = `polar_cart_4K_A${A}_B${B}_C${C}_D${D}.png`;
+  const selSfx = selectedGaps.size > 0 ? '_g'+[...selectedGaps.keys()].join('_g') : '';
+  link.download = `polar_cart_4K_A${A}_B${B}_C${C}_D${D}${selSfx}.png`;
   link.href = cv.toDataURL('image/png');
   link.click();
 }
@@ -3674,22 +3808,35 @@ function buildRefinedWavePresets(){}
 // ═══════════════════════════════════════════════════════════════
 //  CHART DRAWING
 // ═══════════════════════════════════════════════════════════════
-function gdDraw(){
+function gdDraw(offCtx, offW, offH){
   if(!gdData) return;
-  const w=gdCanvas.width, h=gdCanvas.height;
-  gdCtx.fillStyle='#060608'; gdCtx.fillRect(0,0,w,h);
+  // Support optional offscreen drawing for exports
+  const useCtx = offCtx || gdCtx;
+  const w = offW || gdCanvas.width;
+  const h = offH || gdCanvas.height;
+
+  useCtx.fillStyle='#060608'; useCtx.fillRect(0,0,w,h);
+
+  // Temporarily swap gdCtx so draw functions see the right context
+  const _saved = gdCtx;
+  if(offCtx){ gdCtx = offCtx; }
+
   if(gdTab==='contrib') gdDrawContrib(w,h);
   else if(gdTab==='dist') gdDrawDist(w,h);
   else if(gdTab==='conv') gdDrawConv(w,h);
   else if(gdTab==='ratio') gdDrawRatio(w,h);
   else if(gdTab==='pct') gdDrawPct(w,h);
 
-  // Mirror to big accordion chart canvas
-  const bigCv = document.getElementById('gdChartBig');
-  if(bigCv && bigCv.width > 0 && bigCv.height > 0){
-    const bigCtx = bigCv.getContext('2d');
-    bigCtx.fillStyle='#060608'; bigCtx.fillRect(0,0,bigCv.width,bigCv.height);
-    bigCtx.drawImage(gdCanvas, 0, 0, bigCv.width, bigCv.height);
+  if(offCtx){ gdCtx = _saved; }
+
+  // Mirror to big accordion chart canvas (only for live draw)
+  if(!offCtx){
+    const bigCv = document.getElementById('gdChartBig');
+    if(bigCv && bigCv.width > 0 && bigCv.height > 0){
+      const bigCtx = bigCv.getContext('2d');
+      bigCtx.fillStyle='#060608'; bigCtx.fillRect(0,0,bigCv.width,bigCv.height);
+      bigCtx.drawImage(gdCanvas, 0, 0, bigCv.width, bigCv.height);
+    }
   }
 }
 
@@ -3734,33 +3881,128 @@ function gdDrawContrib(w, h){
 }
 
 function gdDrawDist(w, h){
-  const {gaps, gapFamilies} = gdData;
+  const {gaps, gapProducts, primes, s, maxN, target, finalProduct, finalError} = gdData;
   if(!gaps.length) return;
-  const p=gPad(), pw=w-p.l-p.r, ph=h-p.t-p.b;
-  const ctx=gdCtx;
-  const counts=gaps.map(g=>gapFamilies[g]?.length||0);
-  const maxC=Math.max(...counts);
-  const barW=pw/gaps.length;
-  gaps.forEach((g,i)=>{
-    const c=counts[i], bh=c/maxC*ph;
-    const x=p.l+i*barW, y=p.t+ph-bh;
-    const col=gapColor(g,i);
-    const isSel=selectedGaps.has(g);
-    ctx.fillStyle=col+(isSel?'bb':'33'); ctx.fillRect(x+1,y,barW-2,bh);
-    ctx.strokeStyle=col; ctx.lineWidth=isSel?2.5:1.2; ctx.strokeRect(x+1,y,barW-2,bh);
-    if(barW>18){ ctx.fillStyle=col; ctx.textAlign='center';
-      ctx.font=`${Math.max(7,w*.018)}px JetBrains Mono,monospace`;
-      ctx.fillText(''+g, x+barW/2, p.t+ph+16); }
+  const ctx = gdCtx;
+
+  // Layout: header stats strip + chart + x-axis label
+  const PAD_L=72, PAD_R=24, PAD_T=80, PAD_B=52;
+  const pw = w - PAD_L - PAD_R;
+  const ph = h - PAD_T - PAD_B;
+
+  // ── Title ──
+  ctx.fillStyle = '#ffd700';
+  ctx.font = `bold ${Math.max(11,w*.024)}px JetBrains Mono,monospace`;
+  ctx.textAlign = 'center';
+  ctx.fillText('Prime Distribution by Gap Class', w/2, 22);
+  ctx.fillStyle = 'rgba(91,156,246,.5)';
+  ctx.font = `${Math.max(8,w*.016)}px JetBrains Mono,monospace`;
+  ctx.fillText('by Wessen Getachew', w/2, 38);
+
+  // ── Stats header strip ──
+  const statsH = 36;
+  ctx.fillStyle = 'rgba(20,30,20,.9)';
+  ctx.fillRect(PAD_L, PAD_T - statsH - 2, pw, statsH);
+  const statsItems = [
+    {lbl:'N Range',         val: maxN.toLocaleString()},
+    {lbl:'Total Primes',    val: primes.length.toLocaleString()},
+    {lbl:'Gap Families',    val: gaps.length.toString()},
+    {lbl:`Target ζ(${s.toFixed(0)})`, val: target.toFixed(8)},
+    {lbl:'Final Product',   val: finalProduct.toFixed(8)},
+    {lbl:'Rel. Error',      val: (finalError*100).toFixed(6)+'%'},
+  ];
+  const iw = pw / statsItems.length;
+  statsItems.forEach(({lbl,val}, i) => {
+    const ix = PAD_L + i * iw + iw/2;
+    ctx.fillStyle = 'rgba(91,156,246,.5)';
+    ctx.font = `${Math.max(6,w*.013)}px JetBrains Mono,monospace`;
+    ctx.textAlign = 'center';
+    ctx.fillText(lbl, ix, PAD_T - statsH + 11);
+    ctx.fillStyle = '#ffd700';
+    ctx.font = `bold ${Math.max(7,w*.016)}px JetBrains Mono,monospace`;
+    ctx.fillText(val, ix, PAD_T - statsH + 25);
   });
-  [0,.25,.5,.75,1].forEach(frac=>{ const y=p.t+ph-frac*ph, v=Math.round(frac*maxC);
-    ctx.strokeStyle='#182018'; ctx.lineWidth=0.5;
-    ctx.beginPath(); ctx.moveTo(p.l,y); ctx.lineTo(w-p.r,y); ctx.stroke();
-    ctx.fillStyle='#3a7040'; ctx.textAlign='right'; ctx.textBaseline='middle';
-    ctx.font=`${Math.max(7,w*.018)}px JetBrains Mono,monospace`;
-    ctx.fillText(v>=1e6?(v/1e6).toFixed(1)+'M':v>=1e3?(v/1e3).toFixed(0)+'k':v, p.l-4, y);
+
+  // ── Chart section title ──
+  ctx.fillStyle = '#ffd700';
+  ctx.font = `bold ${Math.max(9,w*.019)}px JetBrains Mono,monospace`;
+  ctx.textAlign = 'center';
+  ctx.fillText('Number of Primes per Gap Family', w/2, PAD_T - 5);
+
+  const counts = gaps.map(g => gapProducts[g]?.count || 0);
+  const maxC = Math.max(...counts, 1);
+  const barW = Math.max(2, pw / gaps.length);
+
+  // ── Y-axis gridlines + labels ──
+  const yTicks = 6;
+  for(let i = 0; i <= yTicks; i++){
+    const frac = i / yTicks;
+    const v = Math.round(frac * maxC);
+    const y = PAD_T + ph - frac * ph;
+    ctx.strokeStyle = i === 0 ? 'rgba(255,255,255,.15)' : 'rgba(255,255,255,.05)';
+    ctx.lineWidth = i === 0 ? 1 : 0.5;
+    ctx.beginPath(); ctx.moveTo(PAD_L, y); ctx.lineTo(PAD_L + pw, y); ctx.stroke();
+    ctx.fillStyle = 'rgba(150,200,150,.7)';
+    ctx.font = `${Math.max(6,w*.013)}px JetBrains Mono,monospace`;
+    ctx.textAlign = 'right';
+    ctx.fillText(v >= 1e6 ? (v/1e6).toFixed(1)+'M' : v >= 1e3 ? (v/1e3).toFixed(0)+'k' : v.toString(), PAD_L - 5, y + 4);
+  }
+
+  // Y-axis label
+  ctx.save();
+  ctx.fillStyle = 'rgba(150,200,150,.6)';
+  ctx.font = `${Math.max(7,w*.014)}px JetBrains Mono,monospace`;
+  ctx.translate(14, PAD_T + ph/2);
+  ctx.rotate(-Math.PI/2);
+  ctx.textAlign = 'center';
+  ctx.fillText('Prime Count', 0, 0);
+  ctx.restore();
+
+  // ── Bars ──
+  gaps.forEach((g,i) => {
+    const c = counts[i];
+    const bh = (c / maxC) * ph;
+    const x = PAD_L + i * barW;
+    const y = PAD_T + ph - bh;
+    const col = gapColor(g, i);
+    const isSel = selectedGaps.has(g);
+
+    // Bar fill - bright green like Image 3 for non-selected, highlighted for selected
+    ctx.fillStyle = isSel ? col + 'ee' : '#22cc44aa';
+    ctx.fillRect(x + 0.5, y, barW - 1, bh);
+    if(isSel){
+      ctx.strokeStyle = col;
+      ctx.lineWidth = 2;
+      ctx.strokeRect(x + 0.5, y, barW - 1, bh);
+    }
+
+    // Value label on top for larger bars
+    if(bh > 20 && barW > 12){
+      ctx.fillStyle = '#fff';
+      ctx.globalAlpha = 0.85;
+      ctx.font = `${Math.max(6,w*.013)}px JetBrains Mono,monospace`;
+      ctx.textAlign = 'center';
+      ctx.fillText(c >= 1e3 ? (c/1e3).toFixed(0)+'k' : c.toString(), x + barW/2, y - 2);
+      ctx.globalAlpha = 1;
+    }
   });
-  gdTitle(ctx, w, `Prime count per gap family`);
-  gdBuildLegend(gaps.slice(0,16));
+
+  // ── X-axis gap labels ──
+  const labelStep = Math.max(1, Math.floor(gaps.length / 40));
+  ctx.fillStyle = 'rgba(150,180,150,.7)';
+  ctx.font = `${Math.max(5.5,w*.012)}px JetBrains Mono,monospace`;
+  ctx.textAlign = 'center';
+  gaps.forEach((g,i) => {
+    if(i % labelStep === 0){
+      ctx.fillText(g.toString(), PAD_L + (i + 0.5) * barW, PAD_T + ph + 14);
+    }
+  });
+
+  // X-axis label
+  ctx.fillStyle = 'rgba(150,180,150,.6)';
+  ctx.font = `${Math.max(8,w*.015)}px JetBrains Mono,monospace`;
+  ctx.textAlign = 'center';
+  ctx.fillText('Gap Size', w/2, h - 4);
 }
 
 function gdDrawConv(w, h){
@@ -3797,38 +4039,249 @@ function gdDrawConv(w, h){
 }
 
 function gdDrawRatio(w, h){
-  const {c2, c4, c6} = gdData;
-  const p=gPad(), pw=w-p.l-p.r, ph=h-p.t-p.b;
-  const ctx=gdCtx;
-  ctx.font=`${Math.max(8,w*.02)}px JetBrains Mono,monospace`;
-  const pairs=[
-    {lbl:'g₂/g₄\ntwin/cousin', val:c4>0?c2/c4:null, tgt:1.0, col:'#ffd700', note:'HL→1'},
-    {lbl:'g₂/g₆\ntwin/sexy',   val:c6>0?c2/c6:null, tgt:0.5, col:'var(--blue,#5b9cf6)', note:'HL→0.5'},
-    {lbl:'g₄/g₆\ncousin/sexy', val:c6>0?c4/c6:null, tgt:0.5, col:'#4ecdc4', note:'HL→0.5'},
-  ];
-  const bW=(pw/pairs.length)-14, maxV=3;
-  pairs.forEach((pair,i)=>{
-    const x=p.l+i*(pw/pairs.length)+7;
-    if(pair.val===null){ ctx.fillStyle='#555'; ctx.textAlign='center'; ctx.fillText('N/A',x+bW/2,p.t+ph/2); return; }
-    const bh=Math.min(pair.val/maxV,1)*ph, y=p.t+ph-bh;
-    ctx.fillStyle=pair.col+'33'; ctx.fillRect(x,y,bW,bh);
-    ctx.strokeStyle=pair.col; ctx.lineWidth=2; ctx.strokeRect(x,y,bW,bh);
-    const ty=p.t+ph-(pair.tgt/maxV)*ph;
-    ctx.strokeStyle=pair.col+'99'; ctx.lineWidth=1; ctx.setLineDash([4,3]);
-    ctx.beginPath(); ctx.moveTo(x-4,ty); ctx.lineTo(x+bW+4,ty); ctx.stroke(); ctx.setLineDash([]);
-    ctx.fillStyle=pair.col; ctx.textAlign='center';
-    ctx.fillText(pair.val.toFixed(5),x+bW/2,y-6);
-    ctx.fillStyle=pair.col+'99'; ctx.fillText(pair.note,x+bW/2,ty-6);
-    ctx.fillStyle='#88cc88';
-    pair.lbl.split('\n').forEach((ln,li)=>ctx.fillText(ln,x+bW/2,p.t+ph+16+li*12));
-  });
-  [0,1,2,3].forEach(v=>{ if(v<=maxV){ const y=p.t+ph-(v/maxV)*ph;
-    ctx.strokeStyle='#182018'; ctx.lineWidth=0.5;
-    ctx.beginPath(); ctx.moveTo(p.l,y); ctx.lineTo(w-p.r,y); ctx.stroke();
-    ctx.fillStyle='#3a7040'; ctx.textAlign='right'; ctx.textBaseline='middle'; ctx.fillText(v, p.l-4, y);
-  }});
-  gdTitle(ctx, w, `Gap count ratios vs Hardy–Littlewood`);
+  const {c2, c4, c6, c12, primes, s, maxN} = gdData;
+  // Also get c10, c12 from gapProducts
+  const c10 = gdData.gapProducts[10]?.count || 0;
+  const c12_v = gdData.gapProducts[12]?.count || 0;
+  const ctx = gdCtx;
+  const FONT = `JetBrains Mono,monospace`;
+
+  // ── Title + subtitle ──
+  ctx.fillStyle = '#ffd700';
+  ctx.font = `bold ${Math.max(10,w*.022)}px ${FONT}`;
+  ctx.textAlign = 'left';
+  ctx.fillText('Gap Ratio Analysis: Twin Prime Conjecture Evidence', 14, 20);
+
+  // Info box
+  const infoH = 48;
+  ctx.fillStyle = 'rgba(232,197,71,.06)';
+  ctx.strokeStyle = 'rgba(232,197,71,.2)';
+  ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.roundRect(14, 28, w-28, infoH, 4); ctx.fill(); ctx.stroke();
+  ctx.fillStyle = 'rgba(200,210,180,.65)';
+  ctx.font = `${Math.max(7,w*.014)}px ${FONT}`;
+  ctx.textAlign = 'left';
+  const infoText = `Tracks Count(g=2)/Count(g=4) and other gap ratios. Hardy-Littlewood predicts twin primes (gap 2) and cousin primes (gap 4) have identical singular series constants, so their ratio should approach 1.0 as N→∞. Gap 6 (sexy primes) has a 2× larger constant due to the p=3 factor — so it is asymptotically twice as frequent as gap 2 or gap 4, not equal.`;
+  wrapText(ctx, infoText, 20, 46, w-40, 11);
+
+  // Three sub-panels
+  const PANEL_Y = 86;
+  const PANEL_H = h - PANEL_Y - 12;
+  const pW1 = Math.floor(w * 0.28);
+  const pW2 = Math.floor(w * 0.40);
+  const pW3 = w - pW1 - pW2 - 20;
+  const p1x = 0, p2x = pW1 + 8, p3x = pW1 + pW2 + 16;
+
+  // ─── Panel 1: Gap Count Ratios ───
+  {
+    const px = p1x+8, py = PANEL_Y, pw = pW1-16, ph = PANEL_H - 30;
+    ctx.fillStyle = 'rgba(232,197,71,.5)';
+    ctx.font = `${Math.max(7,w*.013)}px ${FONT}`;
+    ctx.textAlign = 'center';
+    ctx.fillText('Gap Count Ratios', px + pw/2, py + 12);
+
+    const ratios = [
+      { lbl:'Gap 2/\nGap 4', val: c4>0 ? c2/c4 : null, tgt:1.0, col:'#22cc44' },
+      { lbl:'Gap 2/\nGap 6',  val: c6>0 ? c2/c6 : null, tgt:0.5, col:'#5b9cf6' },
+      { lbl:'Gap 4/\nGap 6', val: c6>0 ? c4/c6 : null, tgt:0.5, col:'#cc88ff' },
+    ];
+    const bw = Math.floor(pw / ratios.length) - 8;
+    const chartTop = py + 20, chartH = ph - 36;
+    const maxR = 1.5;
+    const toY = v => chartTop + chartH - Math.min(v/maxR, 1)*chartH;
+
+    // Y gridlines
+    [0,0.5,1.0,1.5].forEach(v => {
+      const gy = toY(v);
+      ctx.strokeStyle = v===1.0 ? 'rgba(255,255,255,.15)' : 'rgba(255,255,255,.06)';
+      ctx.lineWidth = 0.5;
+      ctx.beginPath(); ctx.moveTo(px, gy); ctx.lineTo(px+pw, gy); ctx.stroke();
+      ctx.fillStyle = 'rgba(150,180,150,.6)';
+      ctx.font = `${Math.max(6,w*.011)}px ${FONT}`;
+      ctx.textAlign = 'right';
+      ctx.fillText(v.toFixed(1), px-3, gy+3);
+    });
+
+    // Ratio=1 dashed line
+    const y1 = toY(1.0);
+    ctx.strokeStyle = 'rgba(255,255,150,.3)';
+    ctx.lineWidth = 1; ctx.setLineDash([4,3]);
+    ctx.beginPath(); ctx.moveTo(px, y1); ctx.lineTo(px+pw, y1); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = 'rgba(255,255,150,.5)';
+    ctx.font = `${Math.max(6,w*.011)}px ${FONT}`;
+    ctx.textAlign = 'left';
+    ctx.fillText('Ratio = 1.0', px+2, y1-4);
+
+    ratios.forEach(({lbl, val, tgt, col}, i) => {
+      const bx = px + i*(bw+8);
+      if(val === null){ return; }
+      const by = toY(val);
+      const bh = chartTop + chartH - by;
+      ctx.fillStyle = col + '44';
+      ctx.fillRect(bx, by, bw, bh);
+      ctx.strokeStyle = col; ctx.lineWidth = 1.5;
+      ctx.strokeRect(bx, by, bw, bh);
+      // Value label
+      ctx.fillStyle = col;
+      ctx.font = `bold ${Math.max(7,w*.015)}px ${FONT}`;
+      ctx.textAlign = 'center';
+      ctx.fillText(val.toFixed(4), bx+bw/2, by-5);
+      // Target dashed
+      const ty = toY(tgt);
+      ctx.strokeStyle = col+'88'; ctx.lineWidth=1; ctx.setLineDash([3,3]);
+      ctx.beginPath(); ctx.moveTo(bx-3,ty); ctx.lineTo(bx+bw+3,ty); ctx.stroke();
+      ctx.setLineDash([]);
+      // Label below
+      ctx.fillStyle = 'rgba(180,200,180,.7)';
+      ctx.font = `${Math.max(6,w*.011)}px ${FONT}`;
+      lbl.split('\n').forEach((l,li) => ctx.fillText(l, bx+bw/2, chartTop+chartH+12+li*11));
+    });
+  }
+
+  // ─── Panel 2: Gap Ratio Convergence ───
+  {
+    const px = p2x+4, py = PANEL_Y, pw = pW2-8, ph = PANEL_H - 30;
+    ctx.fillStyle = '#ffd700';
+    ctx.font = `bold ${Math.max(8,w*.017)}px ${FONT}`;
+    ctx.textAlign = 'center';
+    ctx.fillText('Gap Ratio Convergence: Twin Prime Conjecture Evidence', px+pw/2, py+12);
+
+    // Bar chart: % of total for key gaps
+    const total = primes.length || 1;
+    const pcts = [
+      { g:2,  cnt:c2,    col:'#ff6688', lbl:'Gap 2' },
+      { g:4,  cnt:c4,    col:'#5b9cf6', lbl:'Gap 4' },
+      { g:6,  cnt:c6,    col:'#22cc44', lbl:'Gap 6' },
+      { g:10, cnt:c10,   col:'#cc88ff', lbl:'Gap 10' },
+      { g:12, cnt:c12_v, col:'#ffaa44', lbl:'Gap 12' },
+    ].map(d => ({...d, pct: d.cnt/total*100}));
+
+    const chartTop = py+22, chartH = ph - 36;
+    const maxPct = Math.max(...pcts.map(d=>d.pct)) * 1.15 || 20;
+    const bw = Math.floor(pw / pcts.length) - 10;
+    const toY2 = v => chartTop + chartH - (v/maxPct)*chartH;
+
+    // Gridlines
+    [0, Math.round(maxPct/3), Math.round(2*maxPct/3), Math.round(maxPct)].forEach(v => {
+      const gy = toY2(v);
+      ctx.strokeStyle = 'rgba(255,255,255,.06)';
+      ctx.lineWidth = 0.5;
+      ctx.beginPath(); ctx.moveTo(px,gy); ctx.lineTo(px+pw,gy); ctx.stroke();
+    });
+
+    pcts.forEach(({pct, col, lbl, cnt}, i) => {
+      const bx = px + 5 + i*(bw+10);
+      const by = toY2(pct);
+      const bh = chartTop + chartH - by;
+      ctx.fillStyle = col + '99';
+      ctx.fillRect(bx, by, bw, bh);
+      ctx.strokeStyle = col; ctx.lineWidth = 1.5;
+      ctx.strokeRect(bx, by, bw, bh);
+      // % label
+      ctx.fillStyle = '#fff';
+      ctx.globalAlpha = 0.9;
+      ctx.font = `bold ${Math.max(7,w*.015)}px ${FONT}`;
+      ctx.textAlign = 'center';
+      ctx.fillText(pct.toFixed(2)+'%', bx+bw/2, by-5);
+      ctx.globalAlpha = 1;
+      // Count
+      ctx.fillStyle = col+'cc';
+      ctx.font = `${Math.max(6,w*.011)}px ${FONT}`;
+      ctx.fillText(cnt >= 1e3 ? (cnt/1e3).toFixed(0)+'k' : cnt.toString(), bx+bw/2, by-15);
+      // x label
+      ctx.fillStyle = 'rgba(180,200,180,.7)';
+      ctx.fillText(lbl, bx+bw/2, chartTop+chartH+12);
+    });
+
+    // Footer note
+    ctx.fillStyle = 'rgba(150,170,150,.5)';
+    ctx.font = `${Math.max(6,w*.011)}px ${FONT}`;
+    ctx.textAlign = 'center';
+    ctx.fillText(`Analysis: ${primes.length.toLocaleString()} primes up to ${maxN.toLocaleString()}`, px+pw/2, py+ph-2);
+  }
+
+  // ─── Panel 3: Hardy-Littlewood Accuracy ───
+  {
+    const px = p3x+4, py = PANEL_Y, pw = pW3-8, ph = PANEL_H - 30;
+    ctx.fillStyle = 'rgba(232,197,71,.5)';
+    ctx.font = `${Math.max(7,w*.013)}px ${FONT}`;
+    ctx.textAlign = 'center';
+    ctx.fillText('Hardy-Littlewood Accuracy', px+pw/2, py+12);
+
+    // H-L prediction for twin primes: 2*C2*li2(N)
+    // C2 = 0.6601618... (twin prime constant)
+    const C2 = 0.6601618158468696;
+    const N = maxN;
+    // li2 approx: N/ln(N) * (1 + 1/ln(N) + 2/ln²(N))
+    const lnN = Math.log(N);
+    const li2 = N/lnN * (1 + 1/lnN + 2/(lnN*lnN));
+    const hlPred = Math.round(2 * C2 * li2);
+    const diff = c2 - hlPred;
+    const errPct = c2 > 0 ? Math.abs(diff)/c2*100 : 0;
+
+    const chartTop = py+22, chartH = ph - 60;
+    const vals = [hlPred, c2];
+    const maxV = Math.max(...vals) * 1.15 || 1;
+    const bw2 = Math.floor(pw * 0.35);
+    const gap2 = Math.floor(pw * 0.12);
+
+    [[hlPred,'#ffd700','Predicted\n(H-L)'],[c2,'#22cc44','Observed\n(Actual)']].forEach(([v,col,lbl],i) => {
+      const bx = px + gap2 + i*(bw2 + gap2);
+      const bh = (v/maxV)*chartH;
+      const by = chartTop + chartH - bh;
+      ctx.fillStyle = col+'99';
+      ctx.fillRect(bx, by, bw2, bh);
+      ctx.strokeStyle = col; ctx.lineWidth = 1.5;
+      ctx.strokeRect(bx, by, bw2, bh);
+      // Value
+      ctx.fillStyle = col;
+      ctx.font = `bold ${Math.max(7,w*.014)}px ${FONT}`;
+      ctx.textAlign = 'center';
+      ctx.fillText(v.toLocaleString(), bx+bw2/2, by-5);
+      // Label
+      ctx.fillStyle = 'rgba(180,200,180,.7)';
+      ctx.font = `${Math.max(6,w*.011)}px ${FONT}`;
+      lbl.split('\n').forEach((l,li) => ctx.fillText(l, bx+bw2/2, chartTop+chartH+12+li*11));
+    });
+
+    // Error stat
+    ctx.fillStyle = errPct < 1 ? '#22cc44' : errPct < 5 ? '#ffd700' : '#ff6688';
+    ctx.font = `bold ${Math.max(8,w*.016)}px ${FONT}`;
+    ctx.textAlign = 'center';
+    ctx.fillText(`Error: ${errPct.toFixed(4)}%`, px+pw/2, chartTop+chartH+38);
+    ctx.fillStyle = 'rgba(150,170,150,.5)';
+    ctx.font = `${Math.max(6,w*.011)}px ${FONT}`;
+    ctx.fillText(diff >= 0 ? `+${diff.toLocaleString()} more twins than predicted` : `${diff.toLocaleString()} fewer twins than predicted`, px+pw/2, chartTop+chartH+52);
+    ctx.fillText(`Difference`, px+pw/2, chartTop+chartH+63);
+  }
+
+  // Summary line
+  const hlC2 = 0.6601618158468696;
+  ctx.fillStyle = 'rgba(150,170,150,.45)';
+  ctx.font = `${Math.max(6,w*.011)}px ${FONT}`;
+  ctx.textAlign = 'center';
+  ctx.fillText(`Twin Prime Constant C₂ = ${hlC2.toFixed(13)} | H-L Predicted (li₂ formula): ${Math.round(2*hlC2*(maxN/Math.log(maxN))).toLocaleString()} twins`, w/2, h-3);
+
   gdBuildLegend([]);
+}
+
+// Helper: wrap text on canvas
+function wrapText(ctx, text, x, y, maxW, lineH){
+  const words = text.split(' ');
+  let line = '';
+  let cy = y;
+  for(let n=0; n<words.length; n++){
+    const test = line + words[n] + ' ';
+    if(ctx.measureText(test).width > maxW && n > 0){
+      ctx.fillText(line, x, cy);
+      line = words[n] + ' ';
+      cy += lineH;
+    } else {
+      line = test;
+    }
+  }
+  ctx.fillText(line, x, cy);
 }
 
 function gdDrawPct(w, h){
@@ -3878,27 +4331,233 @@ function toggleGapChipByVal(g){
 // ═══════════════════════════════════════════════════════════════
 function gdExport4K(){
   if(!gdData) return;
-  const SIZE_W=3840, SIZE_H=2160;
-  const cv=document.createElement('canvas');
-  cv.width=SIZE_W; cv.height=SIZE_H;
-  const ctx=cv.getContext('2d');
-  ctx.fillStyle='#060608'; ctx.fillRect(0,0,SIZE_W,SIZE_H);
-  const origW=gdCanvas.width, origH=gdCanvas.height;
-  gdCanvas.width=SIZE_W; gdCanvas.height=SIZE_H;
-  gdDraw();
-  ctx.drawImage(gdCanvas,0,0);
-  gdCanvas.width=origW; gdCanvas.height=origH; gdResizeCanvas();
-  ctx.fillStyle='rgba(6,6,8,0.75)'; ctx.fillRect(0,0,SIZE_W,110);
-  ctx.fillStyle='#ffd700'; ctx.font='bold 56px JetBrains Mono,monospace';
-  ctx.textAlign='left'; ctx.textBaseline='top';
-  ctx.fillText(`Gap Decomp · ζ(${gdData.s.toFixed(2)}) · N=${gdData.maxN.toLocaleString()}`, 60, 20);
-  ctx.fillStyle='#88cc88'; ctx.font='32px JetBrains Mono,monospace';
-  ctx.fillText(`${gdData.primes.length.toLocaleString()} primes · ${gdData.gaps.length} families · err=${(gdData.finalError*100).toFixed(8)}%`, 60, 78);
-  ctx.fillStyle='rgba(91,156,246,0.5)'; ctx.font='28px JetBrains Mono,monospace';
-  ctx.textAlign='right'; ctx.fillText('Wessen Getachew · @7dview', SIZE_W-60, 78);
-  const link=document.createElement('a');
-  link.download=`gap_decomp_4K_N${gdData.maxN}_s${gdData.s.toFixed(2)}_${gdTab}.png`;
-  link.href=cv.toDataURL('image/png'); link.click();
+  const FONT = 'JetBrains Mono,monospace';
+  const { gaps, gapProducts, totalLog, primes: ps, s, maxN, target, finalProduct, finalError } = gdData;
+
+  // ── Layout ──
+  const W       = 3840;
+  const HDR_H   = 130;
+  const CHART_H = 1400;
+  const COL_HDR = 54;
+  const ROW_H   = 40;
+  const TOTALS_H = 50;
+  const STATS_H  = 60;
+  const PAD      = 40;
+
+  // Compute how many table rows fit
+  const maxRows = gaps.length;
+  const TABLE_H = COL_HDR + maxRows * ROW_H + TOTALS_H + 4;
+  const H = HDR_H + CHART_H + STATS_H + TABLE_H + PAD;
+
+  const cv  = document.createElement('canvas');
+  cv.width  = W;
+  cv.height = H;
+  const ctx = cv.getContext('2d');
+
+  // ── Background ──
+  ctx.fillStyle = '#060608';
+  ctx.fillRect(0, 0, W, H);
+
+  // ══ HEADER ══
+  const selList = [...selectedGaps.entries()]; // [[gapVal, color], ...]
+  ctx.textBaseline = 'alphabetic';
+
+  // Title segments - base info
+  ctx.font = `bold 62px ${FONT}`;
+  let titleX = PAD;
+  const TY = HDR_H * 0.46;
+
+  const baseTitleText = `Gap Decomp  ·  ζ(${s.toFixed(2)})  ·  N=${maxN.toLocaleString()}  ·  ${gdTab.toUpperCase()}`;
+  ctx.fillStyle = '#ffd700';
+  ctx.fillText(baseTitleText, titleX, TY);
+  titleX += ctx.measureText(baseTitleText).width;
+
+  // Selected gaps in their own colors
+  if(selList.length > 0){
+    ctx.fillStyle = 'rgba(255,255,255,.45)';
+    ctx.font = `42px ${FONT}`;
+    const sepText = '   Selected:';
+    ctx.fillText(sepText, titleX, TY);
+    titleX += ctx.measureText(sepText).width;
+    selList.forEach(([g, col]) => {
+      ctx.fillStyle = col;
+      ctx.font = `bold 48px ${FONT}`;
+      const gt = `  g=${g}`;
+      ctx.fillText(gt, titleX, TY);
+      titleX += ctx.measureText(gt).width;
+    });
+  }
+
+  // Subtitle
+  ctx.fillStyle = '#88cc88';
+  ctx.font = `34px ${FONT}`;
+  ctx.textAlign = 'left';
+  ctx.fillText(
+    `${ps.length.toLocaleString()} primes  ·  ${gaps.length} families  ·  err=${(finalError*100).toFixed(8)}%  ·  computed=${finalProduct.toFixed(10)}`,
+    PAD, HDR_H * 0.80
+  );
+  ctx.fillStyle = 'rgba(91,156,246,.5)';
+  ctx.font = `30px ${FONT}`;
+  ctx.textAlign = 'right';
+  ctx.fillText('Wessen Getachew · @7dview', W - PAD, HDR_H * 0.80);
+  ctx.textAlign = 'left';
+
+  // ══ CHART at full 4K width ══
+  const chartCv  = document.createElement('canvas');
+  chartCv.width  = W;
+  chartCv.height = CHART_H;
+  const chartCtx = chartCv.getContext('2d');
+  chartCtx.fillStyle = '#060608';
+  chartCtx.fillRect(0, 0, W, CHART_H);
+  gdDraw(chartCtx, W, CHART_H);
+  ctx.drawImage(chartCv, 0, HDR_H, W, CHART_H);
+
+  // ══ STATS STRIP ══
+  const SY = HDR_H + CHART_H;
+  ctx.fillStyle = 'rgba(10,20,10,.95)';
+  ctx.fillRect(0, SY, W, STATS_H);
+  const statItems = [
+    {lbl:'N Range',      val: maxN.toLocaleString()},
+    {lbl:'Total Primes', val: ps.length.toLocaleString()},
+    {lbl:'Gap Families', val: gaps.length.toString()},
+    {lbl:`Target ζ(${s.toFixed(1)})`, val: target.toFixed(8)},
+    {lbl:'Final Product', val: finalProduct.toFixed(8)},
+    {lbl:'Rel. Error',   val: (finalError*100).toFixed(8)+'%'},
+  ];
+  const iw = W / statItems.length;
+  statItems.forEach(({lbl, val}, i) => {
+    const ix = i*iw + iw/2;
+    ctx.fillStyle = 'rgba(91,156,246,.5)'; ctx.font = `22px ${FONT}`; ctx.textAlign = 'center';
+    ctx.fillText(lbl, ix, SY + 18);
+    ctx.fillStyle = '#ffd700'; ctx.font = `bold 28px ${FONT}`;
+    ctx.fillText(val, ix, SY + 46);
+  });
+
+  // ══ TABLE ══
+  const TBY = SY + STATS_H;
+
+  // Column definitions matching Image 3
+  const colDefs = [
+    {lbl:'Gap',          w:0.055, align:'left'},
+    {lbl:'Count',        w:0.115, align:'right'},
+    {lbl:'% of Total',   w:0.135, align:'right'},
+    {lbl:'Cumulative',   w:0.125, align:'right'},
+    {lbl:'Cumulative %', w:0.135, align:'right'},
+  ];
+  // Adjust: remaining width for extra cols if not ratio tab
+  if(gdTab !== 'dist'){
+    colDefs.push({lbl:'log-ζ Product', w:0.145, align:'right'});
+    colDefs.push({lbl:'log-ζ Share %', w:0.135, align:'right'});
+    colDefs.push({lbl:'Euler Product', w:0.155, align:'right'});
+  }
+
+  // Column header row
+  ctx.fillStyle = 'rgba(20,50,30,.98)';
+  ctx.fillRect(0, TBY, W, COL_HDR);
+  let cxStart = PAD;
+  const colWidths = colDefs.map(c => Math.floor((W - 2*PAD) * c.w));
+  colDefs.forEach(({lbl,align}, ci) => {
+    const cw = colWidths[ci];
+    ctx.fillStyle = '#ffd700'; ctx.font = `bold 28px ${FONT}`;
+    ctx.textAlign = align;
+    ctx.fillText(lbl, align==='right' ? cxStart+cw-8 : cxStart+8, TBY + COL_HDR - 14);
+    cxStart += cw;
+  });
+
+  // Separator under header
+  ctx.strokeStyle = 'rgba(232,197,71,.3)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(0,TBY+COL_HDR); ctx.lineTo(W,TBY+COL_HDR); ctx.stroke();
+
+  // Data rows
+  let cumCount = 0, cumPct = 0;
+  let rowY = TBY + COL_HDR + 2;
+  let cumEuler = 1;
+
+  gaps.forEach((g, ri) => {
+    const gp = gapProducts[g]; if(!gp) return;
+    cumCount += gp.count;
+    const pct      = gp.count / (ps.length || 1) * 100;
+    cumPct        += pct;
+    cumEuler      *= gp.product;
+    const logShare = gp.logProduct / (totalLog || 1) * 100;
+    const col      = gapColor(g, ri);
+    const isSel    = selectedGaps.has(g);
+
+    // Row background
+    ctx.fillStyle = isSel ? col + '22' : ri%2===0 ? 'rgba(255,255,255,.015)' : 'transparent';
+    ctx.fillRect(0, rowY, W, ROW_H);
+
+    // Selected highlight bar on left edge
+    if(isSel){
+      ctx.fillStyle = col;
+      ctx.fillRect(0, rowY, 6, ROW_H);
+    }
+
+    const vals = [
+      {v: g.toString(),            col: col, bold: true},
+      {v: gp.count.toLocaleString()},
+      {v: pct.toFixed(8)+'%'},
+      {v: cumCount.toLocaleString()},
+      {v: cumPct.toFixed(8)+'%'},
+    ];
+    if(gdTab !== 'dist'){
+      vals.push({v: gp.logProduct.toFixed(10)});
+      vals.push({v: logShare.toFixed(8)+'%'});
+      vals.push({v: cumEuler.toFixed(10)});
+    }
+
+    let vx = PAD;
+    colDefs.forEach(({align}, ci) => {
+      const cw = colWidths[ci];
+      const d  = vals[ci] || {v:''};
+      ctx.fillStyle = d.col || (isSel ? col+'cc' : 'rgba(170,200,170,.8)');
+      ctx.font = `${d.bold ? 'bold ' : ''}24px ${FONT}`;
+      ctx.textAlign = align;
+      ctx.fillText(d.v, align==='right' ? vx+cw-8 : vx+8, rowY + ROW_H - 11);
+      vx += cw;
+    });
+
+    // Row separator
+    ctx.strokeStyle = 'rgba(255,255,255,.03)'; ctx.lineWidth = 0.5;
+    ctx.beginPath(); ctx.moveTo(0,rowY+ROW_H); ctx.lineTo(W,rowY+ROW_H); ctx.stroke();
+    rowY += ROW_H;
+  });
+
+  // Displayed / Limit rows (like Image 3)
+  const displayedY = rowY;
+  ctx.fillStyle = 'rgba(91,156,246,.18)'; ctx.fillRect(0,displayedY,W,TOTALS_H/2);
+  ctx.fillStyle = '#5b9cf6'; ctx.font=`bold 24px ${FONT}`; ctx.textAlign='left';
+  ctx.fillText('Displayed', PAD+8, displayedY+TOTALS_H/2-10);
+  ctx.textAlign='right';
+  const c1w = colWidths[0], c2w=colWidths[1], c3w=colWidths[2], c4w=colWidths[3], c5w=colWidths[4];
+  ctx.fillText(cumCount.toLocaleString(),       PAD+c1w+c2w-8,                  displayedY+TOTALS_H/2-10);
+  ctx.fillText(cumPct.toFixed(8)+'%',           PAD+c1w+c2w+c3w-8,              displayedY+TOTALS_H/2-10);
+  ctx.fillText(cumCount.toLocaleString(),       PAD+c1w+c2w+c3w+c4w-8,          displayedY+TOTALS_H/2-10);
+  ctx.fillText(cumPct.toFixed(8)+'%',           PAD+c1w+c2w+c3w+c4w+c5w-8,     displayedY+TOTALS_H/2-10);
+
+  const limitY = displayedY + TOTALS_H/2;
+  ctx.fillStyle = 'rgba(91,156,246,.1)'; ctx.fillRect(0,limitY,W,TOTALS_H/2);
+  ctx.fillStyle = '#88aacc'; ctx.font=`bold 24px ${FONT}`; ctx.textAlign='left';
+  ctx.fillText('Limit', PAD+8, limitY+TOTALS_H/2-10);
+  ctx.textAlign='right';
+  ctx.fillText(ps.length.toLocaleString(),       PAD+c1w+c2w-8,                 limitY+TOTALS_H/2-10);
+  ctx.fillText('100.0%',                          PAD+c1w+c2w+c3w-8,             limitY+TOTALS_H/2-10);
+
+  // Footer note
+  ctx.fillStyle = 'rgba(150,170,150,.45)'; ctx.font=`22px ${FONT}`; ctx.textAlign='center';
+  ctx.fillText(
+    `Showing ${gaps.length} rows  |  Analysis: ${ps.length.toLocaleString()} primes up to ${maxN.toLocaleString()}`,
+    W/2, limitY + TOTALS_H/2 - 10
+  );
+
+  // ── Download ──
+  const selSuffix = selList.length > 0 ? '_g'+selList.map(([g])=>g).join('_g') : '';
+  const link = document.createElement('a');
+  link.download = `gap_decomp_4K_N${maxN}_s${s.toFixed(2)}_${gdTab}${selSuffix}.png`;
+  link.href = cv.toDataURL('image/png');
+  link.click();
+
+  // Redraw live canvas
   gdDraw();
 }
 
@@ -3984,93 +4643,281 @@ function csvDownload(csv, filename){
 
 // ── Section / Canvas Screenshot helpers ──────────────────────────
 // screenshotCanvas: save a canvas element directly as PNG
+// For the gap chart, routes to the full 4K export with chart+table
 function screenshotCanvas(canvas, filename){
-  if(!canvas || canvas.width===0) return;
+  if(!canvas) return;
+  // Gap chart button → full 4K export (chart + table)
+  if(filename === 'gap_chart' || canvas === gdCanvas || canvas === document.getElementById('gdChartBig')){
+    if(gdData) gdExport4K();
+    return;
+  }
+  if(canvas.width === 0) return;
   const a = document.createElement('a');
   a.href = canvas.toDataURL('image/png');
   a.download = (filename||'screenshot') + '.png';
   a.click();
 }
 
-// screenshotSection: render an HTML element to canvas via html2canvas-like approach
-// Uses the DOM element, draws a dark background, then captures to PNG.
+// screenshotSection: render an HTML table/stats section as PNG using canvas drawing
 function screenshotSection(elementId, filename){
-  const el = document.getElementById(elementId);
-  if(!el) return;
+  if(!gdData) return;
 
-  // We use a temporary offscreen approach: clone into a styled wrapper,
-  // then use the browser's built-in screenshot via a blob URL in an <img>.
-  // For table/stats DOM nodes we create a styled SVG foreignObject snapshot.
-  const rect = el.getBoundingClientRect();
-  const W = Math.max(rect.width, 400);
-  const H = Math.max(rect.height, 100);
+  // Route to the appropriate canvas-based export
+  if(elementId === 'gdStatsGrid'){
+    exportStatsGrid(filename);
+    return;
+  }
+  if(elementId === 'gdTableWrap'){
+    exportTableCanvas(filename);
+    return;
+  }
+  if(elementId === 'gdConvTableWrap'){
+    exportConvTableCanvas(filename);
+    return;
+  }
+
+  // Fallback: try drawing the chart
+  gdExport4K();
+}
+
+// ── Canvas-based table export ──
+function exportStatsGrid(filename){
+  if(!gdData) return;
+  const d = gdData;
+  const W = 2400, FONT = 'JetBrains Mono,monospace';
+  const items = [
+    { lbl:'Total Primes', val: d.primes.length.toLocaleString() },
+    { lbl:'Gap Families', val: d.gaps.length.toString() },
+    { lbl:`ζ(${d.s.toFixed(2)}) Target`, val: d.target.toFixed(10) },
+    { lbl:'Computed Product', val: d.finalProduct.toFixed(10) },
+    { lbl:'Relative Error', val: (d.finalError*100).toFixed(10)+'%' },
+    { lbl:'Max N', val: d.maxN.toLocaleString() },
+    { lbl:'Largest Gap', val: Math.max(...d.gaps).toString() },
+    { lbl:'Most Common Gap', val: `g=${d.mostCommon} (${d.mcCount.toLocaleString()})` },
+    { lbl:'Gap 2 (Twin)', val: d.c2.toLocaleString() },
+    { lbl:'Gap 4 (Cousin)', val: d.c4.toLocaleString() },
+    { lbl:'Gap 6 (Sexy)', val: d.c6.toLocaleString() },
+    { lbl:'g2/g4 Ratio', val: d.c4>0?(d.c2/d.c4).toFixed(8):'N/A' },
+    { lbl:'g2/g6 Ratio', val: d.c6>0?(d.c2/d.c6).toFixed(8):'N/A' },
+    { lbl:'π approx', val: d.pi_calc ? d.pi_calc.toFixed(10) : 'n/a (s≠2)' },
+  ];
+  const COLS = 2, cellW = W/COLS, cellH = 72;
+  const H = Math.ceil(items.length/COLS)*cellH + 100;
+  const cv = document.createElement('canvas');
+  cv.width = W; cv.height = H;
+  const ctx = cv.getContext('2d');
+  ctx.fillStyle = '#070810';
+  ctx.fillRect(0,0,W,H);
+  ctx.fillStyle = '#ffd700';
+  ctx.font = `bold 40px ${FONT}`;
+  ctx.textAlign = 'left';
+  ctx.fillText(`Gap Decomp Stats · ζ(${d.s.toFixed(2)}) · N=${d.maxN.toLocaleString()}`, 30, 48);
+  items.forEach(({lbl,val},i)=>{
+    const col=i%COLS, row=Math.floor(i/COLS);
+    const x=col*cellW, y=72+row*cellH;
+    ctx.fillStyle = row%2===0?'rgba(255,255,255,.03)':'rgba(0,0,0,0)';
+    ctx.fillRect(x,y,cellW,cellH);
+    ctx.fillStyle='rgba(91,156,246,.5)';
+    ctx.font=`28px ${FONT}`;
+    ctx.textAlign='left';
+    ctx.fillText(lbl, x+20, y+22);
+    ctx.fillStyle='#ffd700';
+    ctx.font=`bold 36px ${FONT}`;
+    ctx.fillText(val, x+20, y+56);
+    ctx.strokeStyle='rgba(255,255,255,.05)';
+    ctx.lineWidth=0.5;
+    ctx.strokeRect(x,y,cellW,cellH);
+  });
+  const a=document.createElement('a');
+  a.download=(filename||'gap_stats')+'.png';
+  a.href=cv.toDataURL('image/png'); a.click();
+}
+
+function exportTableCanvas(filename){
+  if(!gdData) return;
+  // Composite: Distribution histogram (top) + full data table (bottom) — matches Image 3
+  const { gaps, gapProducts, totalLog, primes: ps, s, maxN, target, finalProduct, finalError } = gdData;
+  const FONT = 'JetBrains Mono,monospace';
+  const W = 3840;
+  const CHART_H = 1500;
+  const COL_HDR = 56, ROW_H = 40, STATS_H = 70, TOTALS_H = 50;
+  const TABLE_H = COL_HDR + gaps.length * ROW_H + TOTALS_H + 10;
+  const H = CHART_H + STATS_H + TABLE_H + 30;
 
   const cv = document.createElement('canvas');
-  cv.width = Math.ceil(W * window.devicePixelRatio);
-  cv.height = Math.ceil(H * window.devicePixelRatio);
+  cv.width = W; cv.height = H;
   const ctx = cv.getContext('2d');
-  ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+  ctx.fillStyle = '#060608'; ctx.fillRect(0,0,W,H);
 
-  // Serialize the element + computed styles into an SVG foreignObject
-  // (works cross-browser for DOM snapshots)
-  const clone = el.cloneNode(true);
-  // Apply dark background
-  clone.style.background = '#0e1119';
-  clone.style.padding = '16px';
-  clone.style.boxSizing = 'border-box';
-  clone.style.width = W + 'px';
+  // Draw Distribution chart at 4K using offscreen context
+  const savedTab = gdTab;
+  gdTab = 'dist';
+  const chartCv = document.createElement('canvas');
+  chartCv.width = W; chartCv.height = CHART_H;
+  const chartCtx = chartCv.getContext('2d');
+  chartCtx.fillStyle = '#060608'; chartCtx.fillRect(0,0,W,CHART_H);
+  gdDraw(chartCtx, W, CHART_H);
+  gdTab = savedTab;
+  ctx.drawImage(chartCv, 0, 0, W, CHART_H);
 
-  // Inline critical computed styles for tables
-  el.querySelectorAll('*').forEach((node, i) => {
-    const cs = window.getComputedStyle(node);
-    const cloneNode = clone.querySelectorAll('*')[i];
-    if(cloneNode && node.tagName.match(/^(TD|TH|TR|TABLE|THEAD|TBODY|DIV|SPAN)$/)){
-      cloneNode.style.color = cs.color;
-      cloneNode.style.background = cs.backgroundColor;
-      cloneNode.style.fontSize = cs.fontSize;
-      cloneNode.style.fontFamily = cs.fontFamily;
-      cloneNode.style.padding = cs.padding;
-      cloneNode.style.border = cs.border;
-      cloneNode.style.borderBottom = cs.borderBottom;
-      cloneNode.style.fontWeight = cs.fontWeight;
-    }
+  // Stats strip
+  const SY = CHART_H;
+  ctx.fillStyle = 'rgba(10,20,10,.98)'; ctx.fillRect(0,SY,W,STATS_H);
+  const statItems = [
+    {lbl:'N Range',       val:maxN.toLocaleString()},
+    {lbl:'Total Primes',  val:ps.length.toLocaleString()},
+    {lbl:'Gap Families',  val:gaps.length.toString()},
+    {lbl:`Target z(${Math.round(s)})`, val:target.toFixed(8)},
+    {lbl:'Final Product', val:finalProduct.toFixed(8)},
+    {lbl:'Rel. Error',    val:(finalError*100).toFixed(6)+'%'},
+  ];
+  const iw = W/statItems.length;
+  statItems.forEach(({lbl,val},i)=>{
+    const ix = i*iw+iw/2;
+    ctx.fillStyle='rgba(91,156,246,.55)'; ctx.font=`22px ${FONT}`; ctx.textAlign='center';
+    ctx.fillText(lbl, ix, SY+20);
+    ctx.fillStyle='#ffd700'; ctx.font=`bold 30px ${FONT}`;
+    ctx.fillText(val, ix, SY+50);
   });
 
-  const xml = new XMLSerializer().serializeToString(
-    (() => {
-      const svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
-      svg.setAttribute('xmlns','http://www.w3.org/2000/svg');
-      svg.setAttribute('xmlns:xhtml','http://www.w3.org/1999/xhtml');
-      svg.setAttribute('width', W);
-      svg.setAttribute('height', H);
-      const fo = document.createElementNS('http://www.w3.org/2000/svg','foreignObject');
-      fo.setAttribute('width', W);
-      fo.setAttribute('height', H);
-      fo.appendChild(clone);
-      svg.appendChild(fo);
-      return svg;
-    })()
-  );
+  // Table
+  const TBY = SY + STATS_H;
+  const PAD = 40;
+  const colDefs = [
+    {lbl:'Gap',          w:0.06, align:'left'},
+    {lbl:'Count',        w:0.14, align:'right'},
+    {lbl:'% of Total',   w:0.15, align:'right'},
+    {lbl:'Cumulative',   w:0.14, align:'right'},
+    {lbl:'Cumulative %', w:0.15, align:'right'},
+  ];
+  const colWidths = colDefs.map(c => Math.floor((W - 2*PAD)*c.w));
 
-  const img = new Image();
-  const blob = new Blob([xml], {type:'image/svg+xml;charset=utf-8'});
-  const url = URL.createObjectURL(blob);
-  img.onload = () => {
-    ctx.fillStyle = '#0e1119';
-    ctx.fillRect(0, 0, W, H);
-    ctx.drawImage(img, 0, 0, W, H);
-    URL.revokeObjectURL(url);
-    const a = document.createElement('a');
-    a.href = cv.toDataURL('image/png');
-    a.download = (filename||'gap_section') + '.png';
-    a.click();
-  };
-  img.onerror = () => {
-    URL.revokeObjectURL(url);
-    // Fallback: just screenshot the chart canvas
-    screenshotCanvas(document.getElementById('gdChartBig'), filename);
-  };
-  img.src = url;
+  ctx.fillStyle='rgba(20,50,30,.98)'; ctx.fillRect(0,TBY,W,COL_HDR);
+  let cxS=PAD;
+  colDefs.forEach(({lbl,align},ci)=>{
+    const cw=colWidths[ci];
+    ctx.fillStyle='#ffd700'; ctx.font=`bold 28px ${FONT}`; ctx.textAlign=align;
+    ctx.fillText(lbl, align==='right'?cxS+cw-8:cxS+8, TBY+COL_HDR-14);
+    cxS+=cw;
+  });
+  ctx.strokeStyle='rgba(232,197,71,.3)'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(0,TBY+COL_HDR); ctx.lineTo(W,TBY+COL_HDR); ctx.stroke();
+
+  let cumCount=0, cumPct=0;
+  let rowY=TBY+COL_HDR+2;
+  gaps.forEach((g,ri)=>{
+    const gp=gapProducts[g]; if(!gp) return;
+    cumCount+=gp.count;
+    const pct=gp.count/(ps.length||1)*100;
+    cumPct+=pct;
+    const col=gapColor(g,ri);
+    const isSel=selectedGaps.has(g);
+    ctx.fillStyle=isSel?col+'22':ri%2===0?'rgba(255,255,255,.015)':'transparent';
+    ctx.fillRect(0,rowY,W,ROW_H);
+    if(isSel){ ctx.fillStyle=col; ctx.fillRect(0,rowY,6,ROW_H); }
+    const vals=[
+      {v:g.toString(),col,bold:true},
+      {v:gp.count.toLocaleString()},
+      {v:pct.toFixed(8)+'%'},
+      {v:cumCount.toLocaleString()},
+      {v:cumPct.toFixed(8)+'%'},
+    ];
+    let vx=PAD;
+    colDefs.forEach(({align},ci)=>{
+      const cw=colWidths[ci],d=vals[ci]||{v:''};
+      ctx.fillStyle=d.col||(isSel?col+'cc':'rgba(170,200,170,.8)');
+      ctx.font=`${d.bold?'bold ':''}24px ${FONT}`; ctx.textAlign=align;
+      ctx.fillText(d.v, align==='right'?vx+cw-8:vx+8, rowY+ROW_H-11);
+      vx+=cw;
+    });
+    ctx.strokeStyle='rgba(255,255,255,.03)'; ctx.lineWidth=0.5;
+    ctx.beginPath(); ctx.moveTo(0,rowY+ROW_H); ctx.lineTo(W,rowY+ROW_H); ctx.stroke();
+    rowY+=ROW_H;
+  });
+
+  const c1w=colWidths[0],c2w=colWidths[1],c3w=colWidths[2],c4w=colWidths[3],c5w=colWidths[4];
+  const displayedY=rowY;
+  ctx.fillStyle='rgba(91,156,246,.18)'; ctx.fillRect(0,displayedY,W,TOTALS_H/2);
+  ctx.fillStyle='#5b9cf6'; ctx.font=`bold 24px ${FONT}`; ctx.textAlign='left';
+  ctx.fillText('Displayed', PAD+8, displayedY+TOTALS_H/2-10);
+  ctx.textAlign='right';
+  ctx.fillText(cumCount.toLocaleString(),PAD+c1w+c2w-8,displayedY+TOTALS_H/2-10);
+  ctx.fillText(cumPct.toFixed(8)+'%',PAD+c1w+c2w+c3w-8,displayedY+TOTALS_H/2-10);
+  ctx.fillText(cumCount.toLocaleString(),PAD+c1w+c2w+c3w+c4w-8,displayedY+TOTALS_H/2-10);
+  ctx.fillText(cumPct.toFixed(8)+'%',PAD+c1w+c2w+c3w+c4w+c5w-8,displayedY+TOTALS_H/2-10);
+
+  const limitY=displayedY+TOTALS_H/2;
+  ctx.fillStyle='rgba(30,50,80,.5)'; ctx.fillRect(0,limitY,W,TOTALS_H/2);
+  ctx.fillStyle='#88aacc'; ctx.font=`bold 24px ${FONT}`; ctx.textAlign='left';
+  ctx.fillText('Limit', PAD+8, limitY+TOTALS_H/2-10);
+  ctx.textAlign='right';
+  ctx.fillText(ps.length.toLocaleString(),PAD+c1w+c2w-8,limitY+TOTALS_H/2-10);
+  ctx.fillText('100.0%',PAD+c1w+c2w+c3w-8,limitY+TOTALS_H/2-10);
+  ctx.fillStyle='rgba(150,170,150,.5)'; ctx.font=`22px ${FONT}`; ctx.textAlign='center';
+  ctx.fillText(`Showing ${gaps.length} rows  |  Analysis: ${ps.length.toLocaleString()} primes up to ${maxN.toLocaleString()}`, W/2, limitY+TOTALS_H/2-10);
+
+  const a=document.createElement('a');
+  a.download=(filename||'gap_distribution')+`_Canvas_${maxN}_${new Date().toISOString().slice(0,19).replace(/:/g,'-')}.png`;
+  a.href=cv.toDataURL('image/png'); a.click();
+}
+
+function exportConvTableCanvas(filename){
+  if(!gdData) return;
+  const { conv, target, s, maxN } = gdData;
+  const FONT = 'JetBrains Mono,monospace';
+  const W=2800, ROW_H=38, HDR_H=90;
+  const H=HDR_H+ROW_H+conv.length*ROW_H+50;
+  const cv=document.createElement('canvas');
+  cv.width=W; cv.height=Math.min(H,5000);
+  const ctx=cv.getContext('2d');
+  ctx.fillStyle='#070810'; ctx.fillRect(0,0,W,cv.height);
+  ctx.fillStyle='#ffd700'; ctx.font=`bold 44px ${FONT}`; ctx.textAlign='left';
+  ctx.fillText(`Convergence Table · ζ(${s.toFixed(2)}) · N=${maxN.toLocaleString()}`, 30, 55);
+  const cols=[
+    {lbl:'Gap',              w:.06,align:'left'},
+    {lbl:'Cumulative Product',w:.18,align:'right'},
+    {lbl:'Rel. Error %',     w:.15,align:'right'},
+    {lbl:'Log Product',      w:.18,align:'right'},
+    {lbl:'log-ζ Step %',     w:.15,align:'right'},
+    {lbl:'π Estimate',       w:.18,align:'right'},
+    {lbl:'Δ from π',         w:.10,align:'right'},
+  ];
+  ctx.fillStyle='rgba(30,50,30,.9)'; ctx.fillRect(0,HDR_H,W,ROW_H+4);
+  let cx=0;
+  cols.forEach(({lbl,w,align})=>{
+    const cw=Math.floor(W*w);
+    ctx.fillStyle='#ffd700'; ctx.font=`bold 26px ${FONT}`; ctx.textAlign=align;
+    ctx.fillText(lbl, align==='right'?cx+cw-12:cx+12, HDR_H+ROW_H-8);
+    cx+=cw;
+  });
+  conv.forEach(({gap,value,relErr,logProduct,pi_est,delta},ri)=>{
+    const ry=HDR_H+ROW_H+4+ri*ROW_H;
+    if(ry+ROW_H>cv.height-44) return;
+    const col=gapColor(gap, ri);
+    ctx.fillStyle=ri%2===0?'rgba(255,255,255,.02)':'rgba(0,0,0,0)';
+    ctx.fillRect(0,ry,W,ROW_H);
+    const vals=[
+      {v:gap.toString(),col,bold:true},
+      {v:value.toFixed(12)},
+      {v:(relErr*100).toFixed(10)+'%', col:relErr<0.001?'#22cc44':relErr<0.01?'#ffd700':'#ff8888'},
+      {v:logProduct.toFixed(12)},
+      {v:((logProduct/gdData.totalLog)*100).toFixed(8)+'%'},
+      {v:pi_est?pi_est.toFixed(12):'n/a'},
+      {v:delta!=null?delta.toExponential(6):'—'},
+    ];
+    let vx=0;
+    cols.forEach(({w,align},ci)=>{
+      const cw=Math.floor(W*w),d=vals[ci]||{v:''};
+      ctx.fillStyle=d.col||'rgba(180,210,180,.75)';
+      ctx.font=`${d.bold?'bold ':''}24px ${FONT}`; ctx.textAlign=align;
+      ctx.fillText(d.v, align==='right'?vx+cw-12:vx+12, ry+ROW_H-10);
+      vx+=cw;
+    });
+    ctx.strokeStyle='rgba(255,255,255,.04)'; ctx.lineWidth=0.5;
+    ctx.beginPath(); ctx.moveTo(0,ry+ROW_H); ctx.lineTo(W,ry+ROW_H); ctx.stroke();
+  });
+  const a=document.createElement('a');
+  a.download=(filename||'gap_convergence')+'.png'; a.href=cv.toDataURL('image/png'); a.click();
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -4713,27 +5560,33 @@ let _probeIdx = -1;
 
 // Called inside renderSphere() at the very end
 function drawProbeFlash(ctx, w) {
-  if (probeFlashFrame <= 0 || _probeIdx < 0) return;
-  probeFlashFrame--;
-  const pt = precomputed[_probeIdx];
-  if (!pt) return;
-  const [rx, ry, rz] = applyM(rotMat, pt[0], pt[1], pt[2]);
-  if (rz < 0) return; // behind sphere
-  const scale = w * 0.38;
-  const cx    = w / 2 + rx * scale;
-  const cy    = w / 2 - ry * scale;
-  const alpha = probeFlashFrame / 12;
-  ctx.save();
-  ctx.beginPath();
-  ctx.arc(cx, cy, 9, 0, Math.PI * 2);
-  ctx.fillStyle = `rgba(91,156,246,${alpha})`;
-  ctx.shadowColor = '#5b9cf6';
-  ctx.shadowBlur = 24;
-  ctx.fill();
-  ctx.strokeStyle = `rgba(255,255,255,${alpha * 0.8})`;
-  ctx.lineWidth = 2;
-  ctx.stroke();
-  ctx.restore();
+  // Probe flash — highlighted cart click point
+  if (probeFlashFrame > 0 && _probeIdx >= 0) {
+    probeFlashFrame--;
+    const pt = precomputed[_probeIdx];
+    if (pt) {
+      const [rx, ry, rz] = applyM(rotMat, pt[0], pt[1], pt[2]);
+      if (rz >= 0) {
+        const scale = w * 0.38;
+        const cx    = w / 2 + rx * scale;
+        const cy    = w / 2 - ry * scale;
+        const alpha = probeFlashFrame / 12;
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(cx, cy, 9, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(91,156,246,${alpha})`;
+        ctx.shadowColor = '#5b9cf6';
+        ctx.shadowBlur = 24;
+        ctx.fill();
+        ctx.strokeStyle = `rgba(255,255,255,${alpha * 0.8})`;
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.restore();
+      }
+    }
+  }
+  // Zeta zero rings overlay (mode 1)
+  if (typeof drawZetaZeroRings === 'function') drawZetaZeroRings(ctx, w);
 }
 
 // Keep probe dot alive (re-highlight each second if panel open)
@@ -5149,6 +6002,526 @@ function startIntro(){
 
 // Small delay so DOM is fully ready
 setTimeout(startIntro, 300);
+
+// ═══════════════════════════════════════════════════════════════
+//  RIEMANN ZETA MODULE — ζ(½+it) Critical Line
+// ═══════════════════════════════════════════════════════════════
+
+// ── Known non-trivial zeros of ζ(½+it), t-values (first 60) ──
+const ZETA_ZEROS = [
+  14.1347251417,20.0239241220,25.0108575801,30.4248761259,32.9350615877,
+  37.5861781588,40.9187190121,43.3270732810,48.0051508812,49.7738324777,
+  52.9703214777,56.4462476971,59.3470440026,60.8317785246,65.1125440481,
+  67.0798105294,69.5464017112,72.0671576745,75.7046906990,77.1448400689,
+  79.3373750202,82.9103808541,84.7354929805,87.4252746132,88.8091112076,
+  92.4918992706,94.6513440405,95.8706342282,98.8311942182,101.317851006,
+  103.725538040,105.446623052,107.168611184,111.029535543,111.874659177,
+  114.320220915,116.226680321,118.790782866,121.370125002,122.946829294,
+  124.256818554,127.516683880,129.578704200,131.087688531,133.497737203,
+  134.756509753,138.116042055,139.736208952,141.123707404,143.111845808,
+  146.000982487,147.422765343,150.053527420,150.925257612,153.024693811,
+  156.112909294,157.597591818,158.849988477,161.188964138,163.030709687
+];
+
+// ── Canvas references ──
+const zetaCv   = document.getElementById('zetaCanvas');
+const zetaCtx  = zetaCv.getContext('2d');
+const zeta3dCv = document.getElementById('zeta3dCanvas');
+const zeta3dCtx= zeta3dCv.getContext('2d');
+
+// ── State ──
+let zetaMode      = 0;       // 0=spiral, 1=sphere zeros, 2=3D curve
+let zetaData      = null;    // {re[], im[], tArr[], tMax, N}
+let zetaDrawProg  = 0;       // animation progress index
+let zetaAnimId    = null;
+let zetaZerosInRange = [];
+let zetaSphereZerosActive = false;
+// 3D canvas drag
+let z3Drag=false, z3LastX=0, z3LastY=0;
+let z3RotMat=[1,0,0, 0,1,0, 0,0,1];
+
+// ── Riemann-Siegel approximation of ζ(½+it) ──
+// Accurate for moderate t; uses the Euler-Maclaurin main sum + correction term
+function zetaRS(t) {
+  if (t < 2) return { re: 1, im: 0 };
+  // Main sum: ζ ≈ Σ_{n=1}^{N} n^{-½-it} + χ·Σ_{n=1}^{N} n^{-½+it}
+  const N = Math.max(3, Math.floor(Math.sqrt(t / (2 * Math.PI))));
+  let re = 0, im = 0;
+  for (let n = 1; n <= N; n++) {
+    const logN = Math.log(n);
+    const mag  = Math.pow(n, -0.5);        // n^{-½}
+    const phase = -t * logN;               // -t·ln(n)
+    re += mag * Math.cos(phase);
+    im += mag * Math.sin(phase);
+  }
+  // Functional equation factor χ(½+it) = π^{it} · Γ((¼-it/2)/½) / Γ((¼+it/2)/½) ... approximated:
+  // χ ≈ (2π/t)^{½} · e^{i(t - π/8 - π/4)} using Stirling
+  const logFactor = 0.5 * Math.log(t / (2 * Math.PI));
+  const chiMag    = Math.exp(logFactor); // magnitude of χ
+  const chiPhase  = t * Math.log(t / (2 * Math.PI * Math.E)) - Math.PI / 8;
+  // conjugate sum Σ n^{-½+it}
+  let re2 = 0, im2 = 0;
+  for (let n = 1; n <= N; n++) {
+    const mag  = Math.pow(n, -0.5);
+    const phase = t * Math.log(n);
+    re2 += mag * Math.cos(phase);
+    im2 += mag * Math.sin(phase);
+  }
+  // χ · conj_sum
+  const cRe = chiMag * (Math.cos(chiPhase) * re2 - Math.sin(chiPhase) * im2);
+  const cIm = chiMag * (Math.cos(chiPhase) * im2 + Math.sin(chiPhase) * re2);
+  return { re: re + cRe, im: im + cIm };
+}
+
+// ── Compute all points ──
+function zetaCompute() {
+  const tMax = parseFloat(document.getElementById('zetaTMax').value);
+  const N    = parseInt(document.getElementById('zetaRes').value);
+  const re   = new Float32Array(N);
+  const im   = new Float32Array(N);
+  const tArr = new Float32Array(N);
+
+  document.getElementById('zetaStatus').textContent = 'Computing ζ(½+it)…';
+  for (let i = 0; i < N; i++) {
+    const t    = (i / (N - 1)) * tMax;
+    tArr[i]    = t;
+    const z    = zetaRS(t);
+    re[i]      = z.re;
+    im[i]      = z.im;
+  }
+
+  // Find zeros in range (from known list)
+  zetaZerosInRange = ZETA_ZEROS.filter(z => z <= tMax);
+  zetaData = { re, im, tArr, tMax, N };
+
+  const zCount = zetaZerosInRange.length;
+  document.getElementById('zetaStatus').textContent =
+    `ζ(½+it) · t ∈ [0, ${tMax}] · ${N} pts · ${zCount} zero${zCount!==1?'s':''} in range`;
+  document.getElementById('zetaScreenshotBtn').style.display = 'inline-block';
+
+  // Zero list
+  const zeroList = document.getElementById('zetaZeroList');
+  const zeroItems = document.getElementById('zetaZeroItems');
+  if (zetaZerosInRange.length > 0) {
+    zeroList.style.display = 'block';
+    zeroItems.innerHTML = zetaZerosInRange.map((t, i) =>
+      `<span style="background:rgba(180,100,255,.12);border:1px solid rgba(180,100,255,.2);
+        border-radius:3px;padding:1px 6px;cursor:pointer;font-size:.52rem"
+        title="t = ${t.toFixed(6)}" onclick="zetaHighlightZero(${t})">
+        t<sub>${i+1}</sub>=${t.toFixed(4)}
+      </span>`
+    ).join('');
+  }
+
+  // Sphere zeros
+  zetaSphereZerosActive = true;
+  document.getElementById('zetaSphereZeroCount').textContent =
+    `${zCount} zero rings active on sphere · toggle mode to see them.`;
+
+  return zetaData;
+}
+
+// ── Main run ──
+function zetaRun() {
+  if (zetaAnimId) { cancelAnimationFrame(zetaAnimId); zetaAnimId = null; }
+  zetaSizeCanvases();
+  zetaCompute();
+  zetaDrawProg = 0;
+  zetaAnimate();
+}
+
+function zetaSizeCanvases() {
+  const wrap = document.getElementById('zetaAccBody');
+  const W = Math.max(320, wrap.clientWidth - 28);
+  zetaCv.width   = W;
+  zetaCv.height  = Math.round(W * 0.55);
+  zeta3dCv.width  = W;
+  zeta3dCv.height = Math.round(W * 0.55);
+}
+
+// ── Animated draw ──
+function zetaAnimate() {
+  if (!zetaData) return;
+  if (zetaMode === 0) zetaDrawSpiral();
+  else if (zetaMode === 2) zetaDraw3D();
+
+  const syncWave = document.getElementById('zetaSyncWave').checked;
+  const targetProg = syncWave
+    ? Math.floor((drawProgress / TOTAL_PTS) * zetaData.N)
+    : zetaData.N;
+
+  if (zetaDrawProg < targetProg) {
+    zetaDrawProg = Math.min(zetaDrawProg + Math.max(4, Math.floor(zetaData.N / 300)), targetProg);
+    zetaAnimId = requestAnimationFrame(zetaAnimate);
+  } else {
+    zetaDrawProg = targetProg;
+    if (zetaMode === 0) zetaDrawSpiral();
+    else if (zetaMode === 2) zetaDraw3D();
+  }
+}
+
+// ── Mode 0: 2D Spiral ──
+function zetaDrawSpiral() {
+  if (!zetaData) return;
+  const { re, im, N, tMax } = zetaData;
+  const w = zetaCv.width, h = zetaCv.height;
+  const pad = 32;
+
+  // Compute axis bounds
+  let minRe=-3, maxRe=3.5, minIm=-2.5, maxIm=2.5;
+  for (let i = 0; i < N; i++) {
+    if (re[i] < minRe) minRe = re[i];
+    if (re[i] > maxRe) maxRe = re[i];
+    if (im[i] < minIm) minIm = im[i];
+    if (im[i] > maxIm) maxIm = im[i];
+  }
+  const margin = 0.3;
+  minRe -= margin; maxRe += margin; minIm -= margin; maxIm += margin;
+
+  // Keep aspect ratio square-ish
+  const reRange = maxRe - minRe, imRange = maxIm - minIm;
+  const scale = Math.min((w - pad*2) / reRange, (h - pad*2) / imRange);
+  const cx = w/2, cy = h/2;
+  const midRe = (minRe + maxRe)/2, midIm = (minIm + maxIm)/2;
+
+  const toX = r => cx + (r - midRe) * scale;
+  const toY = i => cy - (i - midIm) * scale;
+
+  // Background
+  zetaCtx.fillStyle = '#070510';
+  zetaCtx.fillRect(0, 0, w, h);
+
+  // Grid
+  zetaCtx.strokeStyle = 'rgba(180,100,255,.07)';
+  zetaCtx.lineWidth = 0.5;
+  for (let v = Math.ceil(minRe); v <= Math.floor(maxRe); v++) {
+    zetaCtx.beginPath(); zetaCtx.moveTo(toX(v), pad); zetaCtx.lineTo(toX(v), h-pad); zetaCtx.stroke();
+  }
+  for (let v = Math.ceil(minIm); v <= Math.floor(maxIm); v++) {
+    zetaCtx.beginPath(); zetaCtx.moveTo(pad, toY(v)); zetaCtx.lineTo(w-pad, toY(v)); zetaCtx.stroke();
+  }
+
+  // Axes
+  zetaCtx.strokeStyle = 'rgba(180,100,255,.22)';
+  zetaCtx.lineWidth = 1;
+  zetaCtx.beginPath(); zetaCtx.moveTo(toX(0), pad); zetaCtx.lineTo(toX(0), h-pad); zetaCtx.stroke();
+  zetaCtx.beginPath(); zetaCtx.moveTo(pad, toY(0)); zetaCtx.lineTo(w-pad, toY(0)); zetaCtx.stroke();
+
+  // Axis labels
+  zetaCtx.fillStyle = 'rgba(180,100,255,.45)';
+  zetaCtx.font = `${Math.max(8, w * 0.022)}px JetBrains Mono,monospace`;
+  zetaCtx.textAlign = 'center';
+  zetaCtx.fillText('Re ζ(½+it)', w - 60, toY(0) + 14);
+  zetaCtx.save(); zetaCtx.translate(toX(0) - 14, h/2);
+  zetaCtx.rotate(-Math.PI/2);
+  zetaCtx.fillText('Im ζ(½+it)', 0, 0);
+  zetaCtx.restore();
+
+  // Title
+  zetaCtx.fillStyle = 'rgba(200,140,255,.6)';
+  zetaCtx.font = `bold ${Math.max(9, w * 0.025)}px JetBrains Mono,monospace`;
+  zetaCtx.textAlign = 'left';
+  zetaCtx.fillText(`Polar graph of ζ(½+it),  t ∈ [0, ${zetaData.tMax}]`, pad, 18);
+
+  // Curve — color by t progress (purple→cyan→magenta spiral)
+  const end = Math.min(zetaDrawProg, N - 1);
+  zetaCtx.lineWidth = 1.5;
+  zetaCtx.shadowBlur = 4;
+  for (let i = 1; i <= end; i++) {
+    const frac = i / N;
+    const hue  = 270 + frac * 120; // purple → cyan
+    const lum  = 55 + frac * 15;
+    zetaCtx.strokeStyle = `hsl(${hue},90%,${lum}%)`;
+    zetaCtx.shadowColor = `hsl(${hue},90%,${lum}%)`;
+    zetaCtx.beginPath();
+    zetaCtx.moveTo(toX(re[i-1]), toY(im[i-1]));
+    zetaCtx.lineTo(toX(re[i]),   toY(im[i]));
+    zetaCtx.stroke();
+  }
+  zetaCtx.shadowBlur = 0;
+
+  // Origin marker
+  zetaCtx.beginPath();
+  zetaCtx.arc(toX(0), toY(0), 4, 0, Math.PI*2);
+  zetaCtx.fillStyle = 'rgba(255,255,255,.3)';
+  zetaCtx.fill();
+
+  // Zero markers — glowing white dots at each known zero location
+  zetaZerosInRange.forEach((tz, idx) => {
+    const zi   = Math.round((tz / zetaData.tMax) * (N - 1));
+    if (zi > end) return;
+    const zx   = toX(re[zi]);
+    const zy   = toY(im[zi]);
+    zetaCtx.save();
+    zetaCtx.beginPath();
+    zetaCtx.arc(zx, zy, 6, 0, Math.PI*2);
+    zetaCtx.fillStyle   = 'rgba(255,255,255,.9)';
+    zetaCtx.shadowColor = '#fff';
+    zetaCtx.shadowBlur  = 14;
+    zetaCtx.fill();
+    zetaCtx.strokeStyle = 'rgba(200,140,255,.9)';
+    zetaCtx.lineWidth   = 1.5;
+    zetaCtx.stroke();
+    zetaCtx.restore();
+    // Label
+    zetaCtx.fillStyle  = 'rgba(220,180,255,.8)';
+    zetaCtx.font       = `${Math.max(7,w*0.017)}px JetBrains Mono,monospace`;
+    zetaCtx.textAlign  = 'left';
+    zetaCtx.fillText(`t${idx+1}`, zx + 8, zy - 2);
+  });
+
+  // Moving cursor dot
+  if (end < N - 1) {
+    zetaCtx.beginPath();
+    zetaCtx.arc(toX(re[end]), toY(im[end]), 5, 0, Math.PI*2);
+    zetaCtx.fillStyle   = '#fff';
+    zetaCtx.shadowColor = '#ccc';
+    zetaCtx.shadowBlur  = 12;
+    zetaCtx.fill();
+    zetaCtx.shadowBlur  = 0;
+  }
+}
+
+// ── Highlight a specific zero on the spiral (click on chip) ──
+let zetaHighlightT = null;
+function zetaHighlightZero(tz) {
+  zetaHighlightT = tz;
+  if (zetaData) {
+    zetaDrawProg = Math.round((tz / zetaData.tMax) * zetaData.N);
+    zetaDrawSpiral();
+    // Flash the zero
+    const { re, im, tMax, N } = zetaData;
+    const zi = Math.round((tz / tMax) * (N - 1));
+    setTimeout(() => { zetaDrawProg = N; zetaDrawSpiral(); }, 600);
+  }
+}
+
+// ── Mode 2: 3D Curve ──
+// Maps ζ(½+it) → 3D: longitude = t*2π/tMax, lat = atan2(im,re), r = |ζ|
+function zetaDraw3D() {
+  if (!zetaData) return;
+  const { re, im, N, tMax } = zetaData;
+  const w = zeta3dCv.width, h = zeta3dCv.height;
+
+  zeta3dCtx.fillStyle = '#070510';
+  zeta3dCtx.fillRect(0, 0, w, h);
+
+  const end = Math.min(zetaDrawProg, N - 1);
+  const R = w * 0.3;  // sphere radius in px
+
+  // Project 3D point via z3RotMat
+  const proj3 = (x, y, z) => {
+    const rx = z3RotMat[0]*x + z3RotMat[1]*y + z3RotMat[2]*z;
+    const ry = z3RotMat[3]*x + z3RotMat[4]*y + z3RotMat[5]*z;
+    const rz = z3RotMat[6]*x + z3RotMat[7]*y + z3RotMat[8]*z;
+    const fov = 3, s = fov / (fov - rz * 0.8);
+    return [w/2 + rx * R * s, h/2 - ry * R * s, rz];
+  };
+
+  // Wire sphere
+  zeta3dCtx.strokeStyle = 'rgba(180,100,255,.06)';
+  zeta3dCtx.lineWidth = 0.5;
+  for (let a = 0; a < Math.PI*2; a += Math.PI/6) {
+    zeta3dCtx.beginPath();
+    for (let b = 0; b <= Math.PI*2; b += 0.1) {
+      const [px, py] = proj3(Math.cos(a)*Math.cos(b), Math.sin(b), Math.sin(a)*Math.cos(b));
+      b===0 ? zeta3dCtx.moveTo(px,py) : zeta3dCtx.lineTo(px,py);
+    }
+    zeta3dCtx.stroke();
+  }
+  for (let lat = -Math.PI/2; lat <= Math.PI/2; lat += Math.PI/6) {
+    zeta3dCtx.beginPath();
+    for (let lon = 0; lon <= Math.PI*2; lon += 0.1) {
+      const [px,py] = proj3(Math.cos(lat)*Math.cos(lon),Math.sin(lat),Math.cos(lat)*Math.sin(lon));
+      lon===0 ? zeta3dCtx.moveTo(px,py) : zeta3dCtx.lineTo(px,py);
+    }
+    zeta3dCtx.stroke();
+  }
+
+  // Build 3D path points
+  const pts = [];
+  for (let i = 0; i <= end; i++) {
+    const t   = (i / (N - 1)) * tMax;
+    const mag = Math.sqrt(re[i]*re[i] + im[i]*im[i]);
+    const rn  = Math.min(1.5, mag / 4);  // normalized radius
+    const lon = (t / tMax) * Math.PI * 6; // multiple loops
+    const lat = Math.atan2(im[i], re[i]) * 0.4; // latitude from phase
+    const x   = rn * Math.cos(lat) * Math.cos(lon);
+    const y   = rn * Math.sin(lat);
+    const z   = rn * Math.cos(lat) * Math.sin(lon);
+    pts.push({ x, y, z, frac: i/N });
+  }
+
+  // Sort by z for painter's algo
+  const segs = [];
+  for (let i = 1; i < pts.length; i++) {
+    const [ax,ay,az] = proj3(pts[i-1].x, pts[i-1].y, pts[i-1].z);
+    const [bx,by,bz] = proj3(pts[i].x, pts[i].y, pts[i].z);
+    segs.push({ ax,ay,bx,by,z:(az+bz)/2, frac:pts[i].frac });
+  }
+  segs.sort((a,b)=>a.z-b.z);
+
+  segs.forEach(({ ax, ay, bx, by, z, frac }) => {
+    const hue = 270 + frac * 120;
+    const alpha = 0.4 + z * 0.5;
+    zeta3dCtx.strokeStyle = `hsla(${hue},90%,65%,${Math.max(0.1,alpha)})`;
+    zeta3dCtx.lineWidth = 1.5 + z * 0.5;
+    zeta3dCtx.shadowColor = `hsl(${hue},90%,65%)`;
+    zeta3dCtx.shadowBlur = 3;
+    zeta3dCtx.beginPath();
+    zeta3dCtx.moveTo(ax, ay);
+    zeta3dCtx.lineTo(bx, by);
+    zeta3dCtx.stroke();
+  });
+  zeta3dCtx.shadowBlur = 0;
+
+  // Zero rings on 3D sphere
+  zetaZerosInRange.forEach(tz => {
+    const zi = Math.round((tz / tMax) * (N - 1));
+    if (zi > end) return;
+    const t   = tz;
+    const mag = Math.sqrt(re[zi]*re[zi] + im[zi]*im[zi]);
+    const rn  = Math.min(1.5, mag / 4);
+    const lon = (t / tMax) * Math.PI * 6;
+    const lat = Math.atan2(im[zi], re[zi]) * 0.4;
+    const x   = rn * Math.cos(lat) * Math.cos(lon);
+    const y   = rn * Math.sin(lat);
+    const z   = rn * Math.cos(lat) * Math.sin(lon);
+    const [px, py, pz] = proj3(x, y, z);
+    if (pz < -0.5) return;
+    zeta3dCtx.beginPath();
+    zeta3dCtx.arc(px, py, 6, 0, Math.PI*2);
+    zeta3dCtx.fillStyle   = 'rgba(255,255,255,.85)';
+    zeta3dCtx.shadowColor = '#fff';
+    zeta3dCtx.shadowBlur  = 16;
+    zeta3dCtx.fill();
+    zeta3dCtx.shadowBlur  = 0;
+  });
+
+  // Labels
+  zeta3dCtx.fillStyle  = 'rgba(200,140,255,.5)';
+  zeta3dCtx.font       = `${Math.max(8,w*0.022)}px JetBrains Mono,monospace`;
+  zeta3dCtx.textAlign  = 'left';
+  zeta3dCtx.fillText('ζ(½+it) — 3D tube', 12, 18);
+}
+
+// ── Sphere overlay: draw zero rings on the main polar sphere ──
+// Called from renderSphere() — draws glowing latitude rings at zero t-values
+function drawZetaZeroRings(ctx, w) {
+  if (!zetaSphereZerosActive || zetaMode !== 1) return;
+  if (!zetaZerosInRange.length) return;
+
+  const end = Math.floor(drawProgress);
+  zetaZerosInRange.forEach((tz, idx) => {
+    // Map t → point index
+    const pIdx = Math.round((tz / (zetaData ? zetaData.tMax : 50)) * TOTAL_PTS);
+    if (pIdx > end || pIdx >= TOTAL_PTS) return;
+    if (!precomputed[pIdx]) return;
+
+    const [x0, y0, z0] = precomputed[pIdx];
+    // Draw a small ring of dots around the sphere at this point's latitude
+    const lat = Math.asin(Math.max(-1, Math.min(1, y0)));
+    const ringR = Math.cos(lat) * 1.02;
+
+    ctx.save();
+    for (let a = 0; a < Math.PI * 2; a += Math.PI / 18) {
+      const rx = ringR * Math.cos(a);
+      const rz_w = ringR * Math.sin(a);
+      const [rrx, rry, rrz] = applyM(rotMat, rx, lat > 0 ? Math.abs(y0)*1.02 : y0*1.02, rz_w);
+      if (rrz < -0.1) continue;
+      const scale = w * 0.38;
+      const px = w/2 + rrx * scale;
+      const py = w/2 - rry * scale;
+      const alpha = 0.3 + rrz * 0.5;
+      ctx.beginPath();
+      ctx.arc(px, py, 2.5, 0, Math.PI*2);
+      ctx.fillStyle   = `rgba(200,140,255,${Math.max(0.1, alpha)})`;
+      ctx.shadowColor = 'rgba(200,140,255,.8)';
+      ctx.shadowBlur  = 8;
+      ctx.fill();
+    }
+    ctx.restore();
+
+    // Label at the point itself
+    const [rrx, rry, rrz] = applyM(rotMat, x0, y0, z0);
+    if (rrz > 0) {
+      const scale = w * 0.38;
+      const px = w/2 + rrx * scale;
+      const py = w/2 - rry * scale;
+      ctx.fillStyle  = 'rgba(220,180,255,.7)';
+      ctx.font       = `${Math.max(7, w*0.015)}px JetBrains Mono,monospace`;
+      ctx.textAlign  = 'center';
+      ctx.fillText(`t${idx+1}`, px, py - 10);
+    }
+  });
+}
+
+// ── Mode switcher ──
+function zetaSwitchMode(mode) {
+  zetaMode = mode;
+  [0,1,2].forEach(i => {
+    document.getElementById(`zetaTab${i}`).classList.toggle('active', i===mode);
+    document.getElementById(`zetaMode${i}`).style.display = i===mode ? '' : 'none';
+  });
+  if (mode === 0 && zetaData) zetaDrawSpiral();
+  if (mode === 2 && zetaData) zetaDraw3D();
+}
+
+// ── Accordion toggle ──
+function toggleZetaAccordion(e) {
+  const body = document.getElementById('zetaAccBody');
+  const chev = document.getElementById('zetaAccChev');
+  const hdr  = document.getElementById('zetaAccHeader');
+  const open = body.classList.toggle('open');
+  chev.classList.toggle('open', open);
+  hdr.classList.toggle('open', open);
+  if (open && zetaData) zetaSizeCanvases();
+}
+
+// ── Slider bindings ──
+document.getElementById('zetaTMax').addEventListener('input', function() {
+  document.getElementById('zetaTMaxVal').textContent = this.value;
+});
+document.getElementById('zetaRes').addEventListener('input', function() {
+  document.getElementById('zetaResVal').textContent = parseInt(this.value).toLocaleString();
+});
+
+// ── 3D canvas drag rotation ──
+zeta3dCv.addEventListener('mousedown', e => {
+  z3Drag=true; z3LastX=e.clientX; z3LastY=e.clientY;
+});
+window.addEventListener('mousemove', e => {
+  if (!z3Drag) return;
+  const dx=(e.clientX-z3LastX)*0.012, dy=(e.clientY-z3LastY)*0.012;
+  z3LastX=e.clientX; z3LastY=e.clientY;
+  const Rx=[1,0,0, 0,Math.cos(dy),-Math.sin(dy), 0,Math.sin(dy),Math.cos(dy)];
+  const Ry=[Math.cos(dx),0,Math.sin(dx), 0,1,0, -Math.sin(dx),0,Math.cos(dx)];
+  z3RotMat = mmul(Ry, mmul(Rx, z3RotMat));
+  if (zetaData) zetaDraw3D();
+});
+window.addEventListener('mouseup', () => { z3Drag=false; });
+
+// ── Keep zeta in sync with wave animation ──
+// Re-render spiral/3D every N frames when sync is on
+let _zetaSyncFrame = 0;
+const _origLoop = loop;
+// (We can't easily patch loop, so we use a separate rAF watcher)
+function zetaSyncTick() {
+  requestAnimationFrame(zetaSyncTick);
+  if (!zetaData) return;
+  const syncWave = document.getElementById('zetaSyncWave').checked;
+  if (!syncWave) return;
+  _zetaSyncFrame++;
+  if (_zetaSyncFrame % 4 !== 0) return; // every 4 frames
+  const target = Math.floor((drawProgress / TOTAL_PTS) * zetaData.N);
+  if (target !== zetaDrawProg) {
+    zetaDrawProg = target;
+    if (zetaMode === 0) zetaDrawSpiral();
+    else if (zetaMode === 2) zetaDraw3D();
+  }
+}
+zetaSyncTick();
+
 </script>
 </body>
 </html>
