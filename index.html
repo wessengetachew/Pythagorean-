@@ -2777,27 +2777,36 @@ function exportMultiAngle() {
     gCtx.font = `bold 64px 'JetBrains Mono', monospace`;
     gCtx.fillText(`f(θ) = ${A} + sin(${B}θ) · sin(${C}θ / ${D})`, gridW / 2, PADDING);
     
-    // Draw each image in grid
-    images.forEach((img, idx) => {
-      const col = idx % cols;
-      const row = Math.floor(idx / cols);
-      const x = PADDING + col * (SIZE + PADDING);
-      const y = PADDING + 80 + row * (SIZE + PADDING);
-      
-      // Load and draw image
-      const imgEl = new Image();
-      imgEl.src = img.canvas;
-      gCtx.drawImage(imgEl, x, y, SIZE, SIZE);
-    });
+    // Draw each image in grid - use Promise to handle async image loading
+    let loadedCount = 0;
+    const imageElements = [];
     
-    // Download combined image
-    setTimeout(() => {
-      const link = document.createElement('a');
-      link.download = `polar_multi_${count}views_A${A}_B${B}_C${C}_D${D}.png`;
-      link.href = gridCanvas.toDataURL('image/png');
-      link.click();
-      alert(`Exported combined grid with ${count} views!`);
-    }, 500); // Small delay to ensure images load
+    images.forEach((img, idx) => {
+      const imgEl = new Image();
+      imageElements.push(imgEl);
+      
+      imgEl.onload = () => {
+        loadedCount++;
+        
+        // Draw this image
+        const col = idx % cols;
+        const row = Math.floor(idx / cols);
+        const x = PADDING + col * (SIZE + PADDING);
+        const y = PADDING + 80 + row * (SIZE + PADDING);
+        gCtx.drawImage(imgEl, x, y, SIZE, SIZE);
+        
+        // When all images loaded, download
+        if (loadedCount === count) {
+          const link = document.createElement('a');
+          link.download = `polar_multi_${count}views_A${A}_B${B}_C${C}_D${D}.png`;
+          link.href = gridCanvas.toDataURL('image/png');
+          link.click();
+          alert(`Exported combined grid with ${count} views!`);
+        }
+      };
+      
+      imgEl.src = img.canvas;
+    });
     
   } else {
     // INDIVIDUAL MODE - Download separately
