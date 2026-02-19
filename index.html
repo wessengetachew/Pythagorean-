@@ -861,6 +861,53 @@ button.ctrl.gold-ctrl:hover, button.ctrl.gold-ctrl.on { background:var(--gold); 
 .coord-mode-btn:hover { border-color:var(--green); color:var(--green); }
 .coord-mode-btn.active { background:var(--green); color:#000; border-color:var(--green); }
 
+/* ── Play button glow pulse ──────── */
+@keyframes playGlow {
+  0%,100% { box-shadow: 0 0 0px rgba(94,189,120,0); }
+  50%      { box-shadow: 0 0 14px 4px rgba(94,189,120,0.75), 0 0 28px 8px rgba(94,189,120,0.35); }
+}
+#btnPlay.on {
+  animation: playGlow 1.4s ease-in-out infinite;
+  border-color: var(--green) !important;
+  color: var(--green) !important;
+}
+
+/* ── Belt flash ──────────────────── */
+@keyframes beltFlash {
+  0%,100% { opacity: 0; }
+  10%,90% { opacity: 1; }
+}
+#beltFlashOverlay {
+  position: absolute; inset: 0; pointer-events: none; border-radius: 50%;
+  box-shadow: inset 0 0 0 3px rgba(94,189,120,0);
+  transition: none;
+}
+#beltFlashOverlay.flash {
+  animation: beltFlash 0.7s ease-in-out;
+}
+
+/* ── Param number input boxes ─────── */
+.param-row {
+  display: flex; align-items: center; gap: 6px;
+}
+.param-row input[type=range] {
+  flex: 1; min-width: 0;
+}
+.param-num {
+  width: 54px; flex-shrink: 0;
+  padding: 3px 5px;
+  background: rgba(255,255,255,.05);
+  border: 1px solid rgba(91,156,246,.2);
+  border-radius: 4px;
+  color: var(--gold);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .7rem;
+  text-align: right;
+}
+.param-num:focus {
+  outline: none; border-color: var(--gold);
+}
+
 /* ── Keyboard shortcuts hint ──────── */
 .kb-hint {
   font-size:.5rem; color:rgba(91,156,246,.3); text-align:center;
@@ -1105,12 +1152,47 @@ select {
     <!-- Formula Parameters -->
     <div class="sidebar-label">Formula Parameters</div>
     <div class="side-card">
-      <div class="grid-2">
-        <div class="cg"><label>A — offset</label><input type="range" id="sA" min="0.1" max="4" step="0.05" value="2"><div class="vd" id="dA">2</div></div>
-        <div class="cg"><label>B — outer freq</label><input type="range" id="sB" min="1" max="12" step="0.5" value="1"><div class="vd" id="dB">1</div></div>
-        <div class="cg"><label>C — inner freq</label><input type="range" id="sC" min="1" max="12" step="0.5" value="3"><div class="vd" id="dC">3</div></div>
-        <div class="cg"><label>D — modulation</label><input type="range" id="sD" min="4" max="128" step="1" value="32"><div class="vd" id="dD">32</div></div>
-        <div class="cg"><label>θ range (× π)</label><input type="range" id="sTheta" min="2" max="300" step="1" value="64"><div class="vd" id="dTheta">64π</div></div>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div class="cg">
+          <label>A — amplitude offset</label>
+          <div class="param-row">
+            <input type="range" id="sA" min="0.1" max="8" step="0.05" value="2">
+            <input type="number" class="param-num" id="nA" min="0.1" max="8" step="0.05" value="2">
+          </div>
+          <div class="vd" id="dA">2</div>
+        </div>
+        <div class="cg">
+          <label>B — outer frequency</label>
+          <div class="param-row">
+            <input type="range" id="sB" min="0.5" max="24" step="0.5" value="1">
+            <input type="number" class="param-num" id="nB" min="0.5" max="24" step="0.5" value="1">
+          </div>
+          <div class="vd" id="dB">1</div>
+        </div>
+        <div class="cg">
+          <label>C — inner frequency</label>
+          <div class="param-row">
+            <input type="range" id="sC" min="0.5" max="24" step="0.5" value="3">
+            <input type="number" class="param-num" id="nC" min="0.5" max="24" step="0.5" value="3">
+          </div>
+          <div class="vd" id="dC">3</div>
+        </div>
+        <div class="cg">
+          <label>D — modulation depth</label>
+          <div class="param-row">
+            <input type="range" id="sD" min="1" max="256" step="1" value="32">
+            <input type="number" class="param-num" id="nD" min="1" max="256" step="1" value="32">
+          </div>
+          <div class="vd" id="dD">32</div>
+        </div>
+        <div class="cg">
+          <label>θ range (× π)</label>
+          <div class="param-row">
+            <input type="range" id="sTheta" min="2" max="600" step="1" value="64">
+            <input type="number" class="param-num" id="nTheta" min="2" max="600" step="1" value="64">
+          </div>
+          <div class="vd" id="dTheta">64π</div>
+        </div>
       </div>
     </div>
 
@@ -1146,8 +1228,11 @@ select {
       <div class="coord-mode-grid" id="coordModeGrid">
         <button class="coord-mode-btn" data-mode="polar">⊙ Polar</button>
         <button class="coord-mode-btn active" data-mode="logcylinder"> Log-Cyl</button>
-        <button class="coord-mode-btn" data-mode="logspiral">Spiral</button>
-        <button class="coord-mode-btn" data-mode="poincare">Poincare</button>
+        <button class="coord-mode-btn" data-mode="logspiral">↺ Spiral</button>
+        <button class="coord-mode-btn" data-mode="poincare">◎ Poincaré</button>
+        <button class="coord-mode-btn" data-mode="toroidal">⬡ Toroidal</button>
+        <button class="coord-mode-btn" data-mode="fibonacci">🌀 Fibonacci</button>
+        <button class="coord-mode-btn" data-mode="klein">∞ Klein</button>
       </div>
       <div style="font-size:.56rem;color:rgba(94,189,120,.45);line-height:1.6;margin:7px 0;font-family:'JetBrains Mono',monospace" id="coordModeDesc">Log-Cylinder: u = ln(θ+1), v = f(θ). Compresses the θ axis logarithmically, revealing fine structure near origin.</div>
       <div class="cg">
@@ -1242,8 +1327,9 @@ select {
     </div>
 
     <!-- Sphere canvas -->
-    <div class="sphere-wrap">
+    <div class="sphere-wrap" style="position:relative;">
       <canvas id="polarCanvas"></canvas>
+      <div id="beltFlashOverlay"></div>
 
       <div class="rot-controls">
         <span class="rot-hint">drag to rotate · shift+drag to pan</span>
@@ -2098,21 +2184,26 @@ function cartXY(t, rv) {
 //  SPHERE WIREFRAME
 // ═══════════════════════════════════════════════════════════════
 function drawSphereGrid(ctx) {
-  ctx.lineWidth=0.55;
   for(let li=-2; li<=2; li++){
     const lat=(li/3)*Math.PI/2;
     const cosLat=Math.cos(lat), sinLat=Math.sin(lat);
+    const isBelt = (li===0);  // equator is the belt
+    ctx.lineWidth = isBelt ? 1.4 : 0.55;
     ctx.beginPath(); let first=true;
-    for(let lo=0; lo<=Math.PI*2+0.05; lo+=0.08){
+    for(let lo=0; lo<=Math.PI*2+0.05; lo+=0.07){
       const x=cosLat*Math.cos(lo), y=sinLat, z=cosLat*Math.sin(lo);
       const [rx,ry,rz]=applyM(rotMat,x,y,z);
       const [px,py]=proj(rx,ry,rz);
-      ctx.globalAlpha=Math.max(0.05, 0.06+(rz+1)*0.12);
-      ctx.strokeStyle='#3a7040';
+      const alpha = isBelt
+        ? Math.max(0.18, 0.25+(rz+1)*0.28)   // belt always visible
+        : Math.max(0.05, 0.06+(rz+1)*0.12);
+      ctx.globalAlpha=alpha;
+      ctx.strokeStyle = isBelt ? '#5ebd78' : '#3a7040';
       if(first){ctx.moveTo(px,py);first=false;}else ctx.lineTo(px,py);
     }
     ctx.stroke();
   }
+  ctx.lineWidth=0.55;
   for(let lo=0; lo<8; lo++){
     const lon=(lo/8)*Math.PI*2;
     const cosLon=Math.cos(lon), sinLon=Math.sin(lon);
@@ -2565,8 +2656,9 @@ function loop() {
       } else {
         drawProgress = TOTAL_PTS; paused = true;
         const btn = document.getElementById('btnPlay');
-        btn.textContent = 'Play'; btn.classList.remove('on');
+        btn.textContent = '▶ Play'; btn.classList.remove('on');
         harmSyncStop();
+        stopBeltFlash();
         // Start sequential X→Y→Z rotation after preset finishes drawing
         if (seqRotateOnComplete) { startSeqRotate(); }
       }
@@ -2766,27 +2858,93 @@ function bind(id,dId,setter,fmt,noReset){
 }
 bind('sA','dA',v=>{
   A=v;
+  const el=document.getElementById('nA'); if(el) el.value=v;
   // When A < 0.5, the wave can dip below zero — auto-check the Extend -a toggle
   const cbNeg = document.getElementById('cbNegA');
   if (cbNeg && v < 0.5 && !cbNeg.checked) {
     cbNeg.checked = true; cartNegA = true;
   }
 });
-bind('sB','dB',v=>B=v);
-bind('sC','dC',v=>C=v);
-bind('sD','dD',v=>D=v);
-bind('sTheta','dTheta',v=>thetaTotal=v*Math.PI,v=>v+'π');
+bind('sB','dB',v=>{B=v; const el=document.getElementById('nB'); if(el) el.value=v;});
+bind('sC','dC',v=>{C=v; const el=document.getElementById('nC'); if(el) el.value=v;});
+bind('sD','dD',v=>{D=v; const el=document.getElementById('nD'); if(el) el.value=v;});
+bind('sTheta','dTheta',v=>{thetaTotal=v*Math.PI; const el=document.getElementById('nTheta'); if(el) el.value=v;},v=>v+'π');
 bind('sSpeed','dSpeed',v=>{speed=v;updateSpeedDesc(v); if(!paused && harmSyncEnabled) harmSyncStart(); },v=>v.toFixed(2),true);
+
+// ── Number input ↔ slider two-way sync ──
+['A','B','C','D','Theta'].forEach(p=>{
+  const ni = document.getElementById('n'+p);
+  const si = document.getElementById('s'+p);
+  if(!ni||!si) return;
+  ni.addEventListener('change',function(){
+    const v = Math.max(parseFloat(si.min), Math.min(parseFloat(si.max), parseFloat(this.value)||0));
+    this.value = v;
+    si.value = v;
+    si.dispatchEvent(new Event('input'));
+  });
+});
 
 document.getElementById('btnPlay').addEventListener('click',function(){
   onUserInteraction(); // switches to loop mode after intro
   paused=!paused;
-  this.textContent=paused?'Play':' Pause';
+  this.textContent=paused?'▶ Play':'⏸ Pause';
   this.classList.toggle('on',!paused);
   if(!paused){ if(harmSyncEnabled) harmSyncStart(); }
   else { harmSyncPause(); }
 });
 document.getElementById('btnReset').addEventListener('click',()=>{ harmSyncStop(); hardReset(); });
+
+// ── Belt green flash every 3 seconds while playing ──
+// The equator ring (lat=0) is the visual "belt" on the sphere.
+// We overlay a glowing green ring on the canvas wrapper every 3s.
+let beltFlashInterval = null;
+function startBeltFlash(){
+  if(beltFlashInterval) return;
+  beltFlashInterval = setInterval(()=>{
+    if(paused){ stopBeltFlash(); return; }
+    _triggerBeltFlash();
+  }, 3000);
+}
+function stopBeltFlash(){
+  clearInterval(beltFlashInterval);
+  beltFlashInterval = null;
+}
+function _triggerBeltFlash(){
+  const ov = document.getElementById('beltFlashOverlay');
+  if(!ov) return;
+  ov.classList.remove('flash');
+  // Force reflow so re-adding the class re-triggers animation
+  void ov.offsetWidth;
+  ov.classList.add('flash');
+  // Also draw a glowing equator arc directly on the sphere canvas
+  _drawBeltGlow();
+  setTimeout(()=>{ if(ov) ov.classList.remove('flash'); }, 700);
+}
+function _drawBeltGlow(){
+  // Draw a bright green equator ring on the sphere for one flash frame
+  const cv = document.getElementById('polarCanvas');
+  const ctx = cv ? cv.getContext('2d') : null;
+  if(!ctx) return;
+  const cx2 = cv.width/2, cy2 = cv.height/2;
+  const r2 = Math.min(cx2, cy2) * 0.72 * zoomLevel;
+  ctx.save();
+  ctx.strokeStyle = 'rgba(94,189,120,0.85)';
+  ctx.lineWidth = 3;
+  ctx.shadowColor = '#5ebd78';
+  ctx.shadowBlur = 18;
+  ctx.globalAlpha = 0.9;
+  ctx.beginPath();
+  ctx.ellipse(cx2 + panX, cy2 + panY, r2, r2 * 0.22, 0, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.restore();
+}
+
+// Hook into play button to start/stop flash
+const _origPlayClick = document.getElementById('btnPlay').onclick;
+document.getElementById('btnPlay').addEventListener('click',function(){
+  if(!paused) startBeltFlash();
+  else stopBeltFlash();
+});
 
 // ═══════════════════════════════════════════════════════════════
 //  FULLSCREEN
@@ -2845,7 +3003,7 @@ document.getElementById('btnSkipComplete').addEventListener('click', () => {
   lastCartProg = TOTAL_PTS;
   paused = true;
   const btn = document.getElementById('btnPlay');
-  btn.textContent = 'Play'; btn.classList.remove('on');
+  btn.textContent = '▶ Play'; btn.classList.remove('on');
   harmSyncStop();
   startSeqRotate();
 });
@@ -3507,6 +3665,9 @@ function applyPreset(p, btn, isGap){
   const sl=(id,v,fmt)=>{ document.getElementById(id).value=v; document.getElementById('d'+id.slice(1)).textContent=fmt?fmt(v):v; };
   sl('sA',A); sl('sB',B); sl('sC',C); sl('sD',D);
   sl('sTheta',p.theta,v=>v+'π');
+  // Sync number inputs too
+  ['A','B','C','D'].forEach(k=>{ const ni=document.getElementById('n'+k); if(ni) ni.value=p[k.toLowerCase()]; });
+  const ni=document.getElementById('nTheta'); if(ni) ni.value=p.theta;
   if(activePresetBtn) activePresetBtn.classList.remove('active','gap-active');
   if(btn){ btn.classList.add(isGap?'gap-active':'active'); activePresetBtn=btn; }
 
@@ -3530,7 +3691,8 @@ function applyPreset(p, btn, isGap){
   hardReset();
   paused=false;
   const playBtn=document.getElementById('btnPlay');
-  if(playBtn){ playBtn.textContent=' Pause'; playBtn.classList.add('on'); }
+  if(playBtn){ playBtn.textContent='⏸ Pause'; playBtn.classList.add('on'); }
+  startBeltFlash();
   // Sync harmonics with wave
   harmSyncStart();
 }
@@ -6305,10 +6467,13 @@ let coordMode = 'logcylinder';
 let coordBlend = 1.0;
 
 const COORD_DESCS = {
-  polar:       'Traditional polar/spherical — f(θ) mapped onto sphere surface.',
+  polar:       'Traditional polar/spherical — f(θ) mapped onto sphere surface as latitude × longitude.',
   logcylinder: 'Log-Cylinder: u = ln(θ+1), v = f(θ). Compresses the θ axis logarithmically, revealing fine structure near origin.',
   logspiral:   'Logarithmic Spiral: radius grows as e^(f(θ)/A), angle = θ. Creates an outward unwinding helix on the sphere.',
-  poincare:    'Poincaré Disk (hyperbolic): maps sphere points through the unit-disk model. Distances compress toward the boundary.'
+  poincare:    'Poincaré Disk (hyperbolic): maps sphere points through the unit-disk model. Distances compress toward the boundary.',
+  toroidal:    'Toroidal: wraps the curve onto a torus surface. Major radius = f(θ)/A, minor radius tracks inner angle. Reveals periodicity.',
+  fibonacci:   'Fibonacci / Phyllotaxis: uses the golden angle φ = 137.5° to distribute points on sphere — same pattern as sunflower seeds.',
+  klein:       'Klein Bottle projection: non-orientable surface where the curve self-intersects. Visualises the global topology of the trace.'
 };
 
 // Coord mode panel — always open in dashboard layout
@@ -6366,6 +6531,43 @@ function toSphere(t, r){
     const dr=Math.sqrt(dx*dx+dy*dy)||1;
     const clamp=Math.min(1,dr)/Math.max(dr,0.001);
     tx=dx*clamp; ty=dy*clamp; tz=pz*0.3;
+  } else if(coordMode==='toroidal'){
+    // Torus: major radius R, minor radius r_m
+    // θ_major = t/thetaTotal * 4π (wraps around twice),  θ_minor = f(θ) scaled
+    const tMaj = (t / thetaTotal) * Math.PI * 4;
+    const tMin = (r / (A + 1.2)) * Math.PI * 2;
+    const R = 0.6, rm = 0.35;
+    tx = (R + rm * Math.cos(tMin)) * Math.cos(tMaj);
+    tz = (R + rm * Math.cos(tMin)) * Math.sin(tMaj);
+    ty = rm * Math.sin(tMin);
+    // normalise to unit sphere scale
+    const mag2 = Math.sqrt(tx*tx+ty*ty+tz*tz)||1;
+    tx/=mag2; ty/=mag2; tz/=mag2;
+  } else if(coordMode==='fibonacci'){
+    // Fibonacci / golden-angle phyllotaxis on sphere
+    // i-th point: θ = i * goldenAngle, φ = arccos(1 - 2i/N)
+    const goldenAngle = Math.PI * (3 - Math.sqrt(5)); // ≈ 2.3998 rad = 137.5°
+    const frac = t / thetaTotal;                       // 0→1
+    const phi  = Math.acos(Math.max(-1, Math.min(1, 1 - 2 * frac)));
+    const lam  = t * goldenAngle;
+    const scale = r / (A + 1.2);
+    tx = scale * Math.sin(phi) * Math.cos(lam);
+    ty = scale * Math.cos(phi);
+    tz = scale * Math.sin(phi) * Math.sin(lam);
+  } else if(coordMode==='klein'){
+    // Immersed Klein bottle (Figure-8 immersion)
+    // u ∈ [0, 2π], v ∈ [0, 2π] — map t → u, r → v
+    const u = (t / thetaTotal) * Math.PI * 2;
+    const v = (r / (A + 1.2)) * Math.PI * 2;
+    const cu=Math.cos(u), su=Math.sin(u), cv=Math.cos(v), sv=Math.sin(v);
+    const cu2=Math.cos(u/2), su2=Math.sin(u/2);
+    // Standard figure-8 Klein immersion scaled to unit sphere
+    tx = (2/15)*cu*(3*cv - 30*su + 90*Math.pow(cu,4)*su - 60*Math.pow(cu,6)*su + 5*cu*cv*su)*0.04;
+    ty = (2/15)*su*(3*cv - 3*Math.pow(cu,2)*cv - 48*Math.pow(cu,4)*cv + 48*Math.pow(cu,6)*cv - 60*su + 5*cu*cv*su - 5*Math.pow(cu,3)*cv*su - 80*Math.pow(cu,5)*cv*su + 80*Math.pow(cu,7)*cv*su)*0.04;
+    tz = (2/15)*(-3 + 30*Math.pow(cu,2) - 15*Math.pow(cu,4) + 35*Math.pow(cu,5)*su - Math.pow(cu,2)*sv)*0.04 + sv * su2 * 0.3;
+    // clamp
+    const magK=Math.sqrt(tx*tx+ty*ty+tz*tz)||1;
+    if(magK>1.1){tx/=magK;ty/=magK;tz/=magK;}
   }
 
   // Blend between polar and transformed
@@ -6619,7 +6821,7 @@ function startIntro(){
   hardReset();
   paused = false;
   const playBtn = document.getElementById('btnPlay');
-  if(playBtn){ playBtn.textContent = ' Pause'; playBtn.classList.add('on'); }
+  if(playBtn){ playBtn.textContent = '⏸ Pause'; playBtn.classList.add('on'); }
 
   // Play the welcome harmonic sweep (single pass)
   harmSyncStart();
