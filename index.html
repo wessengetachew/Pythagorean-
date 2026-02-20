@@ -432,18 +432,15 @@
 
 <div class="abstract">
   <div class="abstract-label">Abstract</div>
-  We introduce a partition of the classical Euler product for ζ(2) = π²/6 by
-  prime gap classes. Each gap size <em>g</em> determines a subfamily of primes
-  — those for which the next prime is exactly <em>g</em> away — and each
-  subfamily contributes a well-defined sub-product <em>P<sub>g</sub></em> to
-  ζ(2). We define these sub-products formally, verify that their full product
-  recovers ζ(2), compute the log-weight each gap class carries, and document
-  the twin prime contribution of approximately 34.79% of log ζ(2). We further
-  show that the Hardy-Littlewood Conjecture B, classically a statement about
-  prime-pair <em>counts</em>, implies a precise prediction about the
-  <em>multiplicative weights</em> P<sub>g</sub>(s) in the Euler product — a
-  consequence not previously noted in the literature. The framework extends
-  naturally to ζ(s) for all Re(s) > 1.
+  The Euler product for ζ(2) = π²/6 is ordinarily indexed by primes. We
+  reindex it by prime gap size, grouping each prime with others that share
+  the same forward gap. This yields a family of sub-products
+  <em>P<sub>g</sub></em>, one per gap class, whose full product recovers ζ(2).
+  We show that twin primes (gap 2) account for 34.79% of log ζ(2) — second
+  only to the prime 2 itself — and that the Hardy-Littlewood singular series,
+  classically a density prediction for prime pairs, determines the asymptotic
+  ratio of log-weights between any two gap classes. The framework extends to
+  ζ(s) for all Re(s) > 1.
 </div>
 
 <main>
@@ -474,11 +471,12 @@
 </p>
 
 <p>
-  This reorganization is the gap-class decomposition. It is valid because the
-  Euler product converges absolutely for Re(s) > 1, so any rearrangement
-  converges to the same limit. The decomposition reveals which gap families
-  are most analytically significant — a question the literature on prime gaps
-  has not previously posed in this form.
+  Since the Euler product converges absolutely for Re(s) > 1, any rearrangement
+  of its factors converges to the same limit. Grouping by gap class is therefore
+  valid, and the resulting sub-products are well-defined. What is less obvious
+  is what those sub-products look like numerically, how quickly they converge,
+  and whether their relative sizes have a theoretical explanation. That is what
+  this paper works out.
 </p>
 
 <!-- ──────────────────────────────────────────── -->
@@ -742,12 +740,12 @@
 </div>
 
 <p>
-  The gap-class decomposition gives the Hardy-Littlewood conjecture a new
-  <em>multiplicative</em> interpretation it previously lacked. Classically,
-  S(g) is a density correction applied to each gap independently. In the
-  decomposition framework, it predicts the <em>relative log-weights</em> of
-  the sub-products P<sub>g</sub>(s) — connecting an additive count statistic
-  to a multiplicative analytic object.
+  Classically, S(g) is used as a density correction: it tells you how many
+  prime pairs of gap g to expect up to x. The sub-product framework puts S(g)
+  to a different use. Because the count of primes with gap g governs the size
+  of P<sub>g</sub>(s), and S(g) governs that count asymptotically, the singular
+  series ends up predicting the <em>ratio of log-weights</em> between gap
+  classes — a statement about the Euler product rather than a count of pairs.
 </p>
 
 <div class="theorem">
@@ -765,20 +763,14 @@
 </div>
 
 <p>
-  This is a new consequence of Conjecture B, not previously stated in the
-  literature. It converts a conjecture about prime-pair <em>counts</em> into a
-  prediction about <em>products</em> in the Euler factorization of ζ(s).
-</p>
-
-<p>
-  The singular series directly explains the relative weights observed in
-  Table 1. Since S(2) = S(4) = 2C<sub>2</sub>, twin primes and cousin primes
-  carry identical asymptotic weight — confirmed by the nearly equal prime
-  counts at N = 400M (5,765,048 vs 5,765,808, ratio 0.9999). Since
-  S(6) = 4C<sub>2</sub> = 2·S(2) (because 3|6 opens extra residue classes),
-  sexy primes are predicted to be twice as frequent as twin primes
-  asymptotically. The observed ratio at N = 400M is 1.71, converging
-  toward 2.0.
+  The numerical evidence is in Table 4. Since S(2) = S(4) = 2C<sub>2</sub>,
+  twin primes and cousin primes are predicted to carry equal asymptotic
+  log-weight. At N = 400M the prime counts are 5,765,048 and 5,765,808
+  respectively — a ratio of 0.9999, consistent with convergence to 1.
+  Since S(6) = 4C<sub>2</sub> = 2·S(2) (because 3 divides 6, opening an
+  extra residue class), sexy primes should be twice as dense as twin primes
+  in the limit. The observed ratio is 1.71 at N = 400M, still climbing
+  toward 2.
 </p>
 
 <table class="data-table">
@@ -807,13 +799,13 @@
 </p>
 
 <div class="remark">
-  <span class="remark-label">Remark — Why gap 6 is not equal to gap 2</span>
-  A common misconception is that all small even gaps should contribute equally.
-  The factor 3|6 means that for any prime p, the pair (p, p+6) satisfies
-  p ≡ p+6 (mod 3), so <em>neither</em> is forced to be divisible by 3.
-  This doubles the admissible residue pairs mod 3, hence S(6) = 2·S(2).
-  Gap 4 avoids this because 3∤4, so the residue constraint for p=3 applies
-  normally, giving S(4) = S(2).
+  <span class="remark-label">Remark</span>
+  The factor of 2 between S(6) and S(2) has a clean explanation. For any
+  prime p, the pair (p, p+6) satisfies p ≡ p+6 (mod 3), so <em>neither</em>
+  element is forced to be divisible by 3. This frees up an extra residue class
+  mod 3 and doubles the admissible pair count, giving S(6) = 2·S(2). Gap 4
+  carries no such bonus: since 3 does not divide 4, the residue constraint at
+  p = 3 applies in full, and S(4) = S(2).
 </div>
 
 <!-- ──────────────────────────────────────────── -->
@@ -855,53 +847,57 @@
 <!-- ──────────────────────────────────────────── -->
 <h2><span class="sec-num">7.</span> Open questions</h2>
 
-<p>The gap-class decomposition raises several natural questions:</p>
-
 <p>
-  <strong>Q1.</strong> Does P<sub>2</sub>(2) — the twin prime sub-product — have
-  a closed form in terms of π, the twin prime constant C<sub>2</sub>, or other
-  known constants? Numerically P<sub>2</sub>(2) ≈ 1.18689…, which does not
-  appear to match known constants.
+  <strong>Q1.</strong> Does P<sub>2</sub>(2) have a closed form? Numerically
+  P<sub>2</sub>(2) ≈ 1.18689…, and no obvious relationship to π, C<sub>2</sub>,
+  or other standard constants is apparent. The analogous question for the full
+  Euler product was settled by Euler; for individual gap classes it is open.
 </p>
 
 <p>
-  <strong>Q2.</strong> Does the error term |∏<sub>g</sub> P<sub>g</sub>(s) − ζ(s)|
-  decay at a predictable rate as more gap families are included? The data
-  suggests exponential decay in the number of gap families included.
+  <strong>Q2.</strong> The partial products in Table 2 suggest the relative
+  error decays roughly as 1/g after the first few families. Is there a
+  precise asymptotic for the tail |ζ(s) − ∏<sub>g ≤ G</sub> P<sub>g</sub>(s)|
+  as G → ∞?
 </p>
 
 <p>
-  <strong>Q3.</strong> Is there an ordering of gap classes that accelerates
-  convergence — i.e., is the natural ordering by gap size optimal?
+  <strong>Q3.</strong> Ordering gap classes by size is natural but not obviously
+  optimal for convergence. Is there an ordering — by log-weight, by prime
+  density, or otherwise — that achieves faster convergence to ζ(s)?
 </p>
 
 <p>
-  <strong>Q4.</strong> Do gap-class weights impose necessary conditions on
-  unproven conjectures? Specifically, if twin primes were finite in number,
-  P<sub>2</sub>(s) would be a finite product converging to a rational
-  function of primes, which would make the decomposition non-analytic in a
-  way detectable numerically.
+  <strong>Q4.</strong> If twin primes are finite in number, P<sub>2</sub>(s)
+  is a finite product and therefore a rational function of s with poles at
+  s = 2πik/log p for each twin prime p. The full product ζ(s) has no such
+  poles on Re(s) = 1, so P<sub>2</sub>(s) would have to be cancelled exactly
+  by contributions from other gap classes. Whether such cancellation is
+  consistent with the known analytic properties of ζ(s) is unclear; if it is
+  not, that would be a new obstruction to the finiteness of twin primes.
 </p>
 
 <!-- ──────────────────────────────────────────── -->
 <h2><span class="sec-num">8.</span> Conclusion</h2>
 
 <p>
-  We have defined a partition of the Euler product for ζ(s) by prime gap
-  classes, verified its validity via absolute convergence, and computed the
-  log-weights numerically up to N = 400 million. The key empirical finding is
-  that twin primes (gap 2) carry approximately 34.79% of log ζ(2), second only
-  to prime 2 itself. We further show that the Hardy-Littlewood Conjecture B —
-  classically a statement about prime-pair counts — implies a new prediction
-  about the multiplicative weights P<sub>g</sub>(s) in the Euler product
-  (Proposition 1), which is verifiable computationally and appears to be a
-  novel consequence of the conjecture.
+  Reindexing the Euler product by prime gap class produces a clean partition
+  of ζ(s) into sub-products P<sub>g</sub>(s), each associated with a named
+  family of primes. The twin prime family dominates: gap 2 accounts for 34.79%
+  of log ζ(2) at N = 400 million, and the proportion appears stable as N grows.
+  The Hardy-Littlewood singular series, applied to this setting, predicts the
+  ratio of log-weights between any two gap classes (Proposition 1) — a
+  consequence of Conjecture B that does not seem to have been noted before,
+  and one that is directly checkable against data.
 </p>
 
 <p>
-  To our knowledge, both the gap-class sub-products P<sub>g</sub>(s) as objects
-  of study and the multiplicative restatement of Hardy-Littlewood do not appear
-  in the existing literature on prime gaps or the Euler product.
+  The most interesting open problem may be Q4. If the analytic constraints
+  imposed by ζ(s) are strong enough to force P<sub>2</sub>(s) to be an
+  infinite product, that would be a new avenue toward the infinitude of twin
+  primes — distinct from sieve methods and independent of the Riemann
+  hypothesis. Whether the gap-class framework is rich enough to carry that
+  argument is not yet clear.
 </p>
 
 </main>
